@@ -292,7 +292,7 @@
         
         button:disabled { background: #11141d !important; color: #334155 !important; border-color: #1e293b !important; cursor: not-allowed; }
 
-        .lobby-box { max-width: 380px; margin: 120px auto; text-align: center; background: #0f1422; border: 2px solid #1e293b; padding: 30px; border-radius: 166px; }
+        .lobby-box { max-width: 380px; margin: 120px auto; text-align: center; background: #0f1422; border: 2px solid #1e293b; padding: 30px; border-radius: 16px; }
         .lobby-box input { background: #060914; color: #fff; border: 1px solid #334155; padding: 12px; width: 100%; margin-bottom: 15px; text-align: center; border-radius: 8px; font-size: 14px; }
 
         /* CONSOLA ADMIN OPTIMIZADA */
@@ -694,7 +694,8 @@ function guardarBD() {
 window.ingresarAlSistema = function() {
     let idInput = document.getElementById('login-nombre');
     if (!idInput) return;
-    let id = idInput.value.trim().toLowerCase().replace(/[.#$\[\]]/g, ""); // Limpieza para Firebase
+    // Limpieza estricta del ID quitando espacios iniciales/finales y caracteres prohibidos por Firebase
+    let id = idInput.value.trim().toLowerCase().replace(/[.#$\[\]\s]/g, "");
     if(!id) return alert("Identificador Requerido.");
 
     if(!baseDatos.jugadores[id]) {
@@ -725,6 +726,7 @@ window.ingresarAlSistema = function() {
     document.getElementById('pantalla-mercado').style.display = 'block';
 
     cargarDatosPerfilEnDOM();
+    refrescarPantallaGamer();
 };
 
 function actualizarComprasPorTiempo() {
@@ -920,6 +922,7 @@ window.inyectarObjetoNuevoMaster = function() {
 function actualizarSelectorUsuariosBanco() {
     let sb = document.getElementById('adm-banco-usuario');
     let sr = document.getElementById('adm-reset-usuario');
+    if(!sb || !sr) return;
     sb.innerHTML = ''; sr.innerHTML = '';
     
     Object.keys(baseDatos.jugadores).forEach(id => {
@@ -954,13 +957,21 @@ window.eliminarProductoMaster = function(id) {
     }
 };
 
+window.conmutarEstadoTienda = function(tiendaProp, estado) {
+    baseDatos[tiendaProp] = estado;
+    guardarBD();
+};
+
 function redibujarConsolaAdminMaster() {
-    document.getElementById('chk-open-legal').checked = baseDatos.legalOpen;
-    document.getElementById('chk-open-pack').checked = baseDatos.packOpen;
-    document.getElementById('chk-open-illegal').checked = baseDatos.illegalOpen;
+    document.getElementById('chk-open-legal').checked = baseDatos.legalOpen !== false;
+    document.getElementById('chk-open-pack').checked = baseDatos.packOpen !== false;
+    document.getElementById('chk-open-illegal').checked = baseDatos.illegalOpen !== false;
     actualizarSelectorUsuariosBanco();
 
-    let al = document.getElementById('admin-inventario-global'); al.innerHTML = '';
+    let al = document.getElementById('admin-inventario-global'); 
+    if(!al) return;
+    al.innerHTML = '';
+    
     baseDatos.productos.forEach(p => {
         let esI = p.tienda === 'illegal';
         al.innerHTML += `
@@ -968,4 +979,129 @@ function redibujarConsolaAdminMaster() {
                 <button class="btn-delete-admin" onclick="eliminarProductoMaster(${p.id})">X</button>
                 <div style="color:#fff; font-size:13px;">${p.icon} ${p.nombre} [${p.tienda.toUpperCase()}]</div>
                 <div class="admin-edit-row">
-                    <div class="admin-edit-field"><label>Coste</label><input type="number" value="${esI?p.precioPf:p.precio}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, '${esI?'precioPf':'precio'}',
+                    <div class="admin-edit-field">
+                        <label>Coste</label>
+                        <input type="number" value="${esI ? p.precioPf : p.precio}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, '${esI ? 'precioPf' : 'precio'}', this.value)">
+                    </div>
+                    <div class="admin-edit-field">
+                        <label>Stock</label>
+                        <input type="number" value="${p.stock}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, 'stock', this.value)">
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+window.invocarTerminalMercader = function() {
+    let pass = prompt("INTRODUCE LA CLAVE DE ACCESO ALPHA-MERCADER:");
+    if(pass === "silph123") { // Puedes cambiar tu clave aquí
+        document.getElementById('pantalla-admin-master').style.display = 'block';
+        redibujarConsolaAdminMaster();
+    } else {
+        alert("ACCESO DENEGADO. CÓDIGO INCORRECTO.");
+    }
+};
+
+window.apagarTerminalMercader = function() {
+    document.getElementById('pantalla-admin-master').style.display = 'none';
+};
+
+window.comprarObjetoGamer = function(id) {
+    if(!userSesion) return;
+    let u = baseDatos.jugadores[userSesion];
+    let p = baseDatos.productos.find(prod => prod.id === id);
+    if(!p || p.stock <= 0) return alert("Objeto no disponible o sin stock.");
+
+    if(u.comprasDisponibles <= 0) return alert("No te quedan compras disponibles en este periodo de 6 horas.");
+
+    if(p.tienda === 'illegal') {
+        if(u.pf < p.precioPf) return alert("No tienes suficientes Puntos de Favor (PF).");
+        u.pf -= p.precioPf;
+    } else {
+        if(u.dinero < p.precio) return alert("No tienes suficiente dinero (P₠).");
+        u.dinero -= p.precio;
+        u.pf += (p.pf || 0);
+    }
+
+    p.stock--;
+    u.comprasDisponibles--;
+    
+    if(!u.inventario) u.inventario = [];
+    u.inventario.push({ nombre: p.nombre, icon: p.icon, fecha: new Date().toLocaleDateString() });
+    
+    guardarBD();
+    alert(`¡Has comprado ${p.nombre} con éxito!`);
+};
+
+function refrescarPantallaGamer() {
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
+
+    document.getElementById('usr-nombre').innerText = userSesion.toUpperCase();
+    document.getElementById('usr-dinero').innerText = u.dinero;
+    document.getElementById('usr-pf').innerText = u.pf;
+    document.getElementById('usr-compras').innerText = `${u.comprasDisponibles}/${MAX_COMPRAS}`;
+
+    let invBox = document.getElementById('lista-inventario');
+    invBox.innerHTML = '';
+    let itemsFiltrados = u.inventario ? u.inventario.filter(i => i.nombre !== "Mochila Inicial") : [];
+    if(itemsFiltrados.length === 0) {
+        invBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Mochila vacía.</span>';
+    } else {
+        itemsFiltrados.forEach(i => {
+            invBox.innerHTML += `<span style="background:#1e293b; padding:4px 8px; border-radius:4px; font-size:12px; border:1px solid #334155;" title="${i.fecha}">${i.icon || '📦'} ${i.nombre}</span>`;
+        });
+    }
+
+    renderizarAparadorPublico('legal', 'contenedor-legal-view', baseDatos.legalOpen);
+    renderizarAparadorPublico('pack', 'contenedor-pack-view', baseDatos.packOpen);
+    renderizarAparadorPublico('illegal', 'contenedor-hacker-view', baseDatos.illegalOpen);
+}
+
+function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
+    let box = document.getElementById(contenedorId);
+    if(!box) return;
+    box.innerHTML = '';
+
+    if(estaAbierta === false) {
+        box.innerHTML = `<div class="tienda-cerrada-msg">🔒 Red Cerrada temporalmente por el Administrador</div>`;
+        return;
+    }
+
+    let prods = baseDatos.productos.filter(p => p.tienda === tiendaTipo);
+    if(prods.length === 0) {
+        box.innerHTML = `<div style="text-align:center; color:var(--texto-secundario); padding:30px;">No hay artículos disponibles en este aparador.</div>`;
+        return;
+    }
+
+    let htmlGrid = '<div class="items-grid">';
+    prods.forEach(p => {
+        let esI = tiendaTipo === 'illegal';
+        let txtCoste = esI ? `${p.precioPf} PF` : `${p.precio} P₠`;
+        let txtDetalle = p.desc ? `<div class="item-desc">${p.desc}</div>` : '';
+        let txtEstrat = p.estrategia ? `<div class="item-estrategia">💡 ${p.estrategia}</div>` : '';
+        let txtCat = p.cat ? `<div class="categoria-tag">${p.cat}</div>` : '';
+        let deshabilitado = p.stock <= 0 ? 'disabled' : '';
+        let txtBoton = p.stock <= 0 ? 'AGOTADO' : `ADQUIRIR MÓDULO (${txtCoste})`;
+
+        htmlGrid += `
+            <div class="item-card">
+                <div>
+                    ${txtCat}
+                    <div class="item-icon">${p.icon}</div>
+                    <div class="item-titulo">${p.nombre}</div>
+                    ${txtDetalle}
+                    ${txtEstrat}
+                </div>
+                <div>
+                    <div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px; font-family:'Orbitron'">STOCK DISPONIBLE: ${p.stock}</div>
+                    <button class="btn-accion" ${deshabilitado} onclick="comprarObjetoGamer(${p.id})">${txtBoton}</button>
+                </div>
+            </div>`;
+    });
+    htmlGrid += '</div>';
+    box.innerHTML = htmlGrid;
+}
+</script>
+</body>
+</html>
