@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Tienda - Pokémon Locke</title>
+    <style>
+        :root {
+            --bg-principal: #0d1321;
+            --bg-tarjeta: #1d2d44;
+            --bg-admin: #101726;
+            --texto: #f0ebd8;
+            --oro: #ffbe0b;
+            --azul-pf: #3a86ff;
+            --neon-verde: #06d6a0;
+            --neon-rojo: #ef476f;
+            --morado-gym: #8338ec;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-principal);
+            color: var(--texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .contenedor {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1d2d44 0%, #0d1321 100%);
+            border-radius: 15px;
+            border: 2px solid var(--azul-pf);
+            box-shadow: 0 0 15px rgba(58, 134, 255, 0.3);
+            margin-bottom: 25px;
+        }
+
+        h1 { color: var(--oro); margin: 0; font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        h2 { border-bottom: 2px solid #3e5c76; padding-bottom: 10px; margin-top: 40px; color: #fff; }
+
+        .marcador-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .caja-stat {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-admin-toggle {
+            background: #3e5c76;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-admin-toggle:hover { background: #748cab; }
+
+        /* Estilos de Tienda y Tarjetas */
+        .grid-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tarjeta {
+            background-color: var(--bg-tarjeta);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #3e5c76;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .tarjeta.gym-item { border-color: var(--morado-gym); }
+
+        .etiqueta-tipo {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .info-precio { color: var(--oro); font-weight: bold; font-size: 1.4rem; margin: 10px 0 5px 0; }
+        .info-pf { color: var(--azul-pf); font-weight: bold; margin-bottom: 5px; }
+        .info-stock { color: #b0c4de; font-size: 0.9rem; }
+        .info-slots { color: #ff9f1c; font-size: 0.85rem; font-style: italic; }
+
+        .btn-comprar {
+            background: linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #2b3a8a;
+        }
+        .btn-comprar:active { transform: translateY(4px); box-shadow: none; }
+        .btn-comprar:disabled {
+            background: #4a5568 !important;
+            color: #a0aec0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Sección Administrador */
+        .seccion-admin {
+            background-color: var(--bg-admin);
+            border: 2px dashed var(--oro);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .seccion-admin.activo { display: block; }
+
+        .control-admin {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .switch-container { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+
+        /* Estado bloqueado */
+        .tienda-cerrada-msg {
+            text-align: center;
+            padding: 40px;
+            background: rgba(131, 56, 236, 0.1);
+            border: 2px dashed var(--morado-gym);
+            border-radius: 12px;
+            color: #d6bbfb;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="contenedor">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <span style="font-size: 0.9rem; color: #748cab;">Locke System v2.0</span>
+        <button class="btn-admin-toggle" onclick="toggleAdminPanel()">⚙️ Abrir Panel Master</button>
+    </div>
+
+    <!-- PANEL DE ADMINISTRACIÓN -->
+    <div class="seccion-admin" id="panel-admin">
+        <h3>🎛️ Panel de Control del Master</h3>
+        <div class="control-admin">
+            <div class="switch-container">
+                <input type="checkbox" id="switch-gym" onchange="cambiarEstadoGym(this.checked)" style="transform: scale(1.5); cursor:pointer;">
+                <label for="switch-gym" style="color: var(--morado-gym);">🔓 Activar Tienda del Gimnasio</label>
+            </div>
+            <button onclick="reiniciarLimitesDiarios()" style="background: var(--neon-rojo); color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">
+                🔄 Forzar Reinicio 24h (Resetear Compras)
+            </button>
+        </div>
+        <p style="font-size:0.85rem; color: var(--oro);">*Nota: Los cambios que hagas aquí se guardan localmente en este navegador.</p>
+    </div>
+
+    <!-- CABECERA JUGADOR -->
+    <header>
+        <h1>TIENDA OFICIAL POKÉMON LOCKE</h1>
+        <div class="marcador-stats">
+            <div class="caja-stat">🎒 Dinero: <span id="player-money" style="color: var(--oro); font-weight:bold;">0</span> P₠</div>
+            <div class="caja-stat">⭐ Puntos Favor: <span id="player-pf" style="color: var(--azul-pf); font-weight:bold;">0</span> PF</div>
+            <div class="caja-stat">🕒 Compras de Hoy: <span id="player-slots" style="color: var(--neon-verde); font-weight:bold;">0 / 3</span></div>
+        </div>
+    </header>
+
+    <!-- TIENDA LEGAL -->
+    <h2>🛒 Tienda Legal (Máx 3 compras al día)</h2>
+    <div class="grid-productos" id="tienda-legal"></div>
+
+    <!-- TIENDA DE GIMNASIO -->
+    <h2>⚔️ Tienda Especial de Gimnasio</h2>
+    <div id="contenedor-tienda-gym">
+        <div class="grid-productos" id="tienda-gym"></div>
+    </div>
+</div>
+
+<script>
+// Base de datos de productos (Se guarda en LocalStorage para no perder datos al recargar)
+const productosIniciales = [
+    { id: 1, categoria: 'legal', tipo: 'Objeto', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, slots: 1 },
+    { id: 2, categoria: 'legal', tipo: 'Objeto', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, slots: 1 },
+    { id: 3, categoria: 'legal', tipo: 'Objeto', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, slots: 1 },
+    { id: 4, categoria: 'legal', tipo: 'Objeto', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, slots: 1 },
+    { id: 5, categoria: 'legal', tipo: 'Pack', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 3, slots: 2, desc: 'Contiene: 3 Baya Oran + 3 Baya Atania' },
+    { id: 6, categoria: 'legal', tipo: 'Pack', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 2, slots: 2, desc: 'Contiene: 1 Banda Focus + 1 Hierro' },
+    // Tienda del gimnasio
+    { id: 7, categoria: 'gym', tipo: 'Gimnasio', nombre: 'Banda Focus', precio: 2500, pf: 3, stock: 4, slots: 1 },
+    { id: 8, categoria: 'gym', tipo: 'Gimnasio', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, slots: 1 }
+];
+
+// Estado global de la partida
+let estado = {
+    productos: productosIniciales,
+    jugador: { dinero: 15000, pf: 0, slotsUsados: 0, ultimaCompraFecha: "" },
+    gymAbierto: false
+};
+
+// Cargar del almacenamiento local si ya existe historial
+if (localStorage.getItem('locke_tienda_estado')) {
+    estado = JSON.parse(localStorage.getItem('locke_tienda_estado'));
+}
+
+function guardarEstado() {
+    localStorage.setItem('locke_tienda_estado', JSON.stringify(estado));
+}
+
+// Verificar si han pasado 24 horas desde la última compra para resetear los slots
+function verificarTiempo24h() {
+    if (!estado.jugador.ultimaCompraFecha) return;
+    
+    const ahora = new Date().getTime();
+    const ultimaCompra = new Date(estado.jugador.ultimaCompraFecha).getTime();
+    const veinticuatroHoras = 24 * 60 * 60 * 1000;
+
+    if (ahora - ultimaCompra >= veinticuatroHoras) {
+        estado.jugador.slotsUsados = 0;
+        guardarEstado();
+    }
+}
+
+function renderizarTiendas() {
+    verificarTiempo24h();
+    
+    const contenedorLegal = document.getElementById('tienda-legal');
+    const contenedorGym = document.getElementById('tienda-gym');
+    const cajaGym = document.getElementById('contenedor-tienda-gym');
+    
+    contenedorLegal.innerHTML = '';
+    contenedorGym.innerHTML = '';
+
+    // Actualizar marcadores globales del jugador
+    document.getElementById('player-money').innerText = estado.jugador.dinero.toLocaleString();
+    document.getElementById('player-pf').innerText = estado.jugador.pf;
+    document.getElementById('player-slots').innerText = `${estado.jugador.slotsUsados} / 3`;
+    document.getElementById('switch-gym').checked = estado.gymAbierto;
+
+    // Controlar visibilidad de la tienda del Gym
+    if (!estado.gymAbierto) {
+        cajaGym.innerHTML = `<div class="tienda-cerrada-msg">🔒 La tienda del gimnasio está cerrada por el Master. Se abrirá cuando sea el momento adecuado.</div>`;
+    } else {
+        cajaGym.innerHTML = `<div class="grid-productos" id="tienda-gym"></div>`;
+    }
+
+    const destinoGym = document.getElementById('tienda-gym');
+
+    estado.productos.forEach(prod => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = `tarjeta ${prod.categoria === 'gym' ? 'gym-item' : ''}`;
+        
+        const colorEtiqueta = prod.tipo === 'Pack' ? '#d35400' : (prod.tipo === 'Gimnasio' ? var(--morado-gym) : '#27ae60');
+        const txtBoton = prod.stock <= 0 ? 'AGOTADO' : 'COMPRAR';
+        
+        // Validaciones para desactivar botón de compra
+        const tieneDinero = estado.jugador.dinero >= prod.precio;
+        const tieneSlotsDiarios = (estado.jugador.slotsUsados + prod.slots) <= 3;
+        const hayStock = prod.stock > 0;
+        const botonDesactivado = !tieneDinero || !tieneSlotsDiarios || !hayStock;
+
+        tarjeta.innerHTML = `
+            <span class="etiqueta-tipo" style="background: ${prod.categoria === 'gym' ? '#8338ec' : (prod.tipo === 'Pack' ? '#d35400' : '#27ae60')}">${prod.tipo}</span>
+            <h3 style="margin: 0 0 5px 0;">${prod.nombre}</h3>
+            <p style="font-size:0.85rem; color:#a0aec0; margin:0;">${prod.desc || 'Objeto útil para la supervivencia en la ruta.'}</p>
+            
+            <div>
+                <div class="info-precio">${prod.precio.toLocaleString()} P₠</div>
+                <div class="info-pf">⭐ +${prod.pf} PF</div>
+                <div class="info-slots">Consume: ${prod.slots} ${prod.slots > 1 ? 'compras' : 'compra'} del día</div>
+                <div class="info-stock" style="margin-top:10px;">Stock: <strong style="color:${hayStock ? var(--neon-verde) : var(--neon-rojo)}">${hayStock ? prod.stock : 'AGOTADO'}</strong></div>
+            </div>
+
+            <button class="btn-comprar" ${botonDesactivado ? 'disabled' : ''} onclick="procesarCompra(${prod.id})">
+                ${txtBoton}
+            </button>
+        `;
+
+        if (prod.categoria === 'legal') {
+            contenedorLegal.appendChild(tarjeta);
+        } else if (prod.categoria === 'gym' && estado.gymAbierto) {
+            destinoGym.appendChild(tarjeta);
+        }
+    });
+}
+
+function procesarCompra(id) {
+    const prod = estado.productos.find(p => p.id === id);
+    
+    if (prod && prod.stock > 0 && estado.jugador.dinero >= prod.precio && (estado.jugador.slotsUsados + prod.slots) <= 3) {
+        // Restar stock, restar dinero, añadir PF y sumar slots de compra usados
+        prod.stock--;
+        estado.jugador.dinero -= prod.precio;
+        estado.jugador.pf += prod.pf;
+        estado.jugador.slotsUsados += prod.slots;
+        estado.jugador.ultimaCompraFecha = new Date().toISOString();
+        
+        guardarEstado();
+        renderizarTiendas();
+        alert(`🛒 ¡Compra realizada con éxito!\nHas adquirido: ${prod.nombre}.\nGastaste ${prod.slots} slot(s) de tu límite diario.`);
+    }
+}
+
+// Funciones exclusivas del Administrador/Master
+function toggleAdminPanel() {
+    const panel = document.getElementById('panel-admin');
+    panel.classList.toggle('activo');
+}
+
+function cambiarEstadoGym(abierto) {
+    estado.gymAbierto = abierto;
+    guardarEstado();
+    renderizarTiendas();
+}
+
+function reiniciarLimitesDiarios() {
+    estado.jugador.slotsUsados = 0;
+    guardarEstado();
+    renderizarTiendas();
+    alert("🔄 Los cupos de compra diaria han sido reiniciados a 0 para el jugador.");
+}
+
+// Inicialización de la tienda en pantalla
+renderizarTiendas();
+</script>
+
+</body>
+</html>
