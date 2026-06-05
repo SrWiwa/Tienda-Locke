@@ -456,6 +456,23 @@
     
     <div class="grid-admin">
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px; height:fit-content;">
+            
+            <h3 style="color:var(--neon-legal); margin-top:0; font-size:14px; font-family:'Orbitron';">💰 AJUSTAR EFECTIVO ENTRENADORES</h3>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:11px; color:var(--texto-secundario);">Seleccionar Entrenador:</label>
+                <select id="adm-banco-usuario" style="width:100%; padding:8px; background:#060914; color:#fff; border:1px solid #1e293b; border-radius:4px; text-transform:uppercase; font-family:'Orbitron'; font-size:12px;"></select>
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="font-size:11px; color:var(--texto-secundario);">Cantidad exacta de P₠:</label>
+                <input type="number" id="adm-banco-cantidad" class="admin-input-custom" placeholder="Ej: 3445" style="font-size:14px; font-weight:bold; color:var(--neon-legal);">
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <button class="btn-accion" style="background:#1b4d3e; border-color:var(--neon-legal); color:var(--neon-legal); font-size:11px;" onclick="modificarFondosEntrenador('SUMAR')">➕ AÑADIR</button>
+                <button class="btn-accion" style="background:#4c1d1d; border-color:#ef4444; color:#ef4444; font-size:11px;" onclick="modificarFondosEntrenador('RESTAR')">➖ QUITAR</button>
+            </div>
+
+            <hr style="border-color:#1e293b; margin:20px 0;">
+
             <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">🔓 INTERRUPTORES DE RED</h3>
             <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer; font-size:13px;">
                 <input type="checkbox" id="chk-open-legal" onchange="conmutarEstadoTienda('legalOpen', this.checked)"> 🟢 TIENDA LEGAL ABIERTA
@@ -773,6 +790,53 @@ function inyectarObjetoNuevoMaster() {
     document.getElementById('ins-nombre').value = ''; document.getElementById('ins-precio').value = '';
 }
 
+/* --- LOGICA EXCLUSIVA GESTION DE DINERO MERCADER --- */
+function actualizarSelectorUsuariosBanco() {
+    let select = document.getElementById('adm-banco-usuario');
+    if(!select) return;
+    select.innerHTML = '';
+    
+    let listasJugadores = Object.keys(baseDatos.jugadores);
+    if(listasJugadores.length === 0) {
+        select.innerHTML = `<option value="">--- NO HAY ENTRENADORES ---</option>`;
+        return;
+    }
+    
+    listasJugadores.forEach(id => {
+        let u = baseDatos.jugadores[id];
+        select.innerHTML += `<option value="${id}">${id.toUpperCase()} (Saldo: ${Number(u.dinero).toLocaleString()} P₠)</option>`;
+    });
+}
+
+function modificarFondosEntrenador(operacion) {
+    let userId = document.getElementById('adm-banco-usuario').value;
+    let cantidadInput = document.getElementById('adm-banco-cantidad');
+    let cantidad = parseInt(cantidadInput.value);
+
+    if(!userId || userId === "") return alert("No hay ningún entrenador seleccionado.");
+    if(isNaN(cantidad) || cantidad <= 0) return alert("Por favor, introduce una cantidad válida y mayor a 0.");
+
+    let usuario = baseDatos.jugadores[userId];
+    if(!usuario) return alert("El entrenador seleccionado no existe.");
+
+    if(operacion === 'SUMAR') {
+        usuario.dinero += cantidad;
+    } else if(operacion === 'RESTAR') {
+        if(usuario.dinero - cantidad < 0) {
+            if(!confirm(`El saldo actual es ${usuario.dinero}. Si restas ${cantidad}, quedará en negativo (${usuario.dinero - cantidad}). ¿Quieres continuar?`)) {
+                return;
+            }
+        }
+        usuario.dinero -= cantidad;
+    }
+
+    guardarBD();
+    cantidadInput.value = ''; // Limpiar campo
+    actualizarSelectorUsuariosBanco(); // Refrescar los saldos en el selector
+    refrescarPantallaGamer(); // Actualizar cabecera del jugador en tiempo real si está activa
+    alert(`Operación realizada con éxito. Nuevo saldo de ${userId.toUpperCase()}: ${Number(usuario.dinero).toLocaleString()} P₠`);
+}
+
 /* --- ACTUALIZACIÓN EN TIEMPO REAL DESDE LA CONSOLA --- */
 function actualizarPropiedadProducto(id, propiedad, valor) {
     let p = baseDatos.productos.find(pr => pr.id === id);
@@ -796,6 +860,9 @@ function redibujarConsolaAdminMaster() {
     document.getElementById('chk-open-legal').checked = baseDatos.legalOpen;
     document.getElementById('chk-open-pack').checked = baseDatos.packOpen;
     document.getElementById('chk-open-illegal').checked = baseDatos.illegalOpen;
+
+    // Actualizamos dinámicamente la lista de usuarios modificables en banco
+    actualizarSelectorUsuariosBanco();
 
     let al = document.getElementById('admin-inventario-global'); 
     al.innerHTML = '';
