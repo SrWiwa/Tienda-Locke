@@ -3,209 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sindicato Oculto - Suministros</title>
+    <title>Sindicato Oculto - Poké Tienda Centro Oculto</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;400;600&family=Space+Mono&display=swap');
+        /* Importamos una tipografía Pixel Art estilo Pokémon */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Montserrat:wght@400;600&display=swap');
 
         :root {
-            --bg-principal: #0b0b0d;
-            --bg-panel: #131317;
-            --borde-sutil: #23232a;
-            --color-texto: #e2e2e9;
-            --color-oro: #c5a880;
-            --color-ilegal: #88222d;
+            --bg-principal: #eef5f9; /* Azul cielo muy claro estilo menú limpio */
+            --bg-panel: #ffffff;
+            --borde-pixel: #4a4a4a;
+            --color-texto: #222222;
+            --color-azul-poke: #3a86c8;
+            --color-rojo-poke: #e63946;
+            --color-oro-poke: #ffb703;
+            --color-verde-poke: #2a9d8f;
         }
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Press Start 2P', monospace; /* Forzamos estilo pixel */
+            font-size: 11px;
+            image-rendering: pixelated;
+        }
 
         body {
             background-color: var(--bg-principal);
             color: var(--color-texto);
-            font-family: 'Montserrat', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             overflow-x: hidden;
         }
 
-        /* ICONOS GENERADOS POR CSS (Sin dependencias externas) */
+        /* ICONOS GENERADOS POR CSS ESTILO PIXEL SIMPLIFICADO */
         .item-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 15px auto;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            font-family: 'Space Mono', monospace;
-            font-size: 1.2rem;
+            border: 3px solid var(--borde-pixel);
+            font-size: 14px;
             font-weight: bold;
             color: #fff;
+            background: #cbd5e1;
+            box-shadow: 2px 2px 0px #888;
         }
-        .icon-iron { background: #4a4e69; border: 2px solid #9a8c98; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-        .icon-protein { background: #283618; border: 2px solid #606c38; }
-        .icon-berry { background: #bc4749; border: 2px solid #f77f00; border-radius: 50%; }
-        .icon-pack { background: #1d3557; border: 2px solid #457b9d; clip-path: polygon(25% 0%, 75% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%); }
-        .icon-hack { background: #3f0d12; border: 2px solid #88222d; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); text-shadow: 0 0 5px #ff4d5a; }
-        .icon-generic { background: #2b2d42; border: 2px solid #8d99ae; }
+        .icon-iron { background: #94a3b8; border-radius: 4px; }
+        .icon-protein { background: #f87171; border-radius: 4px; }
+        .icon-berry { background: #4ade80; border-radius: 50%; }
+        .icon-evo { background: #c084fc; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+        .icon-pack { background: #fbbf24; border-radius: 2px; }
+        .icon-hack { background: #334155; border-color: var(--color-rojo-poke); }
+        .icon-generic { background: #cbd5e1; }
 
-        /* ANIMACIÓN DE FUNDIDO GENERAL */
-        .fade-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0;
-        }
-        .fade-overlay.activo { opacity: 1; transition: opacity 0.5s ease-in-out; }
-
-        /* CONTENEDOR EFECTO PUERTA SE DESLIZA */
+        /* REWORK COMPLETO DE ANIMACIÓN DE PUERTAS (SIN BUGS DE BLOQUEO) */
         .puerta-animacion {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             display: flex;
             z-index: 9998;
-            pointer-events: none;
+            pointer-events: none; /* No bloquea clics mientras no actúe */
+            transition: visibility 0.8s;
+            visibility: visible;
+        }
+        .puerta-animacion.oculta {
+            visibility: hidden;
         }
         .puerta-izq, .puerta-der {
-            width: 50%; height: 100%; background: #16161c;
-            border: 2px solid var(--borde-sutil);
-            transform: translateX(-100%);
+            width: 50%; height: 100%; 
+            background: #f1f5f9;
+            border: 6px solid var(--borde-pixel);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .puerta-animacion.cerrar .puerta-izq { transform: translateX(0); transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1); }
-        .puerta-animacion.cerrar .puerta-der { transform: translateX(0); transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1); }
-        .puerta-animacion.abrir .puerta-izq { transform: translateX(-100%); transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); }
-        .puerta-animacion.abrir .puerta-der { transform: translateX(100%); transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1); }
+        .puerta-izq { border-right: 3px solid var(--borde-pixel); transform: translateX(0); }
+        .puerta-der { border-left: 3px solid var(--borde-pixel); transform: translateX(0); }
+        
+        /* Estados de animación */
+        .puerta-animacion.abrir .puerta-izq { transform: translateX(-100%); }
+        .puerta-animacion.abrir .puerta-der { transform: translateX(100%); }
 
         /* REPRODUCTOR AUDIO */
         .audio-controller {
             background: var(--bg-panel);
-            border: 1px solid var(--borde-sutil);
-            padding: 10px 15px;
-            border-radius: 8px;
+            border: 4px solid var(--borde-pixel);
+            padding: 8px 12px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            max-width: 300px;
-            margin: 0 auto 20px auto;
+            gap: 12px;
+            max-width: 320px;
+            margin: 0 auto 15px auto;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
         }
-        .audio-controller input[type="range"] { accent-color: var(--color-oro); cursor: pointer; }
+        .audio-controller input[type="range"] { accent-color: var(--color-azul-poke); cursor: pointer; }
 
         /* INTERFAZ GENERAL */
         .panel-elegante {
             background: var(--bg-panel);
-            border: 1px solid var(--borde-sutil);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            margin-bottom: 25px;
+            border: 4px solid var(--borde-pixel);
+            padding: 20px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 8px;
         }
 
-        h1, h2, h3, .font-titulo {
-            font-family: 'Cinzel', serif;
-            letter-spacing: 3px;
-            color: var(--color-oro);
+        h1, h2, h3 {
+            color: var(--color-azul-poke);
             text-align: center;
             margin-top: 0;
+            line-height: 1.5;
         }
 
-        /* PESTAÑAS */
-        .tabs-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        /* PESTAÑAS POKÉMON */
+        .tabs-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-button {
-            background: transparent; color: #7d7d88; border: 1px solid var(--borde-sutil);
-            padding: 12px 25px; cursor: pointer; font-family: 'Cinzel', serif; font-weight: 600; border-radius: 6px;
+            background: #e2e8f0; color: #64748b; border: 3px solid var(--borde-pixel);
+            padding: 10px 14px; cursor: pointer; border-radius: 6px; box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
         }
-        .tab-button:hover, .tab-button.active { color: var(--color-oro); border-color: var(--color-oro); background: rgba(197, 168, 128, 0.05); }
-        .tab-button.btn-ilegal.active { color: #ff4d5a; border-color: #88222d; background: rgba(136, 34, 45, 0.1); }
+        .tab-button:hover, .tab-button.active { color: #fff; background: var(--color-azul-poke); border-color: var(--borde-pixel); }
+        .tab-button.btn-ilegal.active { background: var(--color-rojo-poke); }
 
         .market-view { display: none; }
         .market-view.active { display: block; }
 
-        /* TARJETAS */
-        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; padding: 10px; }
+        /* TARJETAS TIENDA */
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; padding: 5px; }
         .item-card {
-            background: #18181f; border: 1px solid var(--borde-sutil); border-radius: 8px;
-            padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative;
+            background: #fff; border: 4px solid var(--borde-pixel); border-radius: 8px;
+            padding: 15px; display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.05);
         }
-        .item-card:hover { border-color: var(--color-oro); transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        .item-card:hover { transform: translateY(-2px); box-shadow: 5px 5px 0px rgba(0,0,0,0.1); }
 
-        input, select, button { font-family: 'Montserrat', sans-serif; }
-        button.btn-accion { background: var(--color-oro); color: #000; border: none; padding: 10px 15px; font-weight: 600; border-radius: 4px; cursor: pointer; width: 100%; }
-        button.btn-accion:hover { background: #dfbe91; }
-        button:disabled { background: #2e2e38 !important; color: #555 !important; cursor: not-allowed; }
+        button.btn-accion { 
+            background: var(--color-oro-poke); 
+            color: #000; 
+            border: 3px solid var(--borde-pixel); 
+            padding: 8px; 
+            cursor: pointer; 
+            width: 100%;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        button.btn-accion:hover { background: #ffe169; }
+        button:disabled { background: #cbd5e1 !important; color: #94a3b8 !important; border-color: #94a3b8 !important; cursor: not-allowed; box-shadow: none !important; }
 
         /* KEYPAD MASTER */
-        .modal-master { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
-        .pad-container { background: #141418; border: 1px solid var(--borde-sutil); padding: 30px; border-radius: 12px; width: 320px; text-align: center; }
-        .pad-display { background: #000; color: var(--color-oro); font-size: 2rem; padding: 10px; margin-bottom: 20px; letter-spacing: 5px; border-radius: 6px; min-height: 55px; }
-        .pad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .pad-btn { background: #202028; color: #fff; border: 1px solid var(--borde-sutil); font-size: 1.5rem; padding: 15px; cursor: pointer; border-radius: 6px; }
-        .pad-btn:active { background: var(--color-oro); color: #000; }
+        .modal-master { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .pad-container { background: #fff; border: 4px solid var(--borde-pixel); padding: 20px; width: 300px; text-align: center; border-radius: 8px; }
+        .pad-display { background: #000; color: #fff; font-size: 16px; padding: 10px; margin-bottom: 15px; border-radius: 4px; min-height: 40px; }
+        .pad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .pad-btn { background: #f1f5f9; border: 3px solid var(--borde-pixel); font-size: 14px; padding: 12px; cursor: pointer; border-radius: 4px; }
+        .pad-btn:active { background: var(--color-azul-poke); color: #fff; }
 
         /* LOBBY INICIAL */
-        .lobby-box { max-width: 400px; margin: 100px auto; text-align: center; }
-        .lobby-box input { background: #000; color: #fff; border: 1px solid var(--borde-sutil); padding: 12px; border-radius: 6px; width: 100%; margin-bottom: 15px; text-align: center; }
+        .lobby-box { max-width: 420px; margin: 80px auto; text-align: center; }
+        .lobby-box input { background: #fff; color: #000; border: 3px solid var(--borde-pixel); padding: 10px; width: 100%; margin-bottom: 15px; text-align: center; border-radius: 4px; }
 
         /* CONSOLA MASTER */
-        .consola-admin-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0c0c0f; z-index: 10001; padding: 30px; overflow-y: auto; }
-        .grid-admin { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
-        .anonymous-title { font-family: monospace; color: #ff4d5a; text-shadow: 0 0 15px rgba(255, 77, 90, 0.3); text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
+        .consola-admin-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 10001; padding: 20px; overflow-y: auto; border: 6px solid var(--color-rojo-poke); }
+        .grid-admin { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<!-- REPRODUCTORES DE AUDIO -->
+<!-- REPRODUCTORES DE AUDIO ESTILO SHOP CHILL MEDLEY -->
 <audio id="musica-legal" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+    <source src="https://bitmidi.com/uploads/15119.mp3" type="audio/mp3">
 </audio>
 <audio id="musica-hacker" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mp3">
+    <source src="https://bitmidi.com/uploads/48593.mp3" type="audio/mp3">
 </audio>
 
-<div class="fade-overlay" id="capa-fundido"></div>
-
-<!-- COMPUERTAS MECÁNICAS -->
+<!-- COMPUERTAS MECÁNICAS (LOBBY INTERFAZ) -->
 <div class="puerta-animacion" id="puertas-mecanicas">
-    <div class="puerta-izq"></div>
-    <div class="puerta-der"></div>
+    <div class="puerta-izq"><div>===</div></div>
+    <div class="puerta-der"><div>===</div></div>
 </div>
 
 <!-- VOLUMEN -->
 <div class="audio-controller">
-    <span style="font-size: 0.8rem; color: var(--color-oro);">🎵 VOLUMEN:</span>
+    <span style="font-size: 9px; color: var(--color-azul-poke);">🎵 CANAL AUDIO:</span>
     <input type="range" id="slider-volumen" min="0" max="1" step="0.1" value="0.3" oninput="cambiarVolumenGlobal(this.value)">
-    <button onclick="conmutarMute()" id="btn-mute" style="background:none; border:none; color:#fff; cursor:pointer; padding:0;">🔊</button>
+    <button onclick="conmutarMute()" id="btn-mute" style="background:none; border:none; cursor:pointer; font-size:12px; padding:0;">🔊</button>
 </div>
 
 <div class="container">
 
-    <!-- PANTALLA LOBBY (SIN CORREO, LIMPIA) -->
+    <!-- PANTALLA LOBBY -->
     <div id="pantalla-lobby" class="panel-elegante lobby-box">
-        <h1>SINDICATO</h1>
-        <p style="font-size: 0.8rem; color:#6b6b75; margin-bottom: 20px;">Establece enlace seguro con tu perfil de juego</p>
+        <h1 style="color: var(--color-rojo-poke);">POKÉ TIENDA</h1>
+        <p style="font-size: 9px; color:#64748b; margin-bottom: 25px; line-height: 1.6;">CONECTANDO AL TERMINAL DE SUMINISTROS OCULTOS</p>
         <input type="text" id="login-nombre" placeholder="OPERADOR ID">
-        <button class="btn-accion" onclick="conectarLobby()">INICIAR SESIÓN</button>
+        <button class="btn-accion" onclick="conectarLobby()">ACCEDER</button>
     </div>
 
-    <!-- MERCADO GENERAL (OCULTO AL PRINCIPIO) -->
+    <!-- MERCADO GENERAL -->
     <div id="pantalla-mercado" style="display:none;">
-        <div class="panel-elegante" style="display:flex; justify-content:space-between; align-items:center; padding:15px 25px;">
-            <div>👤 ID: <span id="usr-nombre" style="color:var(--color-oro); font-weight:bold;">---</span></div>
-            <div>🪙 CRÉDITOS: <span id="usr-dinero" style="color:var(--color-oro); font-weight:bold;">0</span> P₠</div>
-            <div>⭐ FAVOR: <span id="usr-pf" style="color:#a78bfa; font-weight:bold;">0</span> PF</div>
+        <div class="panel-elegante" style="display:flex; justify-content:space-between; align-items:center; padding:12px; flex-wrap:wrap; gap:10px;">
+            <div>👤 OPERADOR: <span id="usr-nombre" style="color:var(--color-azul-poke);">---</span></div>
+            <div>🪙 CRÉDITOS: <span id="usr-dinero" style="color:var(--color-verde-poke);">0</span> P₠</div>
+            <div>⭐ FAVOR: <span id="usr-pf" style="color:var(--color-rojo-poke);">0</span> PF</div>
         </div>
 
         <!-- ALMACÉN PROPIO / INVENTARIO -->
-        <div class="panel-elegante" style="padding: 15px 20px;">
-            <h3 style="text-align:left; font-size: 0.9rem; margin-bottom:15px;">🎒 TU COMPARTIMENTO DE ALMACÉN</h3>
+        <div class="panel-elegante" style="padding: 15px;">
+            <h3 style="text-align:left; font-size: 10px; margin-bottom:12px; color: #475569;">🎒 TU BOLSA DE OBJETOS</h3>
             <div id="lista-inventario" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
         </div>
 
         <!-- PESTAÑAS DE LAS TIENDAS -->
         <div class="tabs-container">
-            <button class="tab-button active" id="tab-legal" onclick="cambiarTienda('legal')">TIENDA LEGAL</button>
-            <button class="tab-button" id="tab-pack" onclick="cambiarTienda('pack')">SHOP PF PACK</button>
-            <button class="tab-button btn-ilegal" id="tab-illegal" onclick="cambiarTienda('illegal')">RED ILEGAL</button>
+            <button class="tab-button active" id="tab-legal" onclick="cambiarTienda('legal')">MATERIALES</button>
+            <button class="tab-button" id="tab-pack" onclick="cambiarTienda('pack')">LOTES PF</button>
+            <button class="tab-button btn-ilegal" id="tab-illegal" onclick="cambiarTienda('illegal')">CONTRABANDO</button>
         </div>
 
         <!-- VISTAS DE LAS TIENDAS -->
@@ -216,12 +229,12 @@
 </div>
 
 <!-- BOTÓN ACCESO MASTER -->
-<button onclick="abrirTecladoMaster()" style="position:fixed; bottom:15px; left:15px; background:none; border:1px solid #222; color:#333; padding:5px; font-size:0.7rem; cursor:pointer; border-radius:4px;">SYS_MSTR</button>
+<button onclick="abrirTecladoMaster()" style="position:fixed; bottom:10px; left:10px; background:#fff; border:2px solid var(--borde-pixel); color:#888; padding:4px; font-size:8px; cursor:pointer; border-radius:4px;">MSTR_PAD</button>
 
-<!-- MODAL TECLADO NUMÉRICO MASTER -->
+<!-- MODAL MASTER KEYPAD -->
 <div class="modal-master" id="modal-keypad">
     <div class="pad-container">
-        <div class="font-titulo" style="font-size:0.9rem; margin-bottom:10px;">ACCESO DE SEGURIDAD</div>
+        <div style="font-size:9px; margin-bottom:10px;">LLAVE MAESTRA</div>
         <div class="pad-display" id="keypad-screen"></div>
         <div class="pad-grid">
             <button class="pad-btn" onclick="presionarTecla('1')">1</button>
@@ -233,59 +246,74 @@
             <button class="pad-btn" onclick="presionarTecla('7')">7</button>
             <button class="pad-btn" onclick="presionarTecla('8')">8</button>
             <button class="pad-btn" onclick="presionarTecla('9')">9</button>
-            <button class="pad-btn" onclick="limpiarTeclado()" style="color:#ff4d5a;">C</button>
+            <button class="pad-btn" onclick="limpiarTeclado()" style="color:var(--color-rojo-poke);">C</button>
             <button class="pad-btn" onclick="presionarTecla('0')">0</button>
-            <button class="pad-btn" onclick="cerrarTeclado()" style="color:#aaa;">X</button>
+            <button class="pad-btn" onclick="cerrarTeclado()" style="color:#64748b;">X</button>
         </div>
     </div>
 </div>
 
-<!-- INTERFAZ COMPLETA CONSOLA MASTER -->
+<!-- TERMINAL CONSOLA MASTER -->
 <div class="consola-admin-screen" id="pantalla-admin-master">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding-bottom:15px;">
-        <h1 style="margin:0; text-align:left;">🎛️ CONSOLA CENTRAL DEL MASTER</h1>
-        <button onclick="cerrarConsolaMasterCompleta()" style="background:#222; color:#fff; border:none; padding:10px 20px; cursor:pointer; border-radius:4px;">SALIR DE LA TERMINAL</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:4px solid var(--borde-pixel); padding-bottom:15px; flex-wrap:wrap; gap:10px;">
+        <h1 style="margin:0; text-align:left; color:var(--color-rojo-poke);">🛠️ PANEL DE CONTROL DM</h1>
+        <button onclick="cerrarConsolaMasterCompleta()" style="background:#f1f5f9; border:3px solid var(--borde-pixel); padding:8px 12px; cursor:pointer;">CERRAR TERMINAL</button>
     </div>
     <div class="grid-admin">
         <div class="panel-elegante">
-            <h3>👥 OPERACIONES DE JUGADORES</h3>
+            <h3>👥 AJUSTES JUGADORES</h3>
             <div id="admin-jugadores-lista"></div>
         </div>
         <div class="panel-elegante">
-            <h3>🔓 CONMUTADORES DE RED</h3>
-            <label style="display:block; margin-bottom:15px; cursor:pointer;">
-                <input type="checkbox" id="chk-master-illegal" onchange="conmutarCanalIlegalMaster(this.checked)"> HABILITAR RED ILEGALIDADES
+            <h3>🔓 SEGURIDAD RED</h3>
+            <label style="display:block; margin-bottom:15px; cursor:pointer; line-height:1.4;">
+                <input type="checkbox" id="chk-master-illegal" onchange="conmutarCanalIlegalMaster(this.checked)"> PERMITIR ACCESO CONTRABANDO
             </label>
-            <hr style="border-color:#222;">
-            <h4>INYECTAR OBJETO AL MERCADO</h4>
-            <input type="text" id="ins-nombre" placeholder="Nombre Objeto" style="width:100%; padding:8px; margin-bottom:8px; background:#000; color:#fff; border:1px solid #333;">
-            <select id="ins-tienda" style="width:100%; padding:8px; margin-bottom:8px; background:#000; color:#fff; border:1px solid #333;">
-                <option value="legal">Tienda Legal</option>
-                <option value="pack">Shop PF Pack</option>
-                <option value="illegal">Red Ilegalidades</option>
+            <hr style="border:2px solid var(--borde-pixel);">
+            <h4 style="margin-top:10px;">CREAR NUEVO ITEM</h4>
+            <input type="text" id="ins-nombre" placeholder="Nombre Item" style="width:100%; padding:6px; margin-bottom:6px; border:2px solid var(--borde-pixel);">
+            <select id="ins-tienda" style="width:100%; padding:6px; margin-bottom:6px; border:2px solid var(--borde-pixel);">
+                <option value="legal">Materiales</option>
+                <option value="pack">Lotes PF</option>
+                <option value="illegal">Contrabando</option>
             </select>
-            <input type="number" id="ins-precio" placeholder="Precio (P₠ o PF)" style="width:100%; padding:8px; margin-bottom:8px; background:#000; color:#fff; border:1px solid #333;">
-            <input type="number" id="ins-stock" placeholder="Stock" style="width:100%; padding:8px; margin-bottom:8px; background:#000; color:#fff; border:1px solid #333;">
-            <button class="btn-accion" onclick="inyectarObjetoNuevoMaster()">PUBLICAR ITEM</button>
+            <input type="number" id="ins-precio" placeholder="Precio (P₠ o PF)" style="width:100%; padding:6px; margin-bottom:6px; border:2px solid var(--borde-pixel);">
+            <input type="number" id="ins-stock" placeholder="Stock Inicial" style="width:100%; padding:6px; margin-bottom:6px; border:2px solid var(--borde-pixel);">
+            <button class="btn-accion" onclick="inyectarObjetoNuevoMaster()">PUBLICAR</button>
         </div>
         <div class="panel-elegante">
-            <h3>📦 ALMACÉN CENTRAL Y CONTROL DE UNIDADES</h3>
-            <div id="admin-inventario-global" style="max-height:300px; overflow-y:auto; font-size:0.85rem;"></div>
+            <h3>📦 STOCK Y CATÁLOGO</h3>
+            <div id="admin-inventario-global" style="max-height:250px; overflow-y:auto;"></div>
         </div>
     </div>
 </div>
 
 <script>
-// BASE DE DATOS ACTUALIZADA CON CLASES DE ICONOS INTERNOS
+// BASE DE DATOS COMPLETA CON TODOS LOS OBJETOS HISTÓRICOS Y NUEVOS
 const inicialDb = [
+    // Tienda Legal (Materiales Base)
     { id: 1, tienda: 'legal', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, icon: 'icon-iron', txt: 'Fe' },
     { id: 2, tienda: 'legal', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, icon: 'icon-protein', txt: 'PRT' },
-    { id: 3, tienda: 'legal', nombre: 'Baya Oran', precio: 90, pf: 1, stock: 15, icon: 'icon-berry', txt: '●' },
-    { id: 101, tienda: 'pack', nombre: 'PACK BALLS MIXTAS', precio: 750, pf: 11, stock: 5, icon: 'icon-pack', txt: 'BOX' },
-    { id: 201, tienda: 'illegal', nombre: 'HACK: ESCUDO POKE', precioPf: 5, stock: 1, desc: 'Evita la muerte de un Pokémon.', icon: 'icon-hack', txt: '☠' }
+    { id: 3, tienda: 'legal', nombre: 'Calcio', precio: 1000, pf: 2, stock: 10, icon: 'icon-protein', txt: 'Ca' },
+    { id: 4, tienda: 'legal', nombre: 'Carburante', precio: 1000, pf: 2, stock: 10, icon: 'icon-iron', txt: 'GAS' },
+    { id: 5, tienda: 'legal', nombre: 'Baya Oran', precio: 90, pf: 1, stock: 20, icon: 'icon-berry', txt: 'BY' },
+    { id: 6, tienda: 'legal', nombre: 'Baya Zidra', precio: 200, pf: 1, stock: 15, icon: 'icon-berry', txt: 'BZ' },
+    { id: 7, tienda: 'legal', nombre: 'Piedra Fuego', precio: 2100, pf: 4, stock: 3, icon: 'icon-evo', txt: '🔥' },
+    { id: 8, tienda: 'legal', nombre: 'Piedra Agua', precio: 2100, pf: 4, stock: 3, icon: 'icon-evo', txt: '💧' },
+    { id: 9, tienda: 'legal', nombre: 'Piedra Trueno', precio: 2100, pf: 4, stock: 3, icon: 'icon-evo', txt: '⚡' },
+
+    // Shop Packs (Lotes Especiales)
+    { id: 101, tienda: 'pack', nombre: 'PACK BALLS MIXTAS', precio: 750, pf: 11, stock: 5, icon: 'icon-pack', txt: 'PK' },
+    { id: 102, tienda: 'pack', nombre: 'LOTE EXP SUPERIOR', precio: 1500, pf: 20, stock: 4, icon: 'icon-pack', txt: 'EXP' },
+    { id: 103, tienda: 'pack', nombre: 'KIT CRIANZA PREMIUM', precio: 3000, pf: 45, stock: 2, icon: 'icon-pack', txt: 'EGG' },
+
+    // Red Ilegal (Contrabando por Puntos de Favor)
+    { id: 201, tienda: 'illegal', nombre: 'HACK: ESCUDO POKE', precioPf: 5, stock: 2, desc: 'Evita la muerte de un Pokémon.', icon: 'icon-hack', txt: '☠' },
+    { id: 202, tienda: 'illegal', nombre: 'DATAHACK: MT PROHIBIDA', precioPf: 8, stock: 1, desc: 'Desbloquea movimiento ilegal.', icon: 'icon-hack', txt: '💿' },
+    { id: 203, tienda: 'illegal', nombre: 'RARE CANDY INYECTADO', precioPf: 4, stock: 5, desc: 'Sube 5 niveles instantáneos.', icon: 'icon-hack', txt: '🍬' }
 ];
 
-let baseDatos = JSON.parse(localStorage.getItem('sindicato_db_2026')) || {
+let baseDatos = JSON.parse(localStorage.getItem('sindicato_db_poke_2026')) || {
     productos: inicialDb,
     jugadores: {},
     ilegalAbierto: false
@@ -298,6 +326,7 @@ const mLegal = document.getElementById('musica-legal');
 const mHacker = document.getElementById('musica-hacker');
 
 function cambiarVolumenGlobal(v) { mLegal.volume = v; mHacker.volume = v; }
+
 function conmutarMute() {
     let btn = document.getElementById('btn-mute');
     if(mLegal.muted || mHacker.muted) { mLegal.muted = false; mHacker.muted = false; btn.innerText = "🔊"; } 
@@ -313,130 +342,125 @@ function gestionarReproduccionMusica(tiendaActual) {
     }
 }
 
-// LOGIN CON ANIMACIÓN AL CLICAR
+// LOGIN CON COMPUERTAS SIN BUGS
 function conectarLobby() {
     let nombre = document.getElementById('login-nombre').value.trim();
-    if(!nombre) return alert("Ingresa tu ID de Operador");
+    if(!nombre) return alert("¡Introduce tu ID de Operador!");
 
     if(!baseDatos.jugadores[nombre]) {
         baseDatos.jugadores[nombre] = { dinero: 0, pf: 0, inventario: [] };
     }
     userSesion = nombre;
     sessionStorage.setItem('sindicato_sesion', nombre);
-    localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos));
+    localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos));
 
-    let capa = document.getElementById('capa-fundido');
     let puertas = document.getElementById('puertas-mecanicas');
-    capa.classList.add('activo');
     
+    // Primero cerramos visualmente las compuertas (por si acaso estuvieran abiertas)
+    puertas.classList.remove('abrir');
+    puertas.classList.remove('oculta');
+
     setTimeout(() => {
+        // Intercambiamos pantallas en el fondo
         document.getElementById('pantalla-lobby').style.display = 'none';
         document.getElementById('pantalla-mercado').style.display = 'block';
         renderizarContenido();
         
-        cambiarVolumenGlobal(0.3);
+        cambiarVolumenGlobal(0.2);
         mLegal.play().catch(()=>{});
 
-        puertas.classList.remove('abrir');
-        setTimeout(() => { capa.classList.remove('activo'); puertas.classList.add('abrir'); }, 100);
-    }, 500);
-}
-
-// TRANSCICIÓN DE TIENDAS
-function ejecutarTransicionEscenario(tiendaDestino, callback) {
-    let capa = document.getElementById('capa-fundido');
-    let puertas = document.getElementById('puertas-mecanicas');
-    capa.classList.add('activo');
-    
-    setTimeout(() => {
-        callback();
-        gestionarReproduccionMusica(tiendaDestino);
-        if(tiendaDestino === 'illegal' && baseDatos.ilegalAbierto) {
-            capa.classList.remove('activo');
-            alert("[ALERTA ENCRIPTADA] Enrutando canal proxy anónimo...");
-        } else {
-            puertas.classList.remove('abrir');
-            setTimeout(() => { capa.classList.remove('activo'); puertas.classList.add('abrir'); }, 100);
-        }
-    }, 500);
+        // Activamos animación de apertura hacia los lados
+        puertas.classList.add('abrir');
+        
+        // Al terminar la animación, ocultamos por completo el contenedor para que NO bloquee la pantalla
+        setTimeout(() => {
+            puertas.classList.add('oculta');
+        }, 600);
+    }, 300);
 }
 
 function cambiarTienda(tipo) {
     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.market-view').forEach(v => v.classList.remove('active'));
-    ejecutarTransicionEscenario(tipo, () => {
-        document.getElementById(`tab-${tipo}`).classList.add('active');
-        document.getElementById(`vista-${tipo}`).classList.add('active');
-    });
+    
+    document.getElementById(`tab-${tipo}`).classList.add('active');
+    document.getElementById(`vista-${tipo}`).classList.add('active');
+    gestionarReproduccionMusica(tipo);
+
+    if(tipo === 'illegal' && baseDatos.ilegalAbierto) {
+        alert("[ALERTA ENCRIPTADA] Accediendo al mercado negro de contrabando...");
+    }
 }
 
-// RENDERIZADO COMPLETO
+// RENDERIZADO DE INTERFAZ 
 function renderizarContenido() {
     if(!userSesion) return;
     let u = baseDatos.jugadores[userSesion];
-    document.getElementById('usr-nombre').innerText = userSesion;
+    document.getElementById('usr-nombre').innerText = userSesion.toUpperCase();
     document.getElementById('usr-dinero').innerText = u.dinero.toLocaleString();
     document.getElementById('usr-pf').innerText = u.pf;
 
-    // Inventario personal con iconos integrados
+    // Bolsa / Inventario personal
     let divInv = document.getElementById('lista-inventario'); divInv.innerHTML = '';
-    if(u.inventario.length === 0) divInv.innerHTML = '<span style="color:#444; font-size:0.8rem;">[ Compartimento vacío ]</span>';
+    if(u.inventario.length === 0) divInv.innerHTML = '<span style="color:#94a3b8; font-size:9px;">[ Bolsa vacía ]</span>';
     u.inventario.forEach((item, idx) => {
         divInv.innerHTML += `
-            <div style="background:#1c1c24; border:1px solid var(--borde-sutil); padding:10px; border-radius:6px; text-align:center; min-width:80px;">
-                <div class="item-icon ${item.icon || 'icon-generic'}" style="width:35px; height:35px; font-size:0.8rem; margin-bottom:5px;">${item.txt || '?'}</div>
-                <p style="margin:2px 0; font-size:0.7rem;">${item.nombre}</p>
-                <button onclick="consumirObjeto('${idx}')" style="background:#cf535f; color:#000; border:none; padding:2px 5px; font-size:0.65rem; border-radius:3px; cursor:pointer; width:100%;">USAR</button>
+            <div style="background:#f8fafc; border:3px solid var(--borde-pixel); padding:8px; text-align:center; min-width:85px; border-radius:6px;">
+                <div class="item-icon ${item.icon || 'icon-generic'}" style="width:30px; height:30px; font-size:9px; margin-bottom:5px;">${item.txt || '?'}</div>
+                <p style="margin:4px 0; font-size:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.nombre}</p>
+                <button onclick="consumirObjeto('${idx}')" style="background:var(--color-rojo-poke); color:#fff; border:2px solid var(--borde-pixel); font-size:7px; padding:2px; cursor:pointer; width:100%;">USAR</button>
             </div>
         `;
     });
 
-    // Tienda Legal
+    // Tienda Materiales Base
     let gl = document.getElementById('grid-legal'); gl.innerHTML = '';
     baseDatos.productos.filter(p => p.tienda === 'legal').forEach(p => {
         let ok = p.stock > 0 && u.dinero >= p.precio;
         gl.innerHTML += `
             <div class="item-card">
                 <div class="item-icon ${p.icon || 'icon-generic'}">${p.txt || '?'}</div>
-                <div class="font-titulo" style="font-size:0.9rem; text-align:left;">${p.nombre}</div>
-                <div style="margin:10px 0; font-size:0.85rem; color:var(--color-oro);">🪙 ${p.precio} P₠ <span style="color:#7d7d88; font-size:0.75rem;">(+${p.pf} PF)</span></div>
-                <div style="font-size:0.75rem; color:#555; margin-bottom:12px;">STOCK: ${p.stock} UDS</div>
-                <button class="btn-accion" ${!ok?'disabled':''} onclick="comprarItem(${p.id})">ADQUIRIR</button>
+                <div style="font-size:10px; font-weight:bold; margin-bottom:8px;">${p.nombre.toUpperCase()}</div>
+                <div style="margin-bottom:8px; color:var(--color-azul-poke);">🪙 ${p.precio} P₠</div>
+                <div style="font-size:8px; color:var(--color-rojo-poke); margin-bottom:8px;">+ ${p.pf} Ptos Favor</div>
+                <div style="font-size:8px; color:#64748b; margin-bottom:10px;">STOCK: ${p.stock} UDS</div>
+                <button class="btn-accion" ${!ok?'disabled':''} onclick="comprarItem(${p.id})">COMPRAR</button>
             </div>
         `;
     });
 
-    // Shop Packs
+    // Lotes Especiales
     let gp = document.getElementById('grid-pack'); gp.innerHTML = '';
     baseDatos.productos.filter(p => p.tienda === 'pack').forEach(p => {
         let ok = p.stock > 0 && u.dinero >= p.precio;
         gp.innerHTML += `
             <div class="item-card">
                 <div class="item-icon ${p.icon || 'icon-pack'}">${p.txt || 'BOX'}</div>
-                <div class="font-titulo" style="font-size:0.9rem; text-align:left;">${p.nombre}</div>
-                <div style="margin:10px 0; font-size:0.85rem; color:var(--color-oro);">🪙 ${p.precio} P₠ <span style="color:#7d7d88; font-size:0.75rem;">(+${p.pf} PF)</span></div>
-                <div style="font-size:0.75rem; color:#555; margin-bottom:12px;">STOCK: ${p.stock} UDS</div>
-                <button class="btn-accion" ${!ok?'disabled':''} onclick="comprarItem(${p.id})">COMPRAR PACK</button>
+                <div style="font-size:10px; font-weight:bold; margin-bottom:8px;">${p.nombre.toUpperCase()}</div>
+                <div style="margin-bottom:8px; color:var(--color-azul-poke);">🪙 ${p.precio} P₠</div>
+                <div style="font-size:8px; color:var(--color-rojo-poke); margin-bottom:8px;">+ ${p.pf} Ptos Favor</div>
+                <div style="font-size:8px; color:#64748b; margin-bottom:10px;">STOCK: ${p.stock} UDS</div>
+                <button class="btn-accion" ${!ok?'disabled':''} onclick="comprarItem(${p.id})">ADQUIRIR LOT</button>
             </div>
         `;
     });
 
-    // Tienda Ilegal (Anonymous)
+    // Contrabando Encriptado
     let vi = document.getElementById('contenedor-hacker-view');
     if(!baseDatos.ilegalAbierto) {
-        vi.innerHTML = `<div style="text-align:center; padding:40px; color:#555; font-family:monospace;">[ ERROR 403: CANAL CLANDESTINO DESCONECTADO POR EL MASTER ]</div>`;
+        vi.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8; line-height:1.6;">[ CONEXIÓN RESTRINGIDA: ESTA LÍNEA DE CONTRABANDO DEBE SER ACTIVADA POR EL MÁSTER ]</div>`;
     } else {
-        let htmlIlegal = `<div class="anonymous-title">🔒 ACCESO ANONYMOUS PROXY ESTABLECIDO</div><div class="items-grid">`;
+        let htmlIlegal = `<h2 style="color:var(--color-rojo-poke); font-size:12px; margin-bottom:15px; text-align:center;">⚠ TERMINAL DE CONTRABANDO CLANDESTINO ⚠</h2><div class="items-grid">`;
         baseDatos.productos.filter(p => p.tienda === 'illegal').forEach(p => {
             let ok = p.stock > 0 && u.pf >= p.precioPf;
             htmlIlegal += `
-                <div class="item-card" style="border-color:#4a151b;">
+                <div class="item-card" style="border-color:var(--color-rojo-poke);">
                     <div class="item-icon ${p.icon || 'icon-hack'}">${p.txt || '☠'}</div>
-                    <div class="font-titulo" style="color:#ff4d5a; font-size:0.9rem; text-align:left;">${p.nombre}</div>
-                    <p style="font-size:0.75rem; color:#888; margin:8px 0;">${p.desc}</p>
-                    <div style="margin:10px 0; font-size:0.85rem; color:#a78bfa;">⭐ REQUIERE: ${p.precioPf} PF</div>
-                    <div style="font-size:0.75rem; color:#521c21; margin-bottom:12px;">ALMACÉN: ${p.stock} UDS</div>
-                    <button class="btn-accion" style="background:#88222d; color:#fff;" ${!ok?'disabled':''} onclick="comprarItemIlegal(${p.id})">EJECUTAR HACK</button>
+                    <div style="font-size:10px; color:var(--color-rojo-poke); font-weight:bold; margin-bottom:6px;">${p.nombre.toUpperCase()}</div>
+                    <p style="font-size:8px; color:#475569; margin:0 0 10px 0; line-height:1.4;">${p.desc}</p>
+                    <div style="margin-bottom:8px; color:var(--color-azul-poke);">⭐ COSTE: ${p.precioPf} PF</div>
+                    <div style="font-size:8px; color:#94a3b8; margin-bottom:10px;">DISPONIBLES: ${p.stock} UDS</div>
+                    <button class="btn-accion" style="background:var(--color-rojo-poke); color:#fff;" ${!ok?'disabled':''} onclick="comprarItemIlegal(${p.id})">CANJEAR</button>
                 </div>
             `;
         });
@@ -450,7 +474,7 @@ function comprarItem(id) {
     if(p && p.stock > 0 && u.dinero >= p.precio) {
         p.stock--; u.dinero -= p.precio; u.pf += p.pf;
         u.inventario.push({ nombre: p.nombre, icon: p.icon, txt: p.txt });
-        localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarContenido();
+        localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarContenido();
     }
 }
 
@@ -460,16 +484,16 @@ function comprarItemIlegal(id) {
     if(p && p.stock > 0 && u.pf >= p.precioPf) {
         p.stock--; u.pf -= p.precioPf;
         u.inventario.push({ nombre: p.nombre, icon: p.icon, txt: p.txt });
-        localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarContenido();
+        localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarContenido();
     }
 }
 
 function consumirObjeto(idx) {
     baseDatos.jugadores[userSesion].inventario.splice(idx, 1);
-    localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarContenido();
+    localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarContenido();
 }
 
-// LOGICA KEYPAD MASTER
+// PANEL MÁSTER KEYPAD
 function abrirTecladoMaster() { combinacionIntroducida = ""; document.getElementById('keypad-screen').innerText = ""; document.getElementById('modal-keypad').style.display = 'flex'; }
 function cerrarTeclado() { document.getElementById('modal-keypad').style.display = 'none'; }
 function limpiarTeclado() { combinacionIntroducida = ""; document.getElementById('keypad-screen').innerText = ""; }
@@ -477,38 +501,39 @@ function presionarTecla(n) {
     combinacionIntroducida += n; document.getElementById('keypad-screen').innerText = "*".repeat(combinacionIntroducida.length);
     if(combinacionIntroducida === "1234") {
         cerrarTeclado(); document.getElementById('pantalla-admin-master').style.display = 'block'; renderizarPanelesMasterCompleto();
-    } else if(combinacionIntroducida.length >= 4) { alert("CÓDIGO ERRÓNEO"); limpiarTeclado(); }
+    } else if(combinacionIntroducida.length >= 4) { alert("CÓDIGO DE ACCESO INCORRECTO"); limpiarTeclado(); }
 }
 
 function cerrarConsolaMasterCompleta() { document.getElementById('pantalla-admin-master').style.display = 'none'; }
-function conmutarCanalIlegalMaster(val) { baseDatos.ilegalAbierto = val; localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarContenido(); }
+function conmutarCanalIlegalMaster(val) { baseDatos.ilegalAbierto = val; localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarContenido(); }
 
 function inyectarObjetoNuevoMaster() {
     let n = document.getElementById('ins-nombre').value.trim();
     let t = document.getElementById('ins-tienda').value;
     let p = parseInt(document.getElementById('ins-precio').value) || 0;
     let s = parseInt(document.getElementById('ins-stock').value) || 0;
-    if(!n) return;
+    if(!n) return alert("Asigna un nombre al item");
+    
     let obj = { id: Date.now(), tienda: t, nombre: n, stock: s, icon: t==='illegal'?'icon-hack':'icon-generic', txt: n.substring(0,3).toUpperCase() };
-    if(t === 'illegal') { obj.precioPf = p; obj.desc = "Inyección directa."; } else { obj.precio = p; obj.pf = 1; }
-    baseDatos.productos.push(obj); localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos));
+    if(t === 'illegal') { obj.precioPf = p; obj.desc = "Añadido manualmente por el DM."; } else { obj.precio = p; obj.pf = 1; }
+    baseDatos.productos.push(obj); localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos));
     renderizarPanelesMasterCompleto(); renderizarContenido();
 }
 
 function alterarCarteraMaster(jugador, tipo, valor) {
     baseDatos.jugadores[jugador][tipo] += valor;
     if(baseDatos.jugadores[jugador][tipo] < 0) baseDatos.jugadores[jugador][tipo] = 0;
-    localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarPanelesMasterCompleto(); renderizarContenido();
+    localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarPanelesMasterCompleto(); renderizarContenido();
 }
 
 function alterarStockDirectoMaster(id, cantidad) {
     let p = baseDatos.productos.find(pr => pr.id === id);
-    if(p) { p.stock += cantidad; if(p.stock < 0) p.stock = 0; localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarPanelesMasterCompleto(); renderizarContenido(); }
+    if(p) { p.stock += cantidad; if(p.stock < 0) p.stock = 0; localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarPanelesMasterCompleto(); renderizarContenido(); }
 }
 
 function eliminarObjetoCatalogoMaster(id) {
     baseDatos.productos = baseDatos.productos.filter(pr => pr.id !== id);
-    localStorage.setItem('sindicato_db_2026', JSON.stringify(baseDatos)); renderizarPanelesMasterCompleto(); renderizarContenido();
+    localStorage.setItem('sindicato_db_poke_2026', JSON.stringify(baseDatos)); renderizarPanelesMasterCompleto(); renderizarContenido();
 }
 
 function renderizarPanelesMasterCompleto() {
@@ -517,35 +542,40 @@ function renderizarPanelesMasterCompleto() {
     for(let k in baseDatos.jugadores) {
         let ju = baseDatos.jugadores[k];
         divJ.innerHTML += `
-            <div style="background:#000; border:1px solid #222; padding:10px; border-radius:6px; margin-bottom:8px; font-size:0.8rem;">
-                <strong>${k}</strong> (${ju.dinero} P₠ | ${ju.pf} PF)
-                <div style="margin-top:5px; display:flex; gap:5px;">
-                    <button onclick="alterarCarteraMaster('${k}','dinero',500)" style="background:#222; color:#fff; border:none; padding:4px; font-size:0.7rem; cursor:pointer;">+500 P₠</button>
-                    <button onclick="alterarCarteraMaster('${k}','dinero',-500)" style="background:#222; color:#fff; border:none; padding:4px; font-size:0.7rem; cursor:pointer;">-500 P₠</button>
-                    <button onclick="alterarCarteraMaster('${k}','pf',1)" style="background:#312e81; color:#fff; border:none; padding:4px; font-size:0.7rem; cursor:pointer;">+1 PF</button>
-                    <button onclick="alterarCarteraMaster('${k}','pf',-1)" style="background:#312e81; color:#fff; border:none; padding:4px; font-size:0.7rem; cursor:pointer;">-1 PF</button>
+            <div style="background:#f1f5f9; border:2px solid var(--borde-pixel); padding:8px; margin-bottom:6px; font-size:9px; border-radius:4px;">
+                <strong>${k.toUpperCase()}</strong><br>(${ju.dinero} P₠ | ${ju.pf} PF)
+                <div style="margin-top:6px; display:flex; gap:4px; flex-wrap:wrap;">
+                    <button onclick="alterarCarteraMaster('${k}','dinero',1000)" style="font-size:8px; padding:2px;">+1k P₠</button>
+                    <button onclick="alterarCarteraMaster('${k}','dinero',-1000)" style="font-size:8px; padding:2px;">-1k P₠</button>
+                    <button onclick="alterarCarteraMaster('${k}','pf',1)" style="font-size:8px; padding:2px; background:var(--color-rojo-poke); color:#fff;">+1 PF</button>
+                    <button onclick="alterarCarteraMaster('${k}','pf',-1)" style="font-size:8px; padding:2px; background:var(--color-rojo-poke); color:#fff;">-1 PF</button>
                 </div>
             </div>`;
     }
     let divS = document.getElementById('admin-inventario-global'); divS.innerHTML = '';
     baseDatos.productos.forEach(p => {
         divS.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding:5px 0;">
-                <span>[${p.tienda.toUpperCase()}] ${p.nombre} (Stock: <strong>${p.stock}</strong>)</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #cbd5e1; padding:6px 0; font-size:8px;">
+                <span>[${p.tienda.toUpperCase()}] ${p.nombre} (${p.stock} UDS)</span>
                 <div>
-                    <button onclick="alterarStockDirectoMaster(${p.id}, 1)" style="padding:2px 6px;">+</button>
-                    <button onclick="alterarStockDirectoMaster(${p.id}, -1)" style="padding:2px 6px;">-</button>
-                    <button onclick="eliminarObjetoCatalogoMaster(${p.id})" style="color:#ff4d5a; padding:2px 6px; background:none; border:none; cursor:pointer;">🗑️</button>
+                    <button onclick="alterarStockDirectoMaster(${p.id}, 1)" style="padding:2px;">+</button>
+                    <button onclick="alterarStockDirectoMaster(${p.id}, -1)" style="padding:2px;">-</button>
+                    <button onclick="eliminarObjetoCatalogoMaster(${p.id})" style="color:var(--color-rojo-poke); font-size:10px; background:none; border:none; cursor:pointer;">🗑</button>
                 </div>
             </div>`;
     });
 }
 
+// COMPROBACIÓN RE-LOG AUTOMÁTICO
 if(userSesion && baseDatos.jugadores[userSesion]) {
     document.getElementById('pantalla-lobby').style.display = 'none';
     document.getElementById('pantalla-mercado').style.display = 'block';
+    // Forzamos la ocultación de compuertas si ya está logueado
+    document.getElementById('puertas-mecanicas').classList.add('abrir');
+    document.getElementById('puertas-mecanicas').classList.add('oculta');
     renderizarContenido();
 }
 </script>
 </body>
 </html>
+
