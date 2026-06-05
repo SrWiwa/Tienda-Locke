@@ -46,29 +46,7 @@
             margin: 0 auto;
         }
 
-        /* REPRODUCTOR DISCRETO */
-        .audio-controller {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 320px;
-            margin: 0 auto 20px auto;
-            border-radius: 30px;
-            font-size: 12px;
-        }
-        .audio-controller input[type="range"] { 
-            accent-color: var(--neon-packs); 
-            cursor: pointer; 
-            height: 4px;
-            background: #334155;
-            border-radius: 2px;
-        }
-
-        /* ENCABEZADO DE RECURSOS */
+        /* MARCADOR DE RECURSOS */
         .marcador-recursos {
             background: rgba(11, 15, 26, 0.85);
             border: 2px solid #1e293b;
@@ -212,22 +190,8 @@
 </head>
 <body>
 
-<audio id="musica-legal" loop>
-    <source src="https://vgmsite.com/soundtracks/pokemon-game-boy-sound-collection/isgntvhu/24%20Pok%C3%A9mon%20Center.mp3" type="audio/mp3">
-</audio>
-<audio id="musica-hacker" loop>
-    <source src="https://vgmsite.com/soundtracks/pokemon-game-boy-sound-collection/mlwepvst/13%20Pok%C3%A9mon%20Gym.mp3" type="audio/mp3">
-</audio>
-
 <div class="container">
 
-    <!-- REPRODUCTOR CONTROL -->
-    <div class="audio-controller">
-        <span>🎵 ENTORNO ACÚSTICO</span>
-        <input type="range" id="slider-volumen" min="0" max="1" step="0.1" value="0.3" oninput="ajustarVolumenRed(this.value)">
-    </div>
-
-    <!-- PANTALLA LOGIN -->
     <div id="pantalla-lobby" class="lobby-box">
         <h2 style="font-family:'Orbitron', sans-serif; font-size:18px; margin:0 0 5px 0; color:var(--neon-packs);">ACCESO DE ENTRENADOR</h2>
         <p style="font-size:12px; color:var(--texto-secundario); margin-bottom:20px;">Red de Intercambio Comercial Silph Co.</p>
@@ -235,30 +199,25 @@
         <button class="btn-accion" style="border-color:var(--neon-packs); color:var(--neon-packs);" onclick="ingresarAlSistema()">CONECTAR</button>
     </div>
 
-    <!-- MÓDULO MERCADO PRINCIPAL -->
     <div id="pantalla-mercado" style="display:none;">
         
-        <!-- MARCADOR DE DINERO Y FAVOR -->
         <div class="marcador-recursos">
             <div class="marcador-dato">OPERADOR: <span id="usr-nombre" style="color: #fff;">---</span></div>
             <div class="marcador-dato">EFECTIVO: <span id="usr-dinero" style="color: var(--neon-legal);">0</span> P₠</div>
             <div class="marcador-dato">PUNTOS FAVOR: <span id="usr-pf" style="color: var(--neon-ilegal);">0</span> PF</div>
         </div>
 
-        <!-- MOSTRADOR DE BOLSA -->
         <div class="bolsa-contenedor">
             <div class="bolsa-titulo">🎒 Tus Adquisiciones Recientes:</div>
             <div id="lista-inventario" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
         </div>
 
-        <!-- SELECTOR DE TIENDAS -->
         <div class="tabs-container">
             <button class="tab-button tab-legal active" id="tab-legal" onclick="cambiarSeccionTienda('legal')">TIENDA LEGAL</button>
             <button class="tab-button tab-pack" id="tab-pack" onclick="cambiarSeccionTienda('pack')">SHOP PF PACK</button>
             <button class="tab-button tab-illegal" id="tab-illegal" onclick="cambiarSeccionTienda('illegal')">TIENDA DE ILEGALIDADES</button>
         </div>
 
-        <!-- VISTA LEGAL -->
         <div id="vista-legal" class="market-view active legal-zone">
             <div id="contenedor-legal-view"></div>
             
@@ -280,7 +239,6 @@
             </div>
         </div>
 
-        <!-- VISTA PACKS -->
         <div id="vista-pack" class="market-view pack-zone">
             <div id="contenedor-pack-view"></div>
             
@@ -292,7 +250,6 @@
             </div>
         </div>
 
-        <!-- VISTA CONTRABANDO (ILEGAL) -->
         <div id="vista-illegal" class="market-view illegal-zone">
             <div id="contenedor-hacker-view"></div>
             
@@ -307,10 +264,8 @@
     </div>
 </div>
 
-<!-- BOTÓN MERCADER (POKÉBALL) -->
 <div class="pokeball-mercader-btn" title="Panel de Gestión Mercader" onclick="invocarTerminalMercader()"></div>
 
-<!-- CONSOLA CENTRAL DEL MERCADER -->
 <div class="consola-admin-screen" id="pantalla-admin-master">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:15px; margin-bottom:20px;">
         <h2 style="color:var(--neon-packs); margin:0; font-family:'Orbitron'; font-size:16px;">🖥️ CONSOLA DE GESTIÓN CENTRAL (MERCADER)</h2>
@@ -318,7 +273,6 @@
     </div>
     
     <div class="grid-admin">
-        <!-- SECCIÓN CONTROL TIENDAS (ABRIR/CERRAR) -->
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px;">
             <h3 style="color:var(--neon-packs); margin-top:0;">🔓 Interruptores de Red Comercial</h3>
             <p style="font-size:11px; color:var(--texto-secundario); margin-bottom:15px;">Activa o desactiva la visibilidad y compras de las tiendas en tiempo real:</p>
@@ -346,13 +300,11 @@
             <button class="btn-accion" style="border-color:var(--neon-legal); color:var(--neon-legal);" onclick="inyectarObjetoNuevoMaster()">PUBLICAR ARTÍCULO</button>
         </div>
 
-        <!-- JUGADORES -->
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px;">
             <h3 style="color:var(--neon-legal); margin-top:0;">👥 Ajustes de Entrenadores</h3>
             <div id="admin-jugadores-lista"></div>
         </div>
 
-        <!-- STOCK -->
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px;">
             <h3 style="color:var(--neon-ilegal); margin-top:0;">📦 Inventario y Almacén Global</h3>
             <div id="admin-inventario-global" style="max-height:350px; overflow-y:auto;"></div>
@@ -386,42 +338,40 @@ const baseDatosInicial = [
     { id: 203, tienda: 'illegal', cat: 'Modificación 03', nombre: 'Licencia de Caza', precioPf: 3, stock: 1, desc: 'Repite captura si huye.', icon: '📜' }
 ];
 
-// ESTRUCTURA CON TRIPLE INTERRUPTOR INDEPENDIENTE
-let baseDatos = JSON.parse(localStorage.getItem('silph_co_db_2026_v2')) || {
-    productos: baseDatosInitial,
-    jugadores: {},
-    legalOpen: true,
-    packOpen: true,
-    illegalOpen: false
-};
+// Nueva clave única para ignorar bases de datos obsoletas o corruptas de sesiones previas
+let baseDatos;
+try {
+    baseDatos = JSON.parse(localStorage.getItem('silph_co_db_2026_final'));
+    if (!baseDatos || !baseDatos.productos || !baseDatos.jugadores) {
+        throw new Error("Estructura incompleta");
+    }
+} catch (e) {
+    baseDatos = {
+        productos: JSON.parse(JSON.stringify(baseDatosInicial)),
+        jugadores: {},
+        legalOpen: true,
+        packOpen: true,
+        illegalOpen: false
+    };
+    localStorage.setItem('silph_co_db_2026_final', JSON.stringify(baseDatos));
+}
 
 let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
 
-const mLegal = document.getElementById('musica-legal');
-const mHacker = document.getElementById('musica-hacker');
-
-function ajustarVolumenRed(v) { 
-    if(mLegal) mLegal.volume = v; 
-    if(mHacker) mHacker.volume = v; 
-}
-
-function coordinarFrecuenciaAudio(tipo) {
-    if(!userSesion) return;
-    try {
-        if(tipo === 'illegal' && baseDatos.illegalOpen) {
-            mLegal.pause(); if(mHacker.paused) mHacker.play().catch(()=>{});
-        } else {
-            mHacker.pause(); if(mLegal.paused) mLegal.play().catch(()=>{});
-        }
-    } catch(e) { console.log("Audio en espera de interacción."); }
-}
-
 function ingresarAlSistema() {
-    let id = document.getElementById('login-nombre').value.trim();
+    let idInput = document.getElementById('login-nombre');
+    if (!idInput) return;
+    
+    let id = idInput.value.trim().toLowerCase();
     if(!id) return alert("Identificador Requerido.");
 
-    if(!baseDatos.jugadores[id]) {
+    // Validación y creación forzada del perfil del jugador
+    if(!baseDatos.jugadores[id] || typeof baseDatos.jugadores[id] !== 'object') {
         baseDatos.jugadores[id] = { dinero: 3000, pf: 0, comprasHoy: 0, inventario: [] };
+    }
+    
+    if (!Array.isArray(baseDatos.jugadores[id].inventario)) {
+        baseDatos.jugadores[id].inventario = [];
     }
 
     userSesion = id;
@@ -432,39 +382,41 @@ function ingresarAlSistema() {
     document.getElementById('pantalla-mercado').style.display = 'block';
 
     refrescarPantallaGamer();
-    ajustarVolumenRed(0.3);
-    
-    // Con el .catch() evitamos que se congele el juego si el navegador bloquea el autoplay de sonido
-    mLegal.play().catch(err => console.log("Música pausada hasta interacción directa."));
 }
 
 function cambiarSeccionTienda(tipo) {
     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.market-view').forEach(v => v.classList.remove('active'));
     
-    document.getElementById(`tab-${tipo}`).classList.add('active');
-    document.getElementById(`vista-${tipo}`).classList.add('active');
-    coordinarFrecuenciaAudio(tipo);
+    let boton = document.getElementById(`tab-${tipo}`);
+    let vista = document.getElementById(`vista-${tipo}`);
+    
+    if (boton) boton.classList.add('active');
+    if (vista) vista.classList.add('active');
 }
 
 function refrescarPantallaGamer() {
-    if(!userSesion) return;
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
     let u = baseDatos.jugadores[userSesion];
     
     document.getElementById('usr-nombre').innerText = userSesion.toUpperCase();
-    document.getElementById('usr-dinero').innerText = u.dinero.toLocaleString();
+    document.getElementById('usr-dinero').innerText = Number(u.dinero).toLocaleString();
     document.getElementById('usr-pf').innerText = u.pf;
 
-    // Dibujar inventario
-    let bBox = document.getElementById('lista-inventario'); bBox.innerHTML = '';
-    if(u.inventario.length === 0) bBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Ningún objeto en tu mochila.</span>';
-    u.inventario.forEach((item, index) => {
-        bBox.innerHTML += `
-            <div style="background:#1e293b; border:1px solid #334155; padding:6px 12px; display:flex; align-items:center; gap:10px; border-radius:6px;">
-                <span style="font-size:12px; font-weight:600;">${item.nombre}</span>
-                <button onclick="consumirObjetoBolsa('${index}')" style="background:#ef4444; color:#fff; border:none; padding:2px 8px; font-size:10px; cursor:pointer; border-radius:4px;">Gastar</button>
-            </div>`;
-    });
+    // Renderizado de Bolsa de Objetos
+    let bBox = document.getElementById('lista-inventario'); 
+    bBox.innerHTML = '';
+    if(!u.inventario || u.inventario.length === 0) {
+        bBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Ningún objeto en tu mochila.</span>';
+    } else {
+        u.inventario.forEach((item, index) => {
+            bBox.innerHTML += `
+                <div style="background:#1e293b; border:1px solid #334155; padding:6px 12px; display:flex; align-items:center; gap:10px; border-radius:6px;">
+                    <span style="font-size:12px; font-weight:600;">${item.nombre}</span>
+                    <button onclick="consumirObjetoBolsa(${index})" style="background:#ef4444; color:#fff; border:none; padding:2px 8px; font-size:10px; cursor:pointer; border-radius:4px;">Gastar</button>
+                </div>`;
+        });
+    }
 
     // 1. TIENDA LEGAL VISTA
     let vl = document.getElementById('contenedor-legal-view');
@@ -478,7 +430,7 @@ function refrescarPantallaGamer() {
                 <div class="item-card">
                     <div>
                         <div class="categoria-tag">${p.cat}</div>
-                        <div class="item-icon">${p.icon}</div>
+                        <div class="item-icon">${p.icon || '📦'}</div>
                         <div class="item-titulo">${p.nombre}</div>
                     </div>
                     <div>
@@ -506,7 +458,7 @@ function refrescarPantallaGamer() {
                         <div class="categoria-tag">${p.cat}</div>
                         <div class="item-icon">📦</div>
                         <div class="item-titulo" style="font-size:12px;">${p.nombre}</div>
-                        <div class="item-desc">${p.desc}</div>
+                        <div class="item-desc">${p.desc || ''}</div>
                     </div>
                     <div>
                         <div style="font-family:'Orbitron'; color:var(--neon-packs); font-size:15px; margin-bottom:4px;">${p.precio} P₠</div>
@@ -530,9 +482,9 @@ function refrescarPantallaGamer() {
                 <div class="item-card">
                     <div>
                         <div class="categoria-tag" style="color:var(--neon-ilegal);">${p.cat}</div>
-                        <div class="item-icon">${p.icon}</div>
+                        <div class="item-icon">${p.icon || '🕵️‍♂️'}</div>
                         <div class="item-titulo" style="color:var(--neon-ilegal);">${p.nombre}</div>
-                        <div class="item-desc">${p.desc}</div>
+                        <div class="item-desc">${p.desc || ''}</div>
                     </div>
                     <div>
                         <div style="font-family:'Orbitron'; color:var(--neon-packs); font-size:13px; margin-bottom:4px;">Requisito: ${p.precioPf} PF</div>
@@ -571,8 +523,10 @@ function procesarTransaccionIlegal(id) {
 }
 
 function consumirObjetoBolsa(index) {
-    baseDatos.jugadores[userSesion].inventario.splice(index, 1);
-    guardarBD(); refrescarPantallaGamer();
+    if (baseDatos.jugadores[userSesion] && baseDatos.jugadores[userSesion].inventario) {
+        baseDatos.jugadores[userSesion].inventario.splice(index, 1);
+        guardarBD(); refrescarPantallaGamer();
+    }
 }
 
 // PANEL CONTROL MERCADER
@@ -590,9 +544,6 @@ function conmutarEstadoTienda(llave, valor) {
     baseDatos[llave] = valor; 
     guardarBD(); 
     refrescarPantallaGamer();
-    
-    let pestañaActiva = document.querySelector('.tab-button.active').id.replace('tab-', '');
-    coordinarFrecuenciaAudio(pestañaActiva);
 }
 
 function inyectarObjetoNuevoMaster() {
@@ -688,10 +639,10 @@ function redibujarConsolaAdminMaster() {
 }
 
 function guardarBD() {
-    localStorage.setItem('silph_co_db_2026_v2', JSON.stringify(baseDatos));
+    localStorage.setItem('silph_co_db_2026_final', JSON.stringify(baseDatos));
 }
 
-// Auto-login si ya existe sesión
+// Auto-login al refrescar si ya existe sesión limpia
 if(userSesion && baseDatos.jugadores[userSesion]) {
     document.getElementById('pantalla-lobby').style.display = 'none';
     document.getElementById('pantalla-mercado').style.display = 'block';
