@@ -448,7 +448,6 @@ function ingresarAlSistema() {
         };
     }
 
-    // Asegurar compatibilidad si el perfil existía de antes sin los campos nuevos
     let j = baseDatos.jugadores[id];
     if(!j.lockeStatus) j.lockeStatus = 'jugando';
     if(j.showdownRaw === undefined) j.showdownRaw = '';
@@ -527,7 +526,6 @@ function parsearYRenderizarShowdown() {
         return;
     }
 
-    // Fragmentar por bloques vacíos de showdown
     let pokesRaw = raw.split(/\n\s*\n/);
     pokesRaw.forEach(bloque => {
         let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -581,7 +579,6 @@ function refrescarPantallaGamer() {
     document.getElementById('usr-dinero').innerText = Number(u.dinero).toLocaleString();
     document.getElementById('usr-pf').innerText = u.pf;
 
-    // Bolsa
     let bBox = document.getElementById('lista-inventario'); bBox.innerHTML = '';
     if(u.inventario.length === 0) bBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Ningún objeto en tu mochila.</span>';
     u.inventario.forEach((item, index) => {
@@ -637,6 +634,7 @@ function refrescarPantallaGamer() {
                     <div>
                         <div style="font-family:'Orbitron'; color:var(--neon-packs); font-size:15px; margin-bottom:4px;">${p.precio} P₠</div>
                         <div style="color:var(--neon-legal); font-size:11px; margin-bottom:12px;">Gana del Pack: +${p.pf} PF</div>
+                        <div style="font-size:11px; color:var(--texto-secundario); margin-bottom:12px;">Disponibles: ${p.stock} uds</div>
                         <button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionComercial(${p.id})">Comprar Pack</button>
                     </div>
                 </div>`;
@@ -662,6 +660,7 @@ function refrescarPantallaGamer() {
                     </div>
                     <div>
                         <div style="font-family:'Orbitron'; color:var(--neon-packs); font-size:13px; margin-bottom:4px;">Requisito: ${p.precioPf} PF</div>
+                        <div style="font-size:11px; color:var(--texto-secundario); margin-bottom:12px;">Disponibles: ${p.stock} uds</div>
                         <button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionIlegal(${p.id})">Canjear Beneficio</button>
                     </div>
                 </div>`;
@@ -719,6 +718,8 @@ function inyectarObjetoNuevoMaster() {
     if(t === 'illegal') { obj.precioPf = p; obj.desc = "Inyectado por el Mercader."; } else { obj.precio = p; obj.pf = 1; }
     baseDatos.productos.push(obj); guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
     document.getElementById('ins-nombre').value = '';
+    document.getElementById('ins-precio').value = '';
+    document.getElementById('ins-stock').value = '';
 }
 
 function ejecutarCambioCarteraManual(jugador, tipo, operacion) {
@@ -732,6 +733,34 @@ function ejecutarCambioCarteraManual(jugador, tipo, operacion) {
 
 function limpiarCupoTransaccionesMaster(jugador) {
     baseDatos.jugadores[jugador].comprasHoy = 0; guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
+}
+
+/* --- NUEVAS FUNCIONES PARA EDICIÓN DE INVENTARIO CENTRAL --- */
+function actualizarStockMaster(id, nuevoStock) {
+    let p = baseDatos.productos.find(pr => pr.id === id);
+    if(p) {
+        p.stock = parseInt(nuevoStock) || 0;
+        guardarBD(); refrescarPantallaGamer();
+    }
+}
+
+function actualizarPrecioMaster(id, nuevoPrecio) {
+    let p = baseDatos.productos.find(pr => pr.id === id);
+    if(p) {
+        if(p.tienda === 'illegal') {
+            p.precioPf = parseInt(nuevoPrecio) || 0;
+        } else {
+            p.precio = parseInt(nuevoPrecio) || 0;
+        }
+        guardarBD(); refrescarPantallaGamer();
+    }
+}
+
+function eliminarArticuloMaster(id) {
+    if(confirm("¿Estás seguro de que quieres borrar este artículo por completo de las tiendas?")) {
+        baseDatos.productos = baseDatos.productos.filter(pr => pr.id !== id);
+        guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
+    }
 }
 
 function redibujarConsolaAdminMaster() {
@@ -758,7 +787,26 @@ function redibujarConsolaAdminMaster() {
 
     let al = document.getElementById('admin-inventario-global'); al.innerHTML = '';
     baseDatos.productos.forEach(p => {
-        al.innerHTML += `<div style="font-size:11px; border-bottom:1px solid #1e293b; padding:4px 0;">[${p.tienda.toUpperCase()}] ${p.nombre} (${p.stock} uds)</div>`;
+        let precioActual = (p.tienda === 'illegal') ? p.precioPf : p.precio;
+        let tipoMoneda = (p.tienda === 'illegal') ? 'PF' : 'P₠';
+        
+        al.innerHTML += `
+            <div class="admin-card-inner" style="border-left: 3px solid #ffbb00;">
+                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:5px;">
+                    <span style="font-size:12px; font-weight:bold;">[${p.tienda.toUpperCase()}] ${p.nombre}</span>
+                    <button onclick="eliminarArticuloMaster(${p.id})" style="background:#ef4444; border:none; color:white; font-size:10px; cursor:pointer; padding:2px 6px; border-radius:3px;">❌</button>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; font-size:11px;">
+                    <div>
+                        <label style="color:var(--texto-secundario)">Stock:</label>
+                        <input type="number" value="${p.stock}" class="admin-input-custom" style="width:55px; padding:2px;" onchange="actualizarStockMaster(${p.id}, this.value)">
+                    </div>
+                    <div>
+                        <label style="color:var(--texto-secundario)">Precio (${tipoMoneda}):</label>
+                        <input type="number" value="${precioActual}" class="admin-input-custom" style="width:65px; padding:2px;" onchange="actualizarPrecioMaster(${p.id}, this.value)">
+                    </div>
+                </div>
+            </div>`;
     });
 }
 
