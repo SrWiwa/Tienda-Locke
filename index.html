@@ -3,69 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda Pokémon Oficial & Mercado Negro</title>
+    <title>Sistema de Tiendas - Pokémon Locke</title>
     <style>
         :root {
-            --poke-rojo: #ef5350;
-            --poke-rojo-oscuro: #c62828;
-            --poke-azul: #29b6f6;
-            --poke-azul-oscuro: #0288d1;
-            --bg-sitio: #f4f6f9;
-            --bg-tarjeta: #ffffff;
-            --texto-oscuro: #2c3e50;
-            --texto-claro: #ffffff;
-            --oro-precio: #f39c12;
-            --verde-stock: #27ae60;
-            --rojo-agotado: #e74c3c;
-            --gris-borde: #e0e0e0;
+            --bg-sitio: #060b13;
+            --bg-seccion: #0f172a;
+            --bg-tarjeta: #1e293b;
+            --texto-claro: #f8fafc;
+            --texto-mutado: #94a3b8;
+            --oro: #fbbf24;
+            --azul-pf: #38bdf8;
+            --verde-stock: #10b981;
+            --rojo-agotado: #ef4444;
+            --borde: #334155;
+            
+            /* Categorías */
+            --cat-ev: #10b981;
+            --cat-bayas: #8b5cf6;
+            --cat-balls: #06b6d4;
+            --cat-explora: #f97316;
+            --cat-combate: #ef4444;
+            --cat-comp: #eab308;
+
+            /* Packs */
+            --pack-balls: #b91c1c;
+            --pack-explora: #15803d;
+            --pack-combate: #c2410c;
+            --pack-superv: #166534;
+            --pack-segundo: #6b21a8;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-sitio);
-            color: var(--texto-oscuro);
+            color: var(--texto-claro);
             margin: 0;
             padding: 0;
         }
 
-        /* Barra superior estilo Centro Pokémon */
         .navbar {
-            background-color: var(--poke-rojo);
-            border-bottom: 5px solid var(--poke-rojo-oscuro);
+            background-color: #0f172a;
+            border-bottom: 4px solid #1e293b;
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: var(--texto-claro);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        .navbar h1 {
-            margin: 0;
-            font-size: 1.6rem;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .navbar h1 { margin: 0; font-size: 1.4rem; color: #fff; letter-spacing: 1px; }
 
         .btn-master {
-            background-color: #333;
+            background-color: #475569;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
             font-size: 0.85rem;
         }
 
-        /* Panel de Estadísticas del Jugador (Diseño de interfaz de juego) */
         .status-bar {
-            background-color: #ffffff;
-            border-bottom: 2px solid var(--gris-borde);
-            padding: 15px;
+            background-color: #0f172a;
+            border-bottom: 1px solid var(--borde);
+            padding: 12px;
             display: flex;
             justify-content: center;
             gap: 20px;
@@ -73,366 +75,687 @@
         }
 
         .stat-badge {
-            background: #f8f9fa;
-            border: 2px solid var(--gris-borde);
-            padding: 8px 20px;
+            background: #1e293b;
+            border: 1px solid var(--borde);
+            padding: 6px 16px;
             border-radius: 30px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            gap: 6px;
         }
 
-        /* Contenedor Principal y Pestañas */
-        .main-container {
-            max-width: 1100px;
-            margin: 25px auto;
-            padding: 0 20px;
-        }
+        .main-container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
 
         .tabs-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 25px;
-            border-bottom: 3px solid var(--gris-borde);
-            padding-bottom: 1px;
+            border-bottom: 2px solid var(--borde);
+            flex-wrap: wrap;
         }
 
         .tab-button {
-            background-color: #e0e0e0;
-            color: #666;
+            background-color: #1e293b;
+            color: var(--texto-mutado);
             border: none;
-            padding: 12px 25px;
-            font-size: 1.1rem;
+            padding: 12px 18px;
+            font-size: 0.9rem;
             font-weight: bold;
-            border-radius: 10px 10px 0 0;
+            border-radius: 8px 8px 0 0;
             cursor: pointer;
             transition: 0.2s;
+            text-transform: uppercase;
         }
 
-        .tab-button.active {
-            background-color: var(--poke-azul);
-            color: var(--texto-claro);
-            border-bottom: 3px solid var(--poke-azul-oscuro);
+        .tab-button.active { background-color: #38bdf8; color: #0f172a; }
+        #tab-btn-pack.active { background-color: #eab308; color: #0f172a; }
+        #tab-btn-illegal.active { background-color: #ef4444; color: white; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .info-block {
+            background: #111827;
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+        .info-block h4 { margin: 0 0 10px 0; color: #fff; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.5px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .info-card { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px; border-left: 3px solid var(--borde); }
+        .info-card p { margin: 4px 0 0 0; font-size: 0.85rem; color: var(--texto-mutado); line-height: 1.4; }
+        .info-card strong { color: #fff; font-size: 0.88rem; }
+
+        .categoria-seccion {
+            background-color: var(--bg-seccion);
+            border: 1px solid var(--borde);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            overflow: hidden;
         }
 
-        /* Grid y Tarjetas de Objetos (Estilo Tienda Oficial) */
+        .categoria-header { padding: 12px 20px; font-size: 1.1rem; font-weight: bold; text-transform: uppercase; color: #fff; }
+
         .grid-articulos {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 25px;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
+            gap: 20px;
+            padding: 20px;
         }
 
         .item-card {
             background-color: var(--bg-tarjeta);
-            border: 1px solid var(--gris-borde);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
-        .item-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
+        .item-info h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: #fff; }
+        .item-desc { font-size: 0.82rem; color: var(--texto-mutado); margin: 8px 0; line-height: 1.4; flex-grow: 1; }
 
-        /* Contenedor de la Imagen del Objeto */
-        .item-img-container {
-            background-color: #f9f9f9;
-            border-radius: 10px;
+        .price-tag { color: var(--oro); font-weight: bold; font-size: 1.1rem; margin-bottom: 2px; }
+        .pf-tag { color: var(--azul-pf); font-weight: bold; margin-bottom: 2px; }
+        .stock-tag { font-size: 0.85rem; color: var(--texto-mutado); }
+
+        .pack-card {
+            background-color: #111827;
+            border-left: 5px solid var(--pack-color);
+            border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
-            height: 90px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            border: 1px dashed #ccc;
+            border-top: 1px solid var(--borde);
+            border-right: 1px solid var(--borde);
+            border-bottom: 1px solid var(--borde);
+            gap: 15px;
         }
 
-        .item-img {
-            max-width: 70px;
-            max-height: 70px;
-            object-fit: contain;
-        }
+        .pack-details h3 { margin: 0 0 4px 0; color: #fff; font-size: 1.2rem; }
+        .pack-content { color: var(--oro); font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
+        .pack-strategy { font-size: 0.8rem; color: #a8a29e; font-style: italic; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; display: inline-block; }
 
-        .item-icon-fallback {
-            font-size: 3rem;
-        }
+        .pack-buy-zone { text-align: right; min-width: 120px; }
 
-        .item-title {
-            font-size: 1.2rem;
-            margin: 0 0 8px 0;
-            color: var(--texto-oscuro);
-        }
-
-        .item-desc {
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            margin: 0 0 15px 0;
-            min-height: 32px;
-        }
-
-        .item-price { color: var(--oro-precio); font-weight: bold; font-size: 1.3rem; margin-bottom: 4px; }
-        .item-pf { color: var(--poke-azul-oscuro); font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
-        .item-slots { color: #e67e22; font-size: 0.8rem; font-weight: 500; }
-        .item-stock { font-size: 0.85rem; margin-top: 10px; color: #7f8c8d; }
-
-        /* Botón de Compra Estilo Pokémon */
-        .btn-poke-buy {
-            background: linear-gradient(180deg, #54ccff 0%, #0099e6 100%);
+        .btn-buy {
+            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 25px;
+            padding: 8px 14px;
+            border-radius: 6px;
             font-weight: bold;
-            font-size: 0.95rem;
             cursor: pointer;
-            margin-top: 15px;
             width: 100%;
-            box-shadow: 0 3px 0 #006699;
+            margin-top: 8px;
         }
-        .btn-poke-buy:active { transform: translateY(3px); box-shadow: none; }
-        .btn-poke-buy:disabled {
-            background: #bdc3c7 !important;
-            color: #7f8c8d;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
+        .btn-buy:disabled { background: #475569 !important; color: #94a3b8; cursor: not-allowed; }
 
-        /* Panel de Control Secreto */
-        .panel-admin-box {
-            background-color: #34495e;
-            color: white;
+        .btn-pack-buy { background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%); color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .btn-illegal-buy { background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%); color: white; }
+
+        /* --- NUEVO DISEÑO PANEL ADMINISTRADOR CRÍTICO --- */
+        .admin-box {
+            background-color: #0f172a;
+            border: 2px solid var(--oro);
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 25px;
             display: none;
-            border-left: 5px solid var(--oro-precio);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
         }
-        .panel-admin-box.visible { display: block; }
+        .admin-box.visible { display: block; }
+        
+        .admin-title { margin-top: 0; color: var(--oro); font-size: 1.3rem; border-bottom: 1px solid var(--borde); padding-bottom: 8px; }
+        
+        .admin-grid-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px; }
+        .admin-card-section { background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid var(--borde); }
+        .admin-card-section h5 { margin: 0 0 10px 0; color: #fff; font-size: 1rem; text-transform: uppercase; }
 
-        .illegal-locked-msg {
-            text-align: center;
-            padding: 50px 20px;
-            background-color: #fff;
-            border: 2px dashed #95a5a6;
-            border-radius: 15px;
-            color: #7f8c8d;
-            font-size: 1.2rem;
-        }
+        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; color: var(--texto-mutado); }
+        .form-group input, .form-group select { background: #0f172a; border: 1px solid var(--borde); color: #fff; padding: 8px; border-radius: 4px; }
+
+        .btn-admin-action { background: var(--oro); color: #000; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-admin-action:hover { opacity: 0.9; }
+
+        .table-admin-edit { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .table-admin-edit th, .table-admin-edit td { border: 1px solid var(--borde); padding: 6px; text-align: left; }
+        .table-admin-edit th { background: #111827; color: var(--texto-mutado); }
+        .table-admin-edit input { background: #0f172a; border: 1px solid var(--borde); color: white; width: 50px; padding: 2px 4px; border-radius:3px; text-align: center; }
+
+        .locked-msg { text-align: center; padding: 40px; background: #111827; border: 2px dashed #374151; border-radius: 12px; color: var(--texto-mutado); }
     </style>
 </head>
 <body>
 
-    <!-- BARRA SUPERIOR -->
+    <!-- NAV -->
     <div class="navbar">
-        <h1>🏪 Tienda Pokémon Locke</h1>
-        <button class="btn-master" onclick="toggleMasterPanel()">⚙️ Panel Master</button>
+        <h1>🎮 PANEL DE TIENDAS LOCKE</h1>
+        <button class="btn-master" onclick="solicitarAccesoMaster()">⚙️ Panel Master</button>
     </div>
 
-    <!-- PANEL MASTER OCULTO -->
+    <!-- PANEL MASTER EXPANDIDO -->
     <div class="main-container">
-        <div class="panel-admin-box" id="panel-master">
-            <h3 style="margin-top:0; color:var(--oro-precio);">🎛️ Control de Contrabando (Master)</h3>
-            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
-                <label style="font-weight:bold; cursor:pointer;">
-                    <input type="checkbox" id="check-illegal" onchange="cambiarMercadoNegro(this.checked)" style="transform:scale(1.3); margin-right:8px;">
-                    🔓 Permitir Acceso a la "Tienda De Ilegalidades"
+        <div class="admin-box" id="panel-master">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 class="admin-title">🎛️ Consola de Control del Master (Modo Dios)</h3>
+                <button onclick="cerrarPanelMaster()" style="background:var(--rojo-agotado); border:none; color:white; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer;">Cerrar X</button>
+            </div>
+            
+            <div style="background: rgba(16,185,129,0.1); border: 1px dashed var(--verde-stock); padding: 10px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 15px;">
+                ⚙️ <strong>Modificaciones Globales Directas:</strong> Puedes activar el Mercado Negro o resetear los huecos de compra diarios de los jugadores de forma inmediata.
+            </div>
+
+            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; background:#111827; padding:12px; border-radius:6px; margin-bottom:20px;">
+                <label style="cursor:pointer; font-weight: bold;">
+                    <input type="checkbox" id="check-illegal" onchange="cambiarMercadoNegro(this.checked)" style="transform:scale(1.2); margin-right:5px;">
+                    🔓 Abrir "Tienda De Ilegalidades" (Mercado Negro)
                 </label>
-                <button onclick="forzarResetHoy()" style="background-color:var(--poke-rojo); color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">
-                    🔄 Resetear Límite de Compras (24h)
+                <button onclick="resetCupos()" style="background-color:var(--azul-pf); color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">
+                    🔄 Resetear Límite de Compras (0 / 3)
                 </button>
             </div>
-        </div>
-    </div>
 
-    <!-- ESTADÍSTICAS DEL JUGADOR -->
-    <div class="status-bar">
-        <div class="stat-badge">🎒 Bolsa: <span id="lbl-dinero" style="color:var(--oro-precio);">0</span> P₠</div>
-        <div class="stat-badge">⭐ Favor: <span id="lbl-pf" style="color:var(--poke-azul-oscuro);">0</span> PF</div>
-        <div class="stat-badge">🕒 Cupo de Hoy: <span id="lbl-slots" style="color:var(--verde-stock);">0 / 3</span></div>
-    </div>
+            <div class="admin-grid-forms">
+                <!-- FORMULARIO 1: CREAR NUEVOS OBJETOS -->
+                <div class="admin-card-section">
+                    <h5>➕ Añadir Nuevo Objeto al Catálogo</h5>
+                    <div class="form-group">
+                        <label>Nombre del Objeto:</label>
+                        <input type="text" id="add-nombre" placeholder="Ej: Restos, Max. Revivir...">
+                    </div>
+                    <div class="form-group">
+                        <label>Destino de Tienda:</label>
+                        <select id="add-tienda" onchange="manejarCambioTiendaForm(this.value)">
+                            <option value="legal">🛒 Tienda Legal (Sueltos)</option>
+                            <option value="pack">💎 Shop PF Pack (Lotes)</option>
+                            <option value="illegal">💀 Tienda de Ilegalidades (Mercado Negro)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="form-group-cat">
+                        <label>Categoría (Solo Tienda Legal):</label>
+                        <select id="add-categoria">
+                            <option value="EV / IV">EV / IV</option>
+                            <option value="Bayas">Bayas</option>
+                            <option value="Poké Balls">Poké Balls</option>
+                            <option value="Objetos de Exploración">Objetos de Exploración</option>
+                            <option value="Objetos de Combat (X)">Objetos de Combat (X)</option>
+                            <option value="Objetos Competitivos">Objetos Competitivos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-precio-coste">Precio (Pokédólares 🪙):</label>
+                        <input type="number" id="add-precio" value="500">
+                    </div>
+                    <div class="form-group" id="form-group-pf-recompensa">
+                        <label>PF que Recompensa al comprar:</label>
+                        <input type="number" id="add-pf" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Inicial:</label>
+                        <input type="number" id="add-stock" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción / Contenido:</label>
+                        <input type="text" id="add-desc" placeholder="Detalles de lo que hace o contiene...">
+                    </div>
+                    <button class="btn-admin-action" onclick="crearObjetoMaster()">INYECTAR OBJETO</button>
+                </div>
 
-    <!-- CONTENIDO GENERAL -->
-    <div class="main-container">
-        <!-- Pestañas de las Tiendas -->
-        <div class="tabs-container">
-            <button class="tab-button active" onclick="cambiarPestaña('legal')">🛒 Tienda Oficial</button>
-            <button class="tab-button" id="tab-btn-illegal" onclick="cambiarPestaña('illegal')">💀 Tienda De Ilegalidades</button>
-        </div>
-
-        <!-- SECCIÓN: TIENDA OFICIAL -->
-        <div id="tienda-legal" class="tab-content active">
-            <div class="grid-articulos" id="grid-legal"></div>
-        </div>
-
-        <!-- SECCIÓN: TIENDA DE ILEGALIDADES -->
-        <div id="tienda-illegal" class="tab-content">
-            <div id="status-tienda-illegal">
-                <div class="grid-articulos" id="grid-illegal"></div>
+                <!-- FORMULARIO 2: EDICIÓN RÁPIDA DE PRECIOS Y STOCK -->
+                <div class="admin-card-section" style="max-height: 480px; overflow-y: auto;">
+                    <h5>✏️ Edición Rápida del Catálogo Activo</h5>
+                    <p style="font-size:0.75rem; color:var(--texto-mutado); margin: 0 0 10px 0;">Modifica los campos y pulsa "Guardar Cambios" para actualizar los precios y almacenes.</p>
+                    
+                    <table class="table-admin-edit">
+                        <thead>
+                            <tr>
+                                <th>Objeto</th>
+                                <th>Precio/Coste</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-admin-items">
+                            <!-- Inyectado dinámicamente -->
+                        </tbody>
+                    </table>
+                    <button class="btn-admin-action" style="margin-top:15px; background:var(--verde-stock); color:white;" onclick="guardarEdicionRapidaMaster()">GUARDAR CAMBIOS</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="status-bar">
+        <div class="stat-badge">🎒 Bolsa: <span id="lbl-dinero" style="color:var(--oro);">15,000</span> P₠</div>
+        <div class="stat-badge">⭐ Favor: <span id="lbl-pf" style="color:var(--azul-pf);">0</span> PF</div>
+        <div class="stat-badge">🕒 Compras de Hoy: <span id="lbl-slots" style="color:var(--verde-stock);">0 / 3</span></div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="main-container">
+        <div class="tabs-container">
+            <button class="tab-button active" id="tab-btn-legal" onclick="cambiarPestaña('legal')">🛒 TIENDA LEGAL</button>
+            <button class="tab-button" id="tab-btn-pack" onclick="cambiarPestaña('pack')">💎 SHOP PF PACK</button>
+            <button class="tab-button" id="tab-btn-illegal" onclick="cambiarPestaña('illegal')">💀 TIENDA DE ILEGALIDADES</button>
+        </div>
+
+        <!-- SECCIÓN 1: TIENDA LEGAL -->
+        <div id="tienda-legal" class="tab-content active">
+            <div class="info-block" style="border-top: 3px solid var(--azul-pf);">
+                <h4>📝 Directrices de la Tienda Legal</h4>
+                <div class="info-grid">
+                    <div class="info-card" style="border-left-color: var(--oro);">
+                        <strong>🪙 Obtención de Divisa</strong>
+                        <p>Los Pokédólares se obtienen explorando las rutas, completando misiones secundarias asignadas y venciendo entrenadores.</p>
+                    </div>
+                    <div class="info-card" style="border-left-color: var(--verde-stock);">
+                        <strong>🔄 Rotación del Almacén</strong>
+                        <p>El stock general de todos los productos individuales de la Tienda Legal se renueva por completo cada día.</p>
+                    </div>
+                    <div class="info-card" style="border-left-color: var(--rojo-agotado);">
+                        <strong>🛑 Cupo de Consumo Diario</strong>
+                        <p>Existe un límite estricto de un máximo de 3 compras diarias por jugador en este establecimiento.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="categorias-legal-container"></div>
+        </div>
+
+        <!-- SECCIÓN 2: SHOP PF PACK -->
+        <div id="tienda-pack" class="tab-content">
+            <div class="info-block" style="border-top: 3px solid var(--oro);">
+                <h4>📊 Manual de Ofertas y Puntos de Favor (PF)</h4>
+                <div class="info-grid">
+                    <div class="info-card" style="border-left-color: var(--azul-pf);">
+                        <strong>⭐ ¿Qué son los PF?</strong>
+                        <p>Son los Puntos de Favor, la moneda exclusiva del Mercado Negro. Se adquieren comprando en la Tienda Legal y mediante la adquisición de estos PF PACK.</p>
+                    </div>
+                    <div class="info-card" style="border-left-color: var(--oro);">
+                        <strong>⚖️ Regla del Lote Prémiun</strong>
+                        <p>Los PF PACK otorgan siempre 1 PF adicional de bonificación respecto a lo que sumarian los objetos si se comprasen individualmente.</p>
+                    </div>
+                    <div class="info-card" style="border-left-color: var(--cat-bayas);">
+                        <strong>⚠️ Importancia Estratégica</strong>
+                        <p>Los puntos de favor acumulados aquí son la única llave de acceso para adquirir las poderosas ventajas de la tienda de ilegalidades. ¡Gasta con inteligencia!</p>
+                    </div>
+                </div>
+            </div>
+            <div id="packs-container"></div>
+        </div>
+
+        <!-- SECCIÓN 3: TIENDA DE ILEGALIDADES -->
+        <div id="tienda-illegal" class="tab-content">
+            <div id="status-tienda-illegal"></div>
         </div>
     </div>
 
 <script>
-// Base de datos de los objetos con soporte para IMÁGENES
-// Nota: Deja "imgUrl" vacío '' para usar el icono emoji por defecto, o pon la ruta/URL de tu imagen.
-const catalogoOriginal = [
-    { id: 1, tienda: 'legal', tipo: 'Objeto', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, slots: 1, icono: '💊', imgUrl: '' },
-    { id: 2, tienda: 'legal', tipo: 'Objeto', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, slots: 1, icono: '🧪', imgUrl: '' },
-    { id: 3, tienda: 'legal', tipo: 'Objeto', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, slots: 1, icono: '🛡️', imgUrl: '' },
-    { id: 4, tienda: 'legal', tipo: 'Objeto', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, slots: 1, icono: '👟', imgUrl: '' },
-    { id: 5, tienda: 'legal', tipo: 'Pack', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 3, slots: 2, desc: '3 Baya Oran + 3 Baya Atania', icono: '📦', imgUrl: '' },
-    { id: 6, tienda: 'legal', tipo: 'Pack', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 2, slots: 2, desc: '1 Banda Focus + 1 Hierro', icono: '🎁', imgUrl: '' },
-    
-    // Tienda De Ilegalidades (Objetos rotos, fakes o prohibidos)
-    { id: 7, tienda: 'illegal', tipo: 'Ilegal', nombre: 'Banda Focus (Clonada)', precio: 2500, pf: 3, stock: 2, slots: 1, desc: 'Evita debilitarse si tiene la vida al máximo.', icono: '🎗️', imgUrl: '' },
-    { id: 8, tienda: 'illegal', tipo: 'Ilegal', nombre: 'Gafas Elegidas (Fake)', precio: 5000, pf: 3, stock: 1, slots: 1, desc: 'Sube el Ataque Especial pero solo permite usar un movimiento.', icono: '🕶️', imgUrl: '' },
-    { id: 9, tienda: 'illegal', tipo: 'Fake-Ball', nombre: 'Nivel Ball Modificada', precio: 1500, pf: 4, stock: 5, slots: 1, desc: 'Ratio de captura alterado ilegalmente.', icono: '🔴', imgUrl: '' }
+// Catálogo inicial base de las imágenes
+const catalogoBase = [
+    { id: 1, tienda: 'legal', cat: 'EV / IV', color: 'var(--cat-ev)', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, slots: 1 },
+    { id: 2, tienda: 'legal', cat: 'EV / IV', color: 'var(--cat-ev)', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, slots: 1 },
+    { id: 3, tienda: 'legal', cat: 'Bayas', color: 'var(--cat-bayas)', nombre: 'Baya Atania', precio: 80, pf: 1, stock: 12, slots: 1 },
+    { id: 4, tienda: 'legal', cat: 'Bayas', color: 'var(--cat-bayas)', nombre: 'Baya Oran', precio: 90, pf: 1, stock: 12, slots: 1 },
+    { id: 5, tienda: 'legal', cat: 'Poké Balls', color: 'var(--cat-balls)', nombre: 'Buceo Ball', precio: 200, pf: 2, stock: 8, slots: 1 },
+    { id: 6, tienda: 'legal', cat: 'Poké Balls', color: 'var(--cat-balls)', nombre: 'Nivel Ball', precio: 250, pf: 3, stock: 8, slots: 1 },
+    { id: 7, tienda: 'legal', cat: 'Objetos de Exploración', color: 'var(--cat-explora)', nombre: 'Cuerda Huida', precio: 120, pf: 1, stock: 8, slots: 1 },
+    { id: 8, tienda: 'legal', cat: 'Objetos de Exploración', color: 'var(--cat-explora)', nombre: 'Repelente', precio: 70, pf: 1, stock: 20, slots: 1 },
+    { id: 9, tienda: 'legal', cat: 'Objetos de Combat (X)', color: 'var(--cat-combate)', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, slots: 1 },
+    { id: 10, tienda: 'legal', cat: 'Objetos de Combat (X)', color: 'var(--cat-combate)', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, slots: 1 },
+    { id: 11, tienda: 'legal', cat: 'Objetos Competitivos', color: 'var(--cat-comp)', nombre: 'Banda Focus', precio: 2500, pf: 3, stock: 4, slots: 1 },
+    { id: 12, tienda: 'legal', cat: 'Objetos Competitivos', color: 'var(--cat-comp)', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, slots: 1 },
+
+    { id: 101, tienda: 'pack', color: 'var(--pack-balls)', nombre: 'PACK BALLS', desc: '2 Buceo Ball + 2 Nivel Ball', estrategia: 'Incentiva estrategia de captura mixta (situacional + control de niveles)', precio: 750, pf: 11, stock: 3, slots: 1 },
+    { id: 102, tienda: 'pack', color: 'var(--pack-explora)', nombre: 'PACK EXPLORACIÓN', desc: '2 Cuerda Huida + 4 Repelente', estrategia: 'Reduce fricción de rutas largas sin regalar seguridad total', precio: 460, pf: 7, stock: 3, slots: 1 },
+    { id: 103, tienda: 'pack', color: 'var(--pack-combate)', nombre: 'PACK COMBATE TEMPRANO', desc: '2 X Defensa + 2 X Velocidad', estrategia: 'No es barato, pero premia preparación de combate', precio: 1300, pf: 11, stock: 2, slots: 1 },
+    { id: 104, tienda: 'pack', color: 'var(--pack-superv)', nombre: 'PACK SUPERVIVENCIA', desc: '3 Baya Oran + 3 Baya Atania', estrategia: 'Ahorro pequeño pero constante, ideal para jugadores cuidadosos', precio: 460, pf: 7, stock: 3, slots: 1 },
+    { id: 105, tienda: 'pack', color: 'var(--pack-segundo)', nombre: 'PACK "SEGUNDO INTENTO"', desc: '1 Banda Focus + 1 Hierro', estrategia: 'Supervivencia + mejora permanente ligera', precio: 2800, pf: 6, stock: 2, slots: 1 },
+
+    { id: 201, tienda: 'illegal', nombre: '1. ESCUDO POKE', costePf: 5, stock: 1, desc: 'Debe asignarse antes del combate. Si el Poke iba a morir, el escudo se activa y evita la muerte.' },
+    { id: 202, tienda: 'illegal', nombre: '2. CAPTURA SELECTIVA', costePf: 4, stock: 1, desc: 'Permite elegir el Poke capturable de una ruta. Tras su uso, no puedes capturar en las 2 siguientes rutas.' },
+    { id: 203, tienda: 'illegal', nombre: '3. LICENCIA DE CAZA', costePf: 3, stock: 1, desc: 'Permite repetir la captura de una ruta si el Poke es derrotado o huye. No se activa si el jugador es derrotado.' },
+    { id: 204, tienda: 'illegal', nombre: '4. FALSIFICACIÓN DE REGISTRO', costePf: 5, stock: 1, desc: 'Permite sustituir 1 Poke del equipo clasificado al torneo por otro Poke válido de la caja.' },
+    { id: 205, tienda: 'illegal', nombre: '5. PLAZA FANTASMA', costePf: 6, stock: 1, desc: 'Si un Poke muere contra el líder, permite sustituir su plaza en el torneo por otro Poke de la caja.' },
+    { id: 206, tienda: 'illegal', nombre: '6. EVOLUCIÓN FORZADA', costePf: 5, stock: 1, desc: 'Permite evolucionar un Poke que requiera amistad para evolucionar.' },
+    { id: 207, tienda: 'illegal', nombre: '7. RECONFIGURACIÓN', costePf: 2, stock: 1, desc: 'Permite modificar los movimientos de 1 Poke después del combate contra el líder y antes del torneo.' },
+    { id: 208, tienda: 'illegal', nombre: '8. MODIFICACIÓN GENÉTICA', costePf: 4, stock: 1, desc: 'Permite cambiar la habilidad de 1 Poke por otra de sus habilidades posibles.' },
+    { id: 209, tienda: 'illegal', nombre: '9. ALTERACIÓN DE PERSONALIDAD', costePf: 2, stock: 1, desc: 'Permite cambiar la naturaleza de 1 Poke.' },
+    { id: 210, tienda: 'illegal', nombre: '10. RESURRECCIÓN ROBADA', costePf: 8, stock: 1, desc: 'Robas 1 Poke muerto de otro jugador y pasa a estar en tu caja vivo.' }
 ];
 
-let baseDatos = {
-    productos: catalogoOriginal,
-    jugador: { dinero: 15000, pf: 0, slotsUsados: 0, ultimaCompra: "" },
-    accesoIlegal: false
+let appState = {
+    productos: catalogoBase,
+    jugador: { dinero: 15000, pf: 0, slotsUsados: 0 },
+    illegalActivo: false
 };
 
-// Cargar datos guardados
-if (localStorage.getItem('poke_locke_shop_save')) {
-    baseDatos = JSON.parse(localStorage.getItem('poke_locke_shop_save'));
+// Cargar almacenamiento persistente
+if (localStorage.getItem('locke_saved_data_v7')) {
+    appState = JSON.parse(localStorage.getItem('locke_saved_data_v7'));
 }
 
-function guardarDatos() {
-    localStorage.setItem('poke_locke_shop_save', JSON.stringify(baseDatos));
+function salvar() {
+    localStorage.setItem('locke_saved_data_v7', JSON.stringify(appState));
 }
 
-function refrescarInterfaz() {
-    const gridLegal = document.getElementById('grid-legal');
-    const gridIllegal = document.getElementById('grid-illegal');
-    const cajaStatusIllegal = document.getElementById('status-tienda-illegal');
+// Control de acceso Master mediante clave secreta simple
+function solicitarAccesoMaster() {
+    const clave = prompt("Introduce la clave secreta del Master para acceder a los controles:");
+    if (clave === "1234") { // Cambia "1234" por la contraseña que quieras
+        document.getElementById('panel-master').classList.add('visible');
+        dibujarTablaEdicionMaster();
+    } else if (clave !== null) {
+        alert("❌ Contraseña incorrecta. Acceso restringido.");
+    }
+}
 
-    // Limpiar grids
-    if(gridLegal) gridLegal.innerHTML = '';
-    if(gridIllegal) gridIllegal.innerHTML = '';
+function cerrarPanelMaster() {
+    document.getElementById('panel-master').classList.remove('visible');
+}
 
-    // Marcadores globales
-    document.getElementById('lbl-dinero').innerText = baseDatos.jugador.dinero.toLocaleString();
-    document.getElementById('lbl-pf').innerText = baseDatos.jugador.pf;
-    document.getElementById('lbl-slots').innerText = `${baseDatos.jugador.slotsUsados} / 3`;
-    document.getElementById('check-illegal').checked = baseDatos.accesoIlegal;
+// Adapta los inputs dinámicamente según la tienda seleccionada al crear un ítem
+function manejarCambioTiendaForm(tienda) {
+    const grupoCat = document.getElementById('form-group-cat');
+    const grupoPf = document.getElementById('form-group-pf-recompensa');
+    const lblPrecio = document.getElementById('lbl-precio-coste');
 
-    // Control visual de la Tienda de Ilegalidades
-    if (!baseDatos.accesoIlegal) {
-        cajaStatusIllegal.innerHTML = `<div class="illegal-locked-msg">🔒 La "Tienda De Ilegalidades" está cerrada bajo llave por la Policía Internacional. El Master la abrirá en el momento adecuado del Locke.</div>`;
+    if (tienda === 'legal') {
+        grupoCat.style.display = 'flex';
+        grupoPf.style.display = 'flex';
+        lblPrecio.innerText = "Precio (Pokédólares 🪙):";
+    } else if (tienda === 'pack') {
+        grupoCat.style.display = 'none';
+        grupoPf.style.display = 'flex';
+        lblPrecio.innerText = "Precio (Pokédólares 🪙):";
     } else {
-        cajaStatusIllegal.innerHTML = `<div class="grid-articulos" id="grid-illegal"></div>`;
+        grupoCat.style.display = 'none';
+        grupoPf.style.display = 'none';
+        lblPrecio.innerText = "Coste Requerido (PF ⭐):";
+    }
+}
+
+// Crea e inyecta un objeto nuevo en el estado global
+function crearObjetoMaster() {
+    const nombre = document.getElementById('add-nombre').value.trim();
+    const tienda = document.getElementById('add-tienda').value;
+    const precio = parseInt(document.getElementById('add-precio').value) || 0;
+    const stock = parseInt(document.getElementById('add-stock').value) || 0;
+    const desc = document.getElementById('add-desc').value.trim();
+
+    if(!nombre) { alert("El objeto necesita un nombre."); return; }
+
+    const nuevoId = appState.productos.reduce((max, p) => p.id > max ? p.id : max, 0) + 1;
+    let nuevoItem = { id: nuevoId, tienda: tienda, nombre: nombre, stock: stock, slots: 1 };
+
+    if (tienda === 'legal') {
+        nuevoItem.cat = document.getElementById('add-categoria').value;
+        nuevoItem.color = 'var(--borde)';
+        nuevoItem.precio = precio;
+        nuevoItem.pf = parseInt(document.getElementById('add-pf').value) || 0;
+    } else if (tienda === 'pack') {
+        nuevoItem.color = 'var(--pack-segundo)';
+        nuevoItem.precio = precio;
+        nuevoItem.pf = parseInt(document.getElementById('add-pf').value) || 0;
+        nuevoItem.desc = desc || "Lote de contrabando personalizado";
+        nuevoItem.estrategia = "Añadido manualmente por el master";
+    } else {
+        nuevoItem.costePf = precio;
+        nuevoItem.desc = desc || "Ventaja ilegal añadida por el Administrador.";
     }
 
-    const destinoIllegal = document.getElementById('grid-illegal');
+    appState.productos.push(nuevoItem);
+    salvar();
+    dibujarTiendas();
+    dibujarTablaEdicionMaster();
 
-    // Dibujar las tarjetas
-    baseDatos.productos.forEach(item => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'item-card';
+    // Limpiar formulario
+    document.getElementById('add-nombre').value = '';
+    document.getElementById('add-desc').value = '';
+    alert(`✅ ¡Objeto "${nombre}" inyectado con éxito en el catálogo!`);
+}
 
-        const hayStock = item.stock > 0;
-        const sePuedeComprar = (baseDatos.jugador.dinero >= item.precio) && ((baseDatos.jugador.slotsUsados + item.slots) <= 3) && hayStock;
+// Renderiza la tabla de edición rápida en la consola de administración
+function dibujarTablaEdicionMaster() {
+    const tbody = document.getElementById('tbody-admin-items');
+    tbody.innerHTML = '';
+    
+    appState.productos.forEach(item => {
+        const tr = document.createElement('tr');
+        const esIlegal = item.tienda === 'illegal';
+        const valorPrecio = esIlegal ? item.costePf : item.precio;
 
-        // Comprobación de imagen: si tiene URL la pone, si no, usa el Emoji/Icono
-        let imagenHTML = `<span class="item-icon-fallback">${item.icono}</span>`;
-        if (item.imgUrl && item.imgUrl !== '') {
-            imagenHTML = `<img src="${item.imgUrl}" class="item-img" alt="${item.nombre}">`;
-        }
-
-        tarjeta.innerHTML = `
-            <div>
-                <div class="item-img-container">${imagenHTML}</div>
-                <h3 class="item-title">${item.nombre}</h3>
-                <p class="item-desc">${item.desc || 'Objeto útil para tu aventura Pokémon.'}</p>
-            </div>
-            <div>
-                <div class="item-price">${item.precio.toLocaleString()} P₠</div>
-                <div class="item-pf">⭐ +${item.pf} PF</div>
-                <div class="item-slots">Consume: ${item.slots} slot(s)</div>
-                <div class="item-stock">Stock: <strong style="color:${hayStock ? 'var(--verde-stock)' : 'var(--rojo-agotado)'}">${hayStock ? item.stock + ' ud.' : 'AGOTADO'}</strong></div>
-                <button class="btn-poke-buy" ${!sePuedeComprar ? 'disabled' : ''} onclick="hacerCompra(${item.id})">
-                    ${hayStock ? 'COMPRAR' : 'SIN STOCK'}
-                </button>
-            </div>
+        tr.innerHTML = `
+            <td><strong>${item.nombre}</strong> <br><small style="color:var(--texto-mutado)">${item.tienda.toUpperCase()}</small></td>
+            <td><input type="number" id="edit-p-${item.id}" value="${valorPrecio}"> ${esIlegal ? 'PF' : 'P₠'}</td>
+            <td><input type="number" id="edit-s-${item.id}" value="${item.stock}"> ud</td>
         `;
-
-        if (item.tienda === 'legal' && gridLegal) {
-            gridLegal.appendChild(tarjeta);
-        } else if (item.tienda === 'illegal' && baseDatos.accesoIlegal && destinoIllegal) {
-            destinoIllegal.appendChild(tarjeta);
-        }
+        tbody.appendChild(tr);
     });
 }
 
-function hacerCompra(id) {
-    const item = baseDatos.productos.find(p => p.id === id);
-    if(item && item.stock > 0 && baseDatos.jugador.dinero >= item.precio && (baseDatos.jugador.slotsUsados + item.slots) <= 3) {
-        item.stock--;
-        baseDatos.jugador.dinero -= item.precio;
-        baseDatos.jugador.pf += item.pf;
-        baseDatos.jugador.slotsUsados += item.slots;
-        guardarDatos();
-        refrescarInterfaz();
-        alert(`🛒 ¡Comprado con éxito!\nHas retirado 1 unidad de ${item.nombre}.`);
+// Salva masivamente los precios y stocks editados de la tabla
+function guardarEdicionRapidaMaster() {
+    appState.productos.forEach(item => {
+        const inputPrecio = document.getElementById(`edit-p-${item.id}`);
+        const inputStock = document.getElementById(`edit-s-${item.id}`);
+
+        if (inputPrecio && inputStock) {
+            const nuevoVal = parseInt(inputPrecio.value) || 0;
+            if (item.tienda === 'illegal') {
+                item.costePf = nuevoVal;
+            } else {
+                item.precio = nuevoVal;
+            }
+            item.stock = parseInt(inputStock.value) || 0;
+        }
+    });
+
+    salvar();
+    dibujarTiendas();
+    alert("💾 ¡Todos los stocks y precios del catálogo han sido actualizados en la base de datos!");
+}
+
+// RENDERIZADO INTERFAZ USUARIOS
+function dibujarTiendas() {
+    document.getElementById('lbl-dinero').innerText = appState.jugador.dinero.toLocaleString();
+    document.getElementById('lbl-pf').innerText = appState.jugador.pf;
+    document.getElementById('lbl-slots').innerText = `${appState.jugador.slotsUsados} / 3`;
+    document.getElementById('check-illegal').checked = appState.illegalActivo;
+
+    // 1. TIENDA LEGAL
+    const contenedorLegal = document.getElementById('categorias-legal-container');
+    if(contenedorLegal) {
+        contenedorLegal.innerHTML = '';
+        const categorias = [...new Set(appState.productos.filter(p => p.tienda === 'legal').map(p => p.cat))];
+        
+        categorias.forEach(catName => {
+            const items = appState.productos.filter(p => p.tienda === 'legal' && p.cat === catName);
+            if(items.length === 0) return;
+
+            const seccion = document.createElement('div');
+            seccion.className = 'categoria-seccion';
+            
+            const header = document.createElement('div');
+            header.className = 'categoria-header';
+            header.style.backgroundColor = items[0].color || 'var(--borde)';
+            header.innerText = catName;
+            
+            const grid = document.createElement('div');
+            grid.className = 'grid-articulos';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                const hayStock = item.stock > 0;
+                const puedeComprar = (appState.jugador.dinero >= item.precio) && ((appState.jugador.slotsUsados + item.slots) <= 3) && hayStock;
+
+                card.innerHTML = `
+                    <div class="item-info">
+                        <h3>${item.nombre}</h3>
+                        <div class="item-stats">
+                            <div class="price-tag">🪙 ${item.precio.toLocaleString()} P₠</div>
+                            <div class="pf-tag">⭐ +${item.pf} PF</div>
+                            <div class="stock-tag">Stock: <strong style="color:${hayStock ? 'var(--verde-stock)' : 'var(--rojo-agotado)'}">${hayStock ? item.stock : 'AGOTADO'}</strong></div>
+                        </div>
+                    </div>
+                    <button class="btn-buy" ${!puedeComprar ? 'disabled' : ''} onclick="comprarItem(${item.id})">
+                        ${hayStock ? 'COMPRAR' : 'AGOTADO'}
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+            seccion.appendChild(header);
+            seccion.appendChild(grid);
+            contenedorLegal.appendChild(seccion);
+        });
+    }
+
+    // 2. SHOP PF PACK
+    const contenedorPacks = document.getElementById('packs-container');
+    if(contenedorPacks) {
+        contenedorPacks.innerHTML = '';
+        const packs = appState.productos.filter(p => p.tienda === 'pack');
+        
+        packs.forEach(pack => {
+            const row = document.createElement('div');
+            row.className = 'pack-card';
+            row.style.setProperty('--pack-color', pack.color || 'var(--oro)');
+            
+            const hayStock = pack.stock > 0;
+            const puedeComprar = (appState.jugador.dinero >= pack.precio) && ((appState.jugador.slotsUsados + pack.slots) <= 3) && hayStock;
+
+            row.innerHTML = `
+                <div class="pack-details">
+                    <h3>${pack.nombre}</h3>
+                    <div class="pack-content">📦 Incluye: ${pack.desc}</div>
+                    <div class="pack-strategy">➔ ${pack.estrategia}</div>
+                </div>
+                <div class="pack-buy-zone">
+                    <div class="price-tag">🪙 ${pack.precio} P₠</div>
+                    <div class="pf-tag" style="color:#fbbf24;">⭐ +${pack.pf} PF</div>
+                    <div style="font-size:0.8rem; color:var(--texto-mutado); margin-top:4px;">Stock: ${hayStock ? pack.stock : '❌'}</div>
+                    <button class="btn-buy btn-pack-buy" ${!puedeComprar ? 'disabled' : ''} onclick="comprarItem(${pack.id})">
+                        ${hayStock ? 'ADQUIRIR' : 'VACÍO'}
+                    </button>
+                </div>
+            `;
+            contenedorPacks.appendChild(row);
+        });
+    }
+
+    // 3. TIENDA DE ILEGALIDADES
+    const cajaStatusIllegal = document.getElementById('status-tienda-illegal');
+    if (!appState.illegalActivo) {
+        if(cajaStatusIllegal) cajaStatusIllegal.innerHTML = `<div class="locked-msg">🔒 La "Tienda De Ilegalidades" está cerrada. El Master activará el interruptor del panel cuando se os permita hacer trampas ilegales en el torneo.</div>`;
+    } else {
+        if(cajaStatusIllegal) {
+            cajaStatusIllegal.innerHTML = `
+                <div class="info-block" style="border-top: 3px solid #ef4444;">
+                    <h4>💀 Normativa del Mercado de Contrabando</h4>
+                    <div class="info-grid">
+                        <div class="info-card" style="border-left-color: #a855f7;">
+                            <strong>🤝 Moneda de Cambio</strong>
+                            <p>Únicamente se aceptan Puntos de Favor (PF). No pueden comprarse directamente; se consiguen superando retos y comprando lotes legales.</p>
+                        </div>
+                        <div class="info-card" style="border-left-color: var(--rojo-agotado);">
+                            <strong>🔥 Artículos Prohibidos</strong>
+                            <p>Objetos exclusivos diseñados para entrenadores avanzados. Solo existe un stock estrictamente limitado por el Master para toda la partida.</p>
+                        </div>
+                        <div class="info-card" style="border-left-color: var(--azul-pf);">
+                            <strong>⚡ Regla de Acción Clandestina</strong>
+                            <p>Estas adquisiciones no consumen tus 3 ranuras diarias ni requieren el uso de Pokédólares comunes. ¡Úsalos bajo tu propio riesgo!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-articulos" id="grid-illegal"></div>
+            `;
+            
+            const gridIllegal = document.getElementById('grid-illegal');
+            const itemsIllegales = appState.productos.filter(p => p.tienda === 'illegal');
+            
+            itemsIllegales.forEach(item => {
+                const hayStock = item.stock > 0;
+                const puedeComprar = (appState.jugador.pf >= item.costePf) && hayStock;
+
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.style.borderTop = "3px solid #a855f7";
+
+                card.innerHTML = `
+                    <div class="item-info" style="display:flex; flex-direction:column; height:100%;">
+                        <h3>${item.nombre}</h3>
+                        <p class="item-desc">${item.desc}</p>
+                        <div class="item-stats" style="margin-top:auto;">
+                            <div class="pf-tag" style="color:#c084fc;">🤝 Favor Requerido: ${item.costePf} PF</div>
+                            <div class="stock-tag">Disponibles: <strong style="color:${hayStock ? 'var(--azul-pf)' : 'var(--rojo-agotado)'}">${hayStock ? item.stock + ' unidad(es)' : 'AGOTADO'}</strong></div>
+                        </div>
+                    </div>
+                    <button class="btn-buy btn-illegal-buy" ${!puedeComprar ? 'disabled' : ''} onclick="comprarIlegal(${item.id})">
+                        ${hayStock ? 'ADQUIRIR VENTAJA' : 'AGOTADO'}
+                    </button>
+                `;
+                gridIllegal.appendChild(card);
+            });
+        }
     }
 }
 
-// Control de Pestañas
-function cambiarPestaña(tipoTienda) {
+function comprarItem(id) {
+    const item = appState.productos.find(p => p.id === id);
+    if(item && item.stock > 0 && appState.jugador.dinero >= item.precio && (appState.jugador.slotsUsados + item.slots) <= 3) {
+        item.stock--;
+        appState.jugador.dinero -= item.precio;
+        appState.jugador.pf += item.pf;
+        appState.jugador.slotsUsados += item.slots;
+        salvar();
+        dibujarTiendas();
+        alert(`🛒 ¡Compra procesada!\nHas obtenido: ${item.nombre}`);
+    }
+}
+
+function comprarIlegal(id) {
+    const item = appState.productos.find(p => p.id === id);
+    if(item && item.stock > 0 && appState.jugador.pf >= item.costePf) {
+        item.stock--;
+        appState.jugador.pf -= item.costePf;
+        salvar();
+        dibujarTiendas();
+        alert(`💀 ¡Trato hecho en el mercado negro!\nHas desatado el poder de: ${item.nombre}.`);
+    }
+}
+
+function cambiarPestaña(destino) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
 
-    if(tipoTienda === 'legal') {
-        document.getElementById('tienda-legal').classList.add('active');
-        event.currentTarget.classList.add('active');
-    } else {
-        document.getElementById('tienda-illegal').classList.add('active');
-        document.getElementById('tab-btn-illegal').classList.add('active');
-    }
-    refrescarInterfaz();
-}
-
-// Funciones del Panel Master
-function toggleMasterPanel() {
-    document.getElementById('panel-master').classList.toggle('visible');
+    document.getElementById(`tienda-${destino}`).classList.add('active');
+    document.getElementById(`tab-btn-${destino}`).classList.add('active');
 }
 
 function cambiarMercadoNegro(abierto) {
-    baseDatos.accesoIlegal = abierto;
-    guardarDatos();
-    refrescarInterfaz();
+    appState.illegalActivo = abierto;
+    salvar();
+    dibujarTiendas();
 }
 
-function forzarResetHoy() {
-    baseDatos.jugador.slotsUsados = 0;
-    guardarDatos();
-    refrescarInterfaz();
-    alert("🔄 Se han restaurado los 3 cupos diarios de compra.");
+function resetCupos() {
+    appState.jugador.slotsUsados = 0;
+    salvar();
+    dibujarTiendas();
+    alert("🔄 Ranuras diarias reiniciadas a 0 / 3.");
 }
 
-// Carga Inicial
-refrescarInterfaz();
+// Renderizado inicial
+dibujarTiendas();
+manejarCambioTiendaForm('legal');
 </script>
 </body>
 </html>
