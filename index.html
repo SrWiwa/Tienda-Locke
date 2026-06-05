@@ -625,7 +625,7 @@ const baseDatosInicial = [
     { id: 301, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Escudo Poke', precioPf: 5, stock: 1, icon: '🛡️', desc: 'Debe asignarse antes del combate. Si el Poke iba a morir, el escudo se activa y evita la muerte.', descuento: 0 },
     { id: 302, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Captura Selectiva', precioPf: 4, stock: 1, icon: '🎯', desc: 'Permite elegir el Poke capturable de una ruta. Tras su uso, no puedes capturar en las 2 siguientes rutas.', descuento: 0 },
     { id: 303, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Licencia De Caza', precioPf: 3, stock: 1, icon: '📜', desc: 'Permite repetir la captura de una ruta si el Poke es derrotado o huye. No se activa si el jugador es derrotado.', descuento: 0 },
-    { id: 304, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Falsificación De Registro', precioPf: 5, stock: 1, icon: '🪪', desc: 'Permite sustituir 1 Poke del equipo clasificado al torneo por otro Poke válido de la caja.', descuento: 0 },
+    { id: 304, tienda: 'illegal', cat: 'Hack de Sistema', font: 'Falsificación De Registro', nombre: 'Falsificación De Registro', precioPf: 5, stock: 1, icon: '🪪', desc: 'Permite sustituir 1 Poke del equipo clasificado al torneo por otro Poke válido de la caja.', descuento: 0 },
     { id: 305, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Plaza Fantasma', precioPf: 6, stock: 1, icon: '🪑', desc: 'Si un Poke muere contra el líder, permite sustituir su plaza en el torneo por otro Poke de la caja.', descuento: 0 },
     { id: 306, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Evolución Forzada', precioPf: 5, stock: 1, icon: '💖', desc: 'Permite evolucionar un Poke que requiera amistad para evolucionar.', descuento: 0 },
     { id: 307, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Reconfiguración', precioPf: 2, stock: 1, icon: '🔄', desc: 'Permite modificar los movimientos de 1 Poke después del combate contra el líder y antes del torneo.', descuento: 0 },
@@ -1113,54 +1113,4 @@ function refrescarPantallaGamer() {
                 
             let tagDesc = desc > 0 ? `<div class="tag-descuento">-${desc}%</div>` : '';
 
-            htm += `<div class="item-card">${tagDesc}<div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo" style="color:var(--neon-ilegal);">${p.nombre}</div><div class="item-desc">${p.desc || 'Servicio modificado.'}</div></div><div>${labelPrecio}<div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock}</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionIlegal(${p.id})">Canjear</button></div></div>`;
-        });
-        htm += `</div>`; vi.innerHTML = htm;
-    }
-}
-
-function procesarTransaccionComercial(id) {
-    let u = baseDatos.jugadores[userSesion]; 
-    let p = baseDatos.productos.find(pr => pr.id === id);
-    if(!p) return;
-
-    let costeCargas = (p.tienda === 'pack') ? 2 : 1;
-    let desc = p.descuento || 0;
-    let precioFinal = Math.floor(p.precio * (1 - desc / 100));
-
-    if(p.stock > 0 && u.dinero >= precioFinal && u.comprasDisponibles >= costeCargas) {
-        p.stock--; 
-        u.dinero -= precioFinal; 
-        u.pf += (p.pf || 0); 
-        u.comprasDisponibles -= costeCargas; 
-        u.inventario.push({ nombre: p.nombre });
-        guardarBD(); 
-        refrescarPantallaGamer();
-    } else if(u.comprasDisponibles < costeCargas) { 
-        alert(`No posees suficientes slots de compra disponibles. Este artículo requiere ${costeCargas} carga(s) y tienes ${u.comprasDisponibles}.`); 
-    }
-}
-
-function procesarTransaccionIlegal(id) {
-    let u = baseDatos.jugadores[userSesion]; 
-    let p = baseDatos.productos.find(pr => pr.id === id);
-    if(!p) return;
-
-    let desc = p.descuento || 0;
-    let precioFinal = Math.floor(p.precioPf * (1 - desc / 100));
-
-    if(p.stock > 0 && u.pf >= precioFinal) { 
-        p.stock--; 
-        u.pf -= precioFinal; 
-        u.inventario.push({ nombre: p.nombre }); 
-        guardarBD(); 
-        refrescarPantallaGamer(); 
-    }
-}
-
-function consumirObjetoBolsa(idx) { baseDatos.jugadores[userSesion].inventario.splice(idx, 1); guardarBD(); refrescarPantallaGamer(); }
-
-function invocarTerminalMercader() { 
-    let v = prompt("LLAVE MAESTRA MERCADER:"); 
-    if(v === "1234") { 
-        document.getElementById('pantalla
+            htm += `<div class="item-card">${tagDesc}<div><div class="categoria-tag">${p.cat}</div><div class="
