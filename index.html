@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión Comercial - Sindicato Oculto</title>
+    <title>Sistema Comercial y Registro de Entrenadores - Silph Co.</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap');
 
@@ -62,6 +62,92 @@
         }
         .marcador-dato { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; }
         .marcador-dato span { font-weight: 900; font-size: 16px; }
+        
+        /* Enlace de perfil clickable */
+        .btn-perfil-trigger {
+            background: #1e293b;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 8px;
+            border: 1px solid #475569;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .btn-perfil-trigger:hover {
+            background: var(--neon-packs);
+            color: #000;
+        }
+
+        /* BLOQUE SECCIÓN PERFIL DESPLEGABLE */
+        .perfil-desplegable-box {
+            background: #0f1422;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .perfil-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .subtab-btn {
+            background: #060914;
+            color: var(--texto-secundario);
+            border: 1px solid #1e293b;
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .subtab-btn.active {
+            background: #1e293b;
+            color: #fff;
+            border-color: #475569;
+        }
+        .perfil-content-view { display: none; }
+        .perfil-content-view.active { display: block; }
+
+        /* AREA TEXTO Y ENTRADAS */
+        .input-textarea-custom {
+            width: 100%;
+            background: #060914;
+            color: #fff;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 13px;
+            resize: vertical;
+        }
+        .input-textarea-custom:focus {
+            outline: none;
+            border-color: var(--neon-packs);
+        }
+
+        /* COMPONENTE VISUAL EQUIPO SHOWDOWN */
+        .showdown-team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .poke-card-showdown {
+            background: #161d30;
+            border: 1px solid #24324f;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .poke-card-name { font-weight: 800; color: var(--neon-legal); font-size: 13px; margin-bottom: 4px; text-transform: uppercase;}
 
         /* BOLSA DE OBJETOS */
         .bolsa-contenedor {
@@ -89,7 +175,7 @@
         .pack-zone .item-icon::after { background: linear-gradient(135deg, var(--neon-packs), transparent); }
         .illegal-zone .item-icon::after { background: linear-gradient(135deg, var(--neon-ilegal), transparent); border-radius: 35% 65% 61% 39% / 37% 34% 66% 63%; }
 
-        /* NAVEGACIÓN POR PESTAÑAS */
+        /* NAVEGACIÓN POR PESTAÑAS TIENDAS */
         .tabs-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
         .tab-button {
             background: #111726; color: var(--texto-secundario); border: 2px solid #1e293b;
@@ -202,9 +288,64 @@
     <div id="pantalla-mercado" style="display:none;">
         
         <div class="marcador-recursos">
-            <div class="marcador-dato">OPERADOR: <span id="usr-nombre" style="color: #fff;">---</span></div>
+            <div class="marcador-dato">OPERADOR: <span id="usr-nombre" style="color: #fff;">---</span> <button class="btn-perfil-trigger" onclick="conmutarCajaPerfil()">👤 Ver Perfil</button></div>
             <div class="marcador-dato">EFECTIVO: <span id="usr-dinero" style="color: var(--neon-legal);">0</span> P₠</div>
             <div class="marcador-dato">PUNTOS FAVOR: <span id="usr-pf" style="color: var(--neon-ilegal);">0</span> PF</div>
+        </div>
+
+        <div id="perfil-desplegable" class="perfil-desplegable-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h3 style="margin:0; font-family:'Orbitron'; font-size:14px; color:var(--neon-packs);">FICHA DE ENTRENADOR AVANZADA</h3>
+                <div>
+                    <label style="font-size:11px; color:var(--texto-secundario); margin-right:5px;">ESTADO LOCKE:</label>
+                    <select id="perf-locke-status" onchange="guardarDatosPerfilGamer()" style="background:#060914; color:#fff; border:1px solid #334155; padding:3px; border-radius:4px; font-size:11px; font-weight:bold;">
+                        <option value="jugando">⏳ EN PROGRESO</option>
+                        <option value="ganado">🏆 LOCKE GANADO</option>
+                        <option value="perdido">💀 LOCKE PERDIDO</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="perfil-tabs">
+                <button class="subtab-btn active" id="subtab-equipo" onclick="cambiarSubPestanaPerfil('equipo')">EQUIPO POKÉMON</button>
+                <button class="subtab-btn" id="subtab-progreso" onclick="cambiarSubPestanaPerfil('progreso')">MEDALLAS Y TORNEOS</button>
+                <button class="subtab-btn" id="subtab-aventura" onclick="cambiarSubPestanaPerfil('aventura')">AVENTURA POKÉMON (DIARIO)</button>
+            </div>
+
+            <div id="perf-view-equipo" class="perfil-content-view active">
+                <p style="font-size:11px; color:var(--texto-secundario); margin:0 0 8px 0;">Pega aquí el código limpio de tu equipo exportado de Pokémon Showdown:</p>
+                <textarea id="perf-showdown-raw" class="input-textarea-custom" rows="4" placeholder="Ejemplo:&#10;Pikachu @ Light Ball&#10;Ability: Static&#10;EVs: 252 Atk / 4 SpD / 252 Spe&#10;Jolly Nature&#10;- Volt Tackle&#10;- Iron Tail" oninput="guardarDatosPerfilGamer()"></textarea>
+                <div id="visualizador-showdown-team" class="showdown-team-grid"></div>
+            </div>
+
+            <div id="perf-view-progreso" class="perfil-content-view">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+                    <div style="background:#060914; padding:12px; border-radius:8px; border:1px solid #1e293b;">
+                        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px;">SISTEMA DE LOGROS:</label>
+                        <select id="perf-tipo-medallas" onchange="guardarDatosPerfilGamer()" style="width:100%; background:#161d30; color:#fff; border:1px solid #334155; padding:6px; border-radius:4px; font-size:12px; margin-bottom:12px;">
+                            <option value="medallas">Medallas de Gimnasio Clásicas</option>
+                            <option value="kahunas">Pruebas / Kahunas (Sol y Luna)</option>
+                        </select>
+                        
+                        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px;">CANTIDAD DERROTADOS:</label>
+                        <input type="number" id="perf-num-medallas" min="0" max="8" value="0" oninput="guardarDatosPerfilGamer()" style="width:100%; background:#161d30; color:#fff; border:1px solid #334155; padding:6px; border-radius:4px; font-size:12px;">
+                    </div>
+
+                    <div style="background:#060914; padding:12px; border-radius:8px; border:1px solid #1e293b; display:flex; flex-direction:column; justify-content:center;">
+                        <label style="display:block; font-size:12px; font-weight:bold; margin-bottom:5px; text-align:center;">🏆 TORNEOS GANADOS VS RIVALES</label>
+                        <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top:5px;">
+                            <button onclick="alterarTorneosPerfil(-1)" style="padding:5px 12px; background:#1e293b; color:#fff; border:none; cursor:pointer; border-radius:4px; font-weight:bold;">-</button>
+                            <span id="perf-txt-torneos" style="font-family:'Orbitron'; font-size:18px; font-weight:900; color:var(--neon-packs);">0</span>
+                            <button onclick="alterarTorneosPerfil(1)" style="padding:5px 12px; background:#1e293b; color:#fff; border:none; cursor:pointer; border-radius:4px; font-weight:bold;">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="perf-view-aventura" class="perfil-content-view">
+                <p style="font-size:11px; color:var(--texto-secundario); margin:0 0 8px 0;">Escribe tu bitácora o diario de ruta para recordar qué estabas haciendo o qué te falta por capturar:</p>
+                <textarea id="perf-diario-txt" class="input-textarea-custom" rows="5" placeholder="Diario de tu aventura... Ej: Guardé partida frente al gimnasio de tipo Fuego. Siguiente ruta sin capturar: Ruta 113." oninput="guardarDatosPerfilGamer()"></textarea>
+            </div>
         </div>
 
         <div class="bolsa-contenedor">
@@ -218,48 +359,9 @@
             <button class="tab-button tab-illegal" id="tab-illegal" onclick="cambiarSeccionTienda('illegal')">TIENDA DE ILEGALIDADES</button>
         </div>
 
-        <div id="vista-legal" class="market-view active legal-zone">
-            <div id="contenedor-legal-view"></div>
-            
-            <div class="cuadro-info-original" style="border-color: var(--borde-legal);">
-                <div class="columna-info">
-                    <h4 style="color: var(--neon-legal);">Información Importante</h4>
-                    <ul>
-                        <li>Tienes un límite estricto de 3 compras diarias en la Tienda Legal.</li>
-                        <li>El stock es GLOBAL y LIMITADO. Se agota en tiempo real para todos.</li>
-                    </ul>
-                </div>
-                <div class="columna-info">
-                    <h4 style="color: var(--neon-legal);">¿Cómo Funciona?</h4>
-                    <ol>
-                        <li>Selecciona los suministros necesarios (máximo 3 artículos al día).</li>
-                        <li>Efectúa el pago utilizando tus Pokédólares (P₠) disponibles.</li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-
-        <div id="vista-pack" class="market-view pack-zone">
-            <div id="contenedor-pack-view"></div>
-            
-            <div class="cuadro-info-original" style="border-color: var(--borde-packs);">
-                <div class="columna-info">
-                    <h4 style="color: var(--neon-packs);">Regla de PF Pack</h4>
-                    <p style="font-size:12px; color:var(--texto-secundario); line-height:1.5; margin:0;">Los lotes especiales denominados PF PACK otorgan siempre un bono de 1 PF adicional en comparación con la suma individual de los objetos contenidos.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="vista-illegal" class="market-view illegal-zone">
-            <div id="contenedor-hacker-view"></div>
-            
-            <div class="cuadro-info-original" style="border-color: var(--borde-ilegal);">
-                <div class="columna-info">
-                    <h4 style="color: var(--neon-ilegal);">Moneda Exclusiva: Puntos de Favor (PF)</h4>
-                    <p style="font-size:12px; color:var(--texto-secundario); line-height:1.5; margin:0;">Consigue Puntos de Favor realizando compras en tiendas legales.</p>
-                </div>
-            </div>
-        </div>
+        <div id="vista-legal" class="market-view active legal-zone"><div id="contenedor-legal-view"></div></div>
+        <div id="vista-pack" class="market-view pack-zone"><div id="contenedor-pack-view"></div></div>
+        <div id="vista-illegal" class="market-view illegal-zone"><div id="contenedor-hacker-view"></div></div>
 
     </div>
 </div>
@@ -275,8 +377,6 @@
     <div class="grid-admin">
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px;">
             <h3 style="color:var(--neon-packs); margin-top:0;">🔓 Interruptores de Red Comercial</h3>
-            <p style="font-size:11px; color:var(--texto-secundario); margin-bottom:15px;">Activa o desactiva la visibilidad y compras de las tiendas en tiempo real:</p>
-            
             <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer; font-size:13px;">
                 <input type="checkbox" id="chk-open-legal" onchange="conmutarEstadoTienda('legalOpen', this.checked)"> 🟢 TIENDA LEGAL ABIERTA
             </label>
@@ -302,12 +402,12 @@
 
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px;">
             <h3 style="color:var(--neon-legal); margin-top:0;">👥 Ajustes de Entrenadores</h3>
-            <div id="admin-jugadores-lista"></div>
+            <div id="admin-jugadores-lista" style="max-height:450px; overflow-y:auto;"></div>
         </div>
 
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px;">
-            <h3 style="color:var(--neon-ilegal); margin-top:0;">📦 Inventario y Almacén Global</h3>
-            <div id="admin-inventario-global" style="max-height:350px; overflow-y:auto;"></div>
+            <h3 style="color:var(--neon-ilegal); margin-top:0;">📦 Inventario Global</h3>
+            <div id="admin-inventario-global" style="max-height:450px; overflow-y:auto;"></div>
         </div>
     </div>
 </div>
@@ -320,40 +420,17 @@ const baseDatosInicial = [
     { id: 4, tienda: 'legal', cat: 'Bayas', nombre: 'Baya Oran', precio: 90, pf: 1, stock: 12, icon: '🍒' },
     { id: 5, tienda: 'legal', cat: 'Poké Balls', nombre: 'Buceo Ball', precio: 200, pf: 2, stock: 8, icon: '🔵' },
     { id: 6, tienda: 'legal', cat: 'Poké Balls', nombre: 'Nivel Ball', precio: 250, pf: 3, stock: 8, icon: '🟡' },
-    { id: 7, tienda: 'legal', cat: 'Objetos de Exploración', nombre: 'Cuerda Huida', precio: 120, pf: 1, stock: 8, icon: '🪢' },
-    { id: 8, tienda: 'legal', cat: 'Objetos de Exploración', nombre: 'Repelente', precio: 70, pf: 1, stock: 20, icon: '噴' },
-    { id: 9, tienda: 'legal', cat: 'Objetos de Combat (X)', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, icon: '🧪' },
-    { id: 10, tienda: 'legal', cat: 'Objetos de Combat (X)', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, icon: '🧪' },
-    { id: 11, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Banda Focus', precio: 2500, pf: 3, stock: 4, icon: '🎗️' },
-    { id: 12, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, icon: '🕶️' },
-
-    { id: 101, tienda: 'pack', cat: 'Pack Balls', nombre: 'Pack Balls (Captura Controlada)', desc: 'Contiene: 2 Buceo Ball + 2 Nivel Ball.', precio: 750, pf: 11, stock: 3, icon: '📦' },
-    { id: 102, tienda: 'pack', cat: 'Pack Exploración', nombre: 'Pack Exploración', desc: 'Contiene: 2 Cuerda Huida + 4 Repelente.', precio: 460, pf: 7, stock: 3, icon: '📦' },
-    { id: 103, tienda: 'pack', cat: 'Pack Combate', nombre: 'Pack Combate Temprano', desc: 'Contiene: 2 X Defensa + 2 X Velocidad.', precio: 1300, pf: 11, stock: 3, icon: '📦' },
-    { id: 104, tienda: 'pack', cat: 'Pack Supervivencia', nombre: 'Pack Supervivencia', desc: 'Contiene: 3 Baya Oran + 3 Baya Atania.', precio: 460, pf: 7, stock: 3, icon: '📦' },
-    { id: 105, tienda: 'pack', cat: 'Pack Estrategia', nombre: 'Pack "Segundo Intento"', desc: 'Contiene: 1 Banda Focus + 1 Hierro.', precio: 2800, pf: 6, stock: 3, icon: '📦' },
-
-    { id: 201, tienda: 'illegal', cat: 'Modificación 01', nombre: 'Escudo Poke', precioPf: 5, stock: 1, desc: 'Evita la muerte de un Pokémon.', icon: '🛡️' },
-    { id: 202, tienda: 'illegal', cat: 'Modificación 02', nombre: 'Captura Selectiva', precioPf: 4, stock: 1, desc: 'Permite elegir el Pokémon de la ruta.', icon: '🎯' },
-    { id: 203, tienda: 'illegal', cat: 'Modificación 03', nombre: 'Licencia de Caza', precioPf: 3, stock: 1, desc: 'Repite captura si huye.', icon: '📜' }
+    { id: 101, tienda: 'pack', cat: 'Pack Balls', nombre: 'Pack Capture Control', desc: 'Contiene: 2 Buceo Ball + 2 Nivel Ball.', precio: 750, pf: 11, stock: 3 },
+    { id: 201, tienda: 'illegal', cat: 'Modificación 01', nombre: 'Escudo Poke', precioPf: 5, stock: 1, desc: 'Evita la muerte de un Pokémon.', icon: '🛡️' }
 ];
 
-// Nueva clave única para ignorar bases de datos obsoletas o corruptas de sesiones previas
 let baseDatos;
 try {
-    baseDatos = JSON.parse(localStorage.getItem('silph_co_db_2026_final'));
-    if (!baseDatos || !baseDatos.productos || !baseDatos.jugadores) {
-        throw new Error("Estructura incompleta");
-    }
+    baseDatos = JSON.parse(localStorage.getItem('silph_co_db_2026_final_v3'));
+    if (!baseDatos || !baseDatos.productos || !baseDatos.jugadores) throw new Error();
 } catch (e) {
-    baseDatos = {
-        productos: JSON.parse(JSON.stringify(baseDatosInicial)),
-        jugadores: {},
-        legalOpen: true,
-        packOpen: true,
-        illegalOpen: false
-    };
-    localStorage.setItem('silph_co_db_2026_final', JSON.stringify(baseDatos));
+    baseDatos = { productos: JSON.parse(JSON.stringify(baseDatosInicial)), jugadores: {}, legalOpen: true, packOpen: true, illegalOpen: false };
+    localStorage.setItem('silph_co_db_2026_final_v3', JSON.stringify(baseDatos));
 }
 
 let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
@@ -361,18 +438,24 @@ let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
 function ingresarAlSistema() {
     let idInput = document.getElementById('login-nombre');
     if (!idInput) return;
-    
     let id = idInput.value.trim().toLowerCase();
     if(!id) return alert("Identificador Requerido.");
 
-    // Validación y creación forzada del perfil del jugador
-    if(!baseDatos.jugadores[id] || typeof baseDatos.jugadores[id] !== 'object') {
-        baseDatos.jugadores[id] = { dinero: 3000, pf: 0, comprasHoy: 0, inventario: [] };
+    if(!baseDatos.jugadores[id]) {
+        baseDatos.jugadores[id] = { 
+            dinero: 3000, pf: 0, comprasHoy: 0, inventario: [],
+            lockeStatus: 'jugando', showdownRaw: '', tipoMedallas: 'medallas', numMedallas: 0, torneos: 0, diario: ''
+        };
     }
-    
-    if (!Array.isArray(baseDatos.jugadores[id].inventario)) {
-        baseDatos.jugadores[id].inventario = [];
-    }
+
+    // Asegurar compatibilidad si el perfil existía de antes sin los campos nuevos
+    let j = baseDatos.jugadores[id];
+    if(!j.lockeStatus) j.lockeStatus = 'jugando';
+    if(j.showdownRaw === undefined) j.showdownRaw = '';
+    if(!j.tipoMedallas) j.tipoMedallas = 'medallas';
+    if(j.numMedallas === undefined) j.numMedallas = 0;
+    if(j.torneos === undefined) j.torneos = 0;
+    if(j.diario === undefined) j.diario = '';
 
     userSesion = id;
     sessionStorage.setItem('silph_user_sesion', id);
@@ -381,16 +464,111 @@ function ingresarAlSistema() {
     document.getElementById('pantalla-lobby').style.display = 'none';
     document.getElementById('pantalla-mercado').style.display = 'block';
 
+    cargarDatosPerfilEnDOM();
     refrescarPantallaGamer();
+}
+
+function conmutarCajaPerfil() {
+    let box = document.getElementById('perfil-desplegable');
+    box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+}
+
+function cambiarSubPestanaPerfil(sub) {
+    document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.perfil-content-view').forEach(v => v.classList.remove('active'));
+    document.getElementById(`subtab-${sub}`).classList.add('active');
+    document.getElementById(`perf-view-${sub}`).classList.add('active');
+}
+
+function cargarDatosPerfilEnDOM() {
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
+    
+    document.getElementById('perf-locke-status').value = u.lockeStatus;
+    document.getElementById('perf-showdown-raw').value = u.showdownRaw;
+    document.getElementById('perf-tipo-medallas').value = u.tipoMedallas;
+    document.getElementById('perf-num-medallas').value = u.numMedallas;
+    document.getElementById('perf-txt-torneos').innerText = u.torneos;
+    document.getElementById('perf-diario-txt').value = u.diario;
+    
+    parsearYRenderizarShowdown();
+}
+
+function guardarDatosPerfilGamer() {
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
+    
+    u.lockeStatus = document.getElementById('perf-locke-status').value;
+    u.showdownRaw = document.getElementById('perf-showdown-raw').value;
+    u.tipoMedallas = document.getElementById('perf-tipo-medallas').value;
+    u.numMedallas = parseInt(document.getElementById('perf-num-medallas').value) || 0;
+    u.diario = document.getElementById('perf-diario-txt').value;
+    
+    guardarBD();
+    parsearYRenderizarShowdown();
+}
+
+function alterarTorneosPerfil(v) {
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
+    u.torneos += v;
+    if(u.torneos < 0) u.torneos = 0;
+    document.getElementById('perf-txt-torneos').innerText = u.torneos;
+    guardarBD();
+}
+
+function parsearYRenderizarShowdown() {
+    let raw = document.getElementById('perf-showdown-raw').value;
+    let box = document.getElementById('visualizador-showdown-team');
+    box.innerHTML = '';
+    
+    if(!raw.trim()) {
+        box.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Tu equipo visual se generará aquí cuando pegues texto estructurado.</span>';
+        return;
+    }
+
+    // Fragmentar por bloques vacíos de showdown
+    let pokesRaw = raw.split(/\n\s*\n/);
+    pokesRaw.forEach(bloque => {
+        let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if(lineas.length === 0) return;
+
+        let nombreCompleto = lineas[0];
+        let objeto = "Ninguno";
+        let habilidad = "Desconocida";
+        let movimientos = [];
+
+        if(nombreCompleto.includes('@')) {
+            let partes = nombreCompleto.split('@');
+            nombreCompleto = partes[0].trim();
+            objeto = partes[1].trim();
+        }
+
+        lineas.forEach(linea => {
+            if(linea.startsWith('Ability:')) {
+                habilidad = linea.replace('Ability:', '').trim();
+            } else if(linea.startsWith('-')) {
+                movimientos.push(linea.replace('-', '').trim());
+            }
+        });
+
+        box.innerHTML += `
+            <div class="poke-card-showdown">
+                <div class="poke-card-name">🧬 ${nombreCompleto}</div>
+                <div style="color:var(--texto-secundario); margin-bottom:2px;">Item: <span style="color:#fff;">${objeto}</span></div>
+                <div style="color:var(--texto-secundario); margin-bottom:5px;">Habilidad: <span style="color:#fff;">${habilidad}</span></div>
+                <div style="display:flex; flex-direction:column; gap:2px; padding-left:5px; border-left:2px solid var(--neon-packs);">
+                    ${movimientos.map(m => `<span style="font-size:11px; color:#94a3b8;">• ${m}</span>`).join('')}
+                </div>
+            </div>`;
+    });
 }
 
 function cambiarSeccionTienda(tipo) {
     document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.market-view').forEach(v => v.classList.remove('active'));
-    
     let boton = document.getElementById(`tab-${tipo}`);
     let vista = document.getElementById(`vista-${tipo}`);
-    
     if (boton) boton.classList.add('active');
     if (vista) vista.classList.add('active');
 }
@@ -403,22 +581,18 @@ function refrescarPantallaGamer() {
     document.getElementById('usr-dinero').innerText = Number(u.dinero).toLocaleString();
     document.getElementById('usr-pf').innerText = u.pf;
 
-    // Renderizado de Bolsa de Objetos
-    let bBox = document.getElementById('lista-inventario'); 
-    bBox.innerHTML = '';
-    if(!u.inventario || u.inventario.length === 0) {
-        bBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Ningún objeto en tu mochila.</span>';
-    } else {
-        u.inventario.forEach((item, index) => {
-            bBox.innerHTML += `
-                <div style="background:#1e293b; border:1px solid #334155; padding:6px 12px; display:flex; align-items:center; gap:10px; border-radius:6px;">
-                    <span style="font-size:12px; font-weight:600;">${item.nombre}</span>
-                    <button onclick="consumirObjetoBolsa(${index})" style="background:#ef4444; color:#fff; border:none; padding:2px 8px; font-size:10px; cursor:pointer; border-radius:4px;">Gastar</button>
-                </div>`;
-        });
-    }
+    // Bolsa
+    let bBox = document.getElementById('lista-inventario'); bBox.innerHTML = '';
+    if(u.inventario.length === 0) bBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Ningún objeto en tu mochila.</span>';
+    u.inventario.forEach((item, index) => {
+        bBox.innerHTML += `
+            <div style="background:#1e293b; border:1px solid #334155; padding:6px 12px; display:flex; align-items:center; gap:10px; border-radius:6px;">
+                <span style="font-size:12px; font-weight:600;">${item.nombre}</span>
+                <button onclick="consumirObjetoBolsa(${index})" style="background:#ef4444; color:#fff; border:none; padding:2px 8px; font-size:10px; cursor:pointer; border-radius:4px;">Gastar</button>
+            </div>`;
+    });
 
-    // 1. TIENDA LEGAL VISTA
+    // Tienda Legal
     let vl = document.getElementById('contenedor-legal-view');
     if(!baseDatos.legalOpen) {
         vl.innerHTML = `<div class="tienda-cerrada-msg" style="color:var(--neon-legal); border-color:var(--borde-legal);">🔒 Volvemos Pronto!</div>`;
@@ -430,7 +604,7 @@ function refrescarPantallaGamer() {
                 <div class="item-card">
                     <div>
                         <div class="categoria-tag">${p.cat}</div>
-                        <div class="item-icon">${p.icon || '📦'}</div>
+                        <div class="item-icon">${p.icon || '💊'}</div>
                         <div class="item-titulo">${p.nombre}</div>
                     </div>
                     <div>
@@ -444,7 +618,7 @@ function refrescarPantallaGamer() {
         htm += `</div>`; vl.innerHTML = htm;
     }
 
-    // 2. SHOP PACK VISTA
+    // Shop Pack
     let vp = document.getElementById('contenedor-pack-view');
     if(!baseDatos.packOpen) {
         vp.innerHTML = `<div class="tienda-cerrada-msg" style="color:var(--neon-packs); border-color:var(--borde-packs);">🔒 Volvemos Pronto!</div>`;
@@ -470,7 +644,7 @@ function refrescarPantallaGamer() {
         htm += `</div>`; vp.innerHTML = htm;
     }
 
-    // 3. TIENDA DE ILEGALIDADES VISTA
+    // Tienda Ilegal
     let vi = document.getElementById('contenedor-hacker-view');
     if(!baseDatos.illegalOpen) {
         vi.innerHTML = `<div class="tienda-cerrada-msg" style="color:var(--neon-ilegal); border-color:var(--borde-ilegal); font-size:22px;">🛑 ¡Alto Policía! 👮‍♂️🚨</div>`;
@@ -488,7 +662,6 @@ function refrescarPantallaGamer() {
                     </div>
                     <div>
                         <div style="font-family:'Orbitron'; color:var(--neon-packs); font-size:13px; margin-bottom:4px;">Requisito: ${p.precioPf} PF</div>
-                        <div style="font-size:11px; color:var(--texto-secundario); margin-bottom:10px;">Suministro: ${p.stock} unidad</div>
                         <button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionIlegal(${p.id})">Canjear Beneficio</button>
                     </div>
                 </div>`;
@@ -500,10 +673,6 @@ function refrescarPantallaGamer() {
 function procesarTransaccionComercial(id) {
     let u = baseDatos.jugadores[userSesion];
     let p = baseDatos.productos.find(pr => pr.id === id);
-    
-    if(p && p.tienda === 'legal' && !baseDatos.legalOpen) return;
-    if(p && p.tienda === 'pack' && !baseDatos.packOpen) return;
-
     if(p && p.stock > 0 && u.dinero >= p.precio && u.comprasHoy < 3) {
         p.stock--; u.dinero -= p.precio; u.pf += p.pf; u.comprasHoy++;
         u.inventario.push({ nombre: p.nombre });
@@ -512,7 +681,6 @@ function procesarTransaccionComercial(id) {
 }
 
 function procesarTransaccionIlegal(id) {
-    if(!baseDatos.illegalOpen) return; 
     let u = baseDatos.jugadores[userSesion];
     let p = baseDatos.productos.find(pr => pr.id === id);
     if(p && p.stock > 0 && u.pf >= p.precioPf) {
@@ -523,13 +691,10 @@ function procesarTransaccionIlegal(id) {
 }
 
 function consumirObjetoBolsa(index) {
-    if (baseDatos.jugadores[userSesion] && baseDatos.jugadores[userSesion].inventario) {
-        baseDatos.jugadores[userSesion].inventario.splice(index, 1);
-        guardarBD(); refrescarPantallaGamer();
-    }
+    baseDatos.jugadores[userSesion].inventario.splice(index, 1);
+    guardarBD(); refrescarPantallaGamer();
 }
 
-// PANEL CONTROL MERCADER
 function invocarTerminalMercader() {
     let validacion = prompt("LLAVE MAESTRA MERCADER:");
     if(validacion === "1234") {
@@ -541,9 +706,7 @@ function invocarTerminalMercader() {
 function apagarTerminalMercader() { document.getElementById('pantalla-admin-master').style.display = 'none'; }
 
 function conmutarEstadoTienda(llave, valor) {
-    baseDatos[llave] = valor; 
-    guardarBD(); 
-    refrescarPantallaGamer();
+    baseDatos[llave] = valor; guardarBD(); refrescarPantallaGamer();
 }
 
 function inyectarObjetoNuevoMaster() {
@@ -552,45 +715,23 @@ function inyectarObjetoNuevoMaster() {
     let p = parseInt(document.getElementById('ins-precio').value) || 0;
     let s = parseInt(document.getElementById('ins-stock').value) || 0;
     if(!n) return;
-    
     let obj = { id: Date.now(), tienda: t, cat: 'Mercader Custom', nombre: n, stock: s, icon: '🔮' };
     if(t === 'illegal') { obj.precioPf = p; obj.desc = "Inyectado por el Mercader."; } else { obj.precio = p; obj.pf = 1; }
-    
-    baseDatos.productos.push(obj); guardarBD();
-    redibujarConsolaAdminMaster(); refrescarPantallaGamer();
+    baseDatos.productos.push(obj); guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
     document.getElementById('ins-nombre').value = '';
 }
 
 function ejecutarCambioCarteraManual(jugador, tipo, operacion) {
     let inputElem = document.getElementById(`monto-${jugador}-${tipo}`);
     let valor = parseInt(inputElem.value) || 0;
-    if(valor <= 0) return alert("Escribe una cifra válida.");
-
-    if(operacion === 'restar') {
-        baseDatos.jugadores[jugador][tipo] -= valor;
-    } else {
-        baseDatos.jugadores[jugador][tipo] += valor;
-    }
-
+    if(operacion === 'restar') baseDatos.jugadores[jugador][tipo] -= valor;
+    else baseDatos.jugadores[jugador][tipo] += valor;
     if(baseDatos.jugadores[jugador][tipo] < 0) baseDatos.jugadores[jugador][tipo] = 0;
-    
-    inputElem.value = '';
-    guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
+    inputElem.value = ''; guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
 }
 
 function limpiarCupoTransaccionesMaster(jugador) {
-    baseDatos.jugadores[jugador].comprasHoy = 0;
-    guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
-}
-
-function alterarStockMaster(id, v) {
-    let p = baseDatos.productos.find(pr => pr.id === id);
-    if(p) { p.stock += v; if(p.stock < 0) p.stock = 0; guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer(); }
-}
-
-function purgarArticuloCatalogoMaster(id) {
-    baseDatos.productos = baseDatos.productos.filter(pr => pr.id !== id);
-    guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
+    baseDatos.jugadores[jugador].comprasHoy = 0; guardarBD(); redibujarConsolaAdminMaster(); refrescarPantallaGamer();
 }
 
 function redibujarConsolaAdminMaster() {
@@ -601,51 +742,32 @@ function redibujarConsolaAdminMaster() {
     let jl = document.getElementById('admin-jugadores-lista'); jl.innerHTML = '';
     for(let k in baseDatos.jugadores) {
         let ju = baseDatos.jugadores[k];
+        let tagMedalla = ju.tipoMedallas === 'medallas' ? 'Medallas' : 'Kahunas';
         jl.innerHTML += `
             <div class="admin-card-inner">
-                <strong style="font-size:13px; color:var(--neon-packs);">ENTRENADOR: ${k.toUpperCase()}</strong><br>
-                <span style="font-size:11px; color:var(--texto-secundario);">Efectivo: ${ju.dinero} P₠ | Favor: ${ju.pf} PF</span><br>
-                <span style="font-size:11px; color:var(--texto-secundario);">Límite Diario: ${ju.comprasHoy}/3 Compras</span>
-                
-                <div style="margin-top:10px; display:flex; align-items:center; gap:5px;">
-                    <span style="font-size:11px; width:45px;">P₠:</span>
-                    <input type="number" id="monto-${k}-dinero" class="admin-input-custom" placeholder="Cifra">
+                <strong style="font-size:13px; color:var(--neon-packs);">${k.toUpperCase()} [${ju.lockeStatus.toUpperCase()}]</strong><br>
+                <span style="font-size:11px; color:var(--texto-secundario);">${ju.dinero} P₠ | ${ju.pf} PF | ${tagMedalla}: ${ju.numMedallas} | Torneos: ${ju.torneos}</span>
+                <div style="margin-top:5px; display:flex; gap:5px;">
+                    <input type="number" id="monto-${k}-dinero" class="admin-input-custom" placeholder="P₠">
                     <button class="btn-mini-admin" onclick="ejecutarCambioCarteraManual('${k}','dinero','sumar')">+</button>
                     <button class="btn-mini-admin" onclick="ejecutarCambioCarteraManual('${k}','dinero','restar')">-</button>
                 </div>
-
-                <div style="margin-top:5px; display:flex; align-items:center; gap:5px;">
-                    <span style="font-size:11px; width:45px;">PF:</span>
-                    <input type="number" id="monto-${k}-pf" class="admin-input-custom" placeholder="Cifra">
-                    <button class="btn-mini-admin" onclick="ejecutarCambioCarteraManual('${k}','pf','sumar')">+</button>
-                    <button class="btn-mini-admin" onclick="ejecutarCambioCarteraManual('${k}','pf','restar')">-</button>
-                </div>
-                <button onclick="limpiarCupoTransaccionesMaster('${k}')" style="background:#22c55e; color:#000; font-weight:bold; border:none; padding:5px; width:100%; border-radius:4px; margin-top:10px; cursor:pointer; font-size:11px;">Reiniciar Límite Diario</button>
+                <button onclick="limpiarCupoTransaccionesMaster('${k}')" style="background:#22c55e; color:#000; font-weight:bold; border:none; padding:4px; width:100%; border-radius:4px; margin-top:5px; cursor:pointer; font-size:10px;">Reiniciar Límite</button>
             </div>`;
     }
 
     let al = document.getElementById('admin-inventario-global'); al.innerHTML = '';
     baseDatos.productos.forEach(p => {
-        al.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding:6px 0; font-size:12px;">
-                <span>[${p.tienda.toUpperCase()}] ${p.nombre} (${p.stock} uds)</span>
-                <div>
-                    <button onclick="alterarStockMaster(${p.id}, 1)">+</button>
-                    <button onclick="alterarStockMaster(${p.id}, -1)">-</button>
-                    <button onclick="purgarArticuloCatalogoMaster(${p.id})" style="color:#ef4444; background:none; border:none; cursor:pointer;">🗑️</button>
-                </div>
-            </div>`;
+        al.innerHTML += `<div style="font-size:11px; border-bottom:1px solid #1e293b; padding:4px 0;">[${p.tienda.toUpperCase()}] ${p.nombre} (${p.stock} uds)</div>`;
     });
 }
 
-function guardarBD() {
-    localStorage.setItem('silph_co_db_2026_final', JSON.stringify(baseDatos));
-}
+function guardarBD() { localStorage.setItem('silph_co_db_2026_final_v3', JSON.stringify(baseDatos)); }
 
-// Auto-login al refrescar si ya existe sesión limpia
 if(userSesion && baseDatos.jugadores[userSesion]) {
     document.getElementById('pantalla-lobby').style.display = 'none';
     document.getElementById('pantalla-mercado').style.display = 'block';
+    cargarDatosPerfilEnDOM();
     refrescarPantallaGamer();
 }
 </script>
