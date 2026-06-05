@@ -274,6 +274,20 @@
         .item-desc { font-size: 11px; color: var(--texto-secundario); line-height: 1.4; margin-bottom: 12px; text-align: left; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 4px; }
         .item-estrategia { font-size: 10px; color: var(--neon-packs); font-style: italic; margin-bottom: 12px; text-align: left; }
 
+        /* ETIQUETA DESCUENTO */
+        .tag-descuento {
+            position: absolute; top: 10px; left: 10px;
+            background: #ef4444; color: #fff; font-family: 'Orbitron', sans-serif;
+            font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 4px;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; }
+        }
+        .precio-original-tachado {
+            font-size: 11px; color: var(--texto-secundario); text-decoration: line-through; margin-bottom: -2px; opacity: 0.6;
+        }
+
         .tienda-cerrada-msg {
             text-align: center; padding: 60px 20px; color: var(--texto-secundario);
             font-size: 18px; font-weight: bold; font-family: 'Orbitron', sans-serif;
@@ -587,46 +601,46 @@
 // Base de datos inicial rellena con TODOS los objetos de tus tres tiendas reales
 const baseDatosInicial = [
     // === TIENDA LEGAL ===
-    { id: 101, tienda: 'legal', cat: 'EV/IV', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, icon: '🧪' },
-    { id: 102, tienda: 'legal', cat: 'EV/IV', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, icon: '🧪' },
-    { id: 103, tienda: 'legal', cat: 'Bayas', nombre: 'Baya Atania', precio: 80, pf: 1, stock: 12, icon: '🫐' },
-    { id: 104, tienda: 'legal', cat: 'Bayas', nombre: 'Baya Oran', precio: 90, pf: 1, stock: 12, icon: '🍊' },
-    { id: 105, tienda: 'legal', cat: 'Poké Balls', nombre: 'Buceo Ball', precio: 200, pf: 2, stock: 8, icon: '🌐' },
-    { id: 106, tienda: 'legal', cat: 'Poké Balls', nombre: 'Nivel Ball', precio: 250, pf: 3, stock: 8, icon: '🟡' },
-    { id: 107, tienda: 'legal', cat: 'Objetos de Exploración', nombre: 'Cuerda Huida', precio: 120, pf: 1, stock: 8, icon: '🪢' },
-    { id: 108, tienda: 'legal', cat: 'Objetos de Exploración', nombre: 'Repelente', precio: 70, pf: 1, stock: 20, icon: '🧴' },
-    { id: 109, tienda: 'legal', cat: 'Objetos de Combate (X)', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, icon: '🔴' },
-    { id: 110, tienda: 'legal', cat: 'Objetos de Combate (X)', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, icon: '🔵' },
-    { id: 111, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Banda Focus', precio: 2500, pf: 3, stock: 4, icon: '🎗️' },
-    { id: 112, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, icon: '🕶️' },
+    { id: 101, tienda: 'legal', cat: 'EV/IV', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, icon: '🧪', descuento: 0 },
+    { id: 102, tienda: 'legal', cat: 'EV/IV', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, icon: '🧪', descuento: 0 },
+    { id: 103, tienda: 'legal', cat: 'Bayas', nombre: 'Baya Atania', precio: 80, pf: 1, stock: 12, icon: '🫐', descuento: 0 },
+    { id: 104, tienda: 'legal', cat: 'Bayas', nombre: 'Baya Oran', precio: 90, pf: 1, stock: 12, icon: '🍊', descuento: 0 },
+    { id: 105, tienda: 'legal', cat: 'Poké Balls', nombre: 'Buceo Ball', precio: 200, pf: 2, stock: 8, icon: '🌐', descuento: 0 },
+    { id: 106, tienda: 'legal', cat: 'Poké Balls', nombre: 'Nivel Ball', precio: 250, pf: 3, stock: 8, icon: '🟡', descuento: 0 },
+    { id: 107, tienda: 'legal', cat: 'Objetos de Exploración', nombre: 'Cuerda Huida', precio: 120, pf: 1, stock: 8, icon: '🪢', descuento: 0 },
+    { id: 108, tienda: 'legal', cat: 'Objetos de Exploración', nombre: 'Repelente', precio: 70, pf: 1, stock: 20, icon: '🧴', descuento: 0 },
+    { id: 109, tienda: 'legal', cat: 'Objetos de Combate (X)', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, icon: '🔴', descuento: 0 },
+    { id: 110, tienda: 'legal', cat: 'Objetos de Combate (X)', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, icon: '🔵', descuento: 0 },
+    { id: 111, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Banda Focus', precio: 2500, pf: 3, stock: 4, icon: '🎗️', descuento: 0 },
+    { id: 112, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, icon: '🕶️', descuento: 0 },
 
     // === SHOP PF PACK ===
-    { id: 201, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Balls', precio: 750, pf: 11, stock: 99, icon: '📦', desc: '2 Buceo Ball + 2 Nivel Ball', estrategia: 'Incentiva estrategia de captura mixta (situacional + control de niveles).' },
-    { id: 202, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Exploración', precio: 460, pf: 7, stock: 99, icon: '📦', desc: '2 Cuerda Huida + 4 Repelente', estrategia: 'Reduce fricción de rutas largas sin regalar seguridad total.' },
-    { id: 203, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Combate Temprano', precio: 1300, pf: 11, stock: 99, icon: '📦', desc: '2 X Defensa + 2 X Velocidad', estrategia: 'No es barato, pero premia preparación de combate.' },
-    { id: 204, tienda: 'pack', cat: 'Pack Especial', font: 'Pack Supervivencia', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 99, icon: '📦', desc: '3 Baya Oran + 3 Baya Atania', estrategia: 'Ahorro pequeño pero constante, ideal para jugadores cuidadosos.' },
-    { id: 205, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 99, icon: '📦', desc: '1 Banda Focus + 1 Hierro', estrategia: 'Supervivencia + mejora permanente ligera.' },
+    { id: 201, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Balls', precio: 750, pf: 11, stock: 99, icon: '📦', desc: '2 Buceo Ball + 2 Nivel Ball', estrategia: 'Incentiva estrategia de captura mixta (situacional + control de niveles).', descuento: 0 },
+    { id: 202, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Exploración', precio: 460, pf: 7, stock: 99, icon: '📦', desc: '2 Cuerda Huida + 4 Repelente', estrategia: 'Reduce fricción de rutas largas sin regalar seguridad total.', descuento: 0 },
+    { id: 203, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Combate Temprano', precio: 1300, pf: 11, stock: 99, icon: '📦', desc: '2 X Defensa + 2 X Velocidad', estrategia: 'No es barato, pero premia preparación de combate.', descuento: 0 },
+    { id: 204, tienda: 'pack', cat: 'Pack Especial', font: 'Pack Supervivencia', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 99, icon: '📦', desc: '3 Baya Oran + 3 Baya Atania', estrategia: 'Ahorro pequeño pero constante, ideal para jugadores cuidadosos.', descuento: 0 },
+    { id: 205, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 99, icon: '📦', desc: '1 Banda Focus + 1 Hierro', estrategia: 'Supervivencia + mejora permanente ligera.', descuento: 0 },
 
     // === TIENDA DE ILEGALIDADES ===
-    { id: 301, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Escudo Poke', precioPf: 5, stock: 1, icon: '🛡️', desc: 'Debe asignarse antes del combate. Si el Poke iba a morir, el escudo se activa y evita la muerte.' },
-    { id: 302, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Captura Selectiva', precioPf: 4, stock: 1, icon: '🎯', desc: 'Permite elegir el Poke capturable de una ruta. Tras su uso, no puedes capturar en las 2 siguientes rutas.' },
-    { id: 303, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Licencia De Caza', precioPf: 3, stock: 1, icon: '📜', desc: 'Permite repetir la captura de una ruta si el Poke es derrotado o huye. No se activa si el jugador es derrotado.' },
-    { id: 304, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Falsificación De Registro', precioPf: 5, stock: 1, icon: '🪪', desc: 'Permite sustituir 1 Poke del equipo clasificado al torneo por otro Poke válido de la caja.' },
-    { id: 305, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Plaza Fantasma', precioPf: 6, stock: 1, icon: '🪑', desc: 'Si un Poke muere contra el líder, permite sustituir su plaza en el torneo por otro Poke de la caja.' },
-    { id: 306, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Evolución Forzada', precioPf: 5, stock: 1, icon: '💖', desc: 'Permite evolucionar un Poke que requiera amistad para evolucionar.' },
-    { id: 307, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Reconfiguración', precioPf: 2, stock: 1, icon: '🔄', desc: 'Permite modificar los movimientos de 1 Poke después del combate contra el líder y antes del torneo.' },
-    { id: 308, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Modificación Genética', precioPf: 4, stock: 1, icon: '🧬', desc: 'Permite cambiar la habilidad de 1 Poke por otra de sus habilidades posibles.' },
-    { id: 309, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Alteración De Personalidad', precioPf: 2, stock: 1, icon: '🎭', desc: 'Permite cambiar la naturaleza de 1 Poke.' },
-    { id: 310, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Resurrección Robada', precioPf: 8, stock: 1, icon: '🔮', desc: 'Robas 1 Poke muerto de otro jugador y pasa a estar en tu caja vivo.' }
+    { id: 301, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Escudo Poke', precioPf: 5, stock: 1, icon: '🛡️', desc: 'Debe asignarse antes del combate. Si el Poke iba a morir, el escudo se activa y evita la muerte.', descuento: 0 },
+    { id: 302, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Captura Selectiva', precioPf: 4, stock: 1, icon: '🎯', desc: 'Permite elegir el Poke capturable de una ruta. Tras su uso, no puedes capturar en las 2 siguientes rutas.', descuento: 0 },
+    { id: 303, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Licencia De Caza', precioPf: 3, stock: 1, icon: '📜', desc: 'Permite repetir la captura de una ruta si el Poke es derrotado o huye. No se activa si el jugador es derrotado.', descuento: 0 },
+    { id: 304, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Falsificación De Registro', precioPf: 5, stock: 1, icon: '🪪', desc: 'Permite sustituir 1 Poke del equipo clasificado al torneo por otro Poke válido de la caja.', descuento: 0 },
+    { id: 305, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Plaza Fantasma', precioPf: 6, stock: 1, icon: '🪑', desc: 'Si un Poke muere contra el líder, permite sustituir su plaza en el torneo por otro Poke de la caja.', descuento: 0 },
+    { id: 306, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Evolución Forzada', precioPf: 5, stock: 1, icon: '💖', desc: 'Permite evolucionar un Poke que requiera amistad para evolucionar.', descuento: 0 },
+    { id: 307, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Reconfiguración', precioPf: 2, stock: 1, icon: '🔄', desc: 'Permite modificar los movimientos de 1 Poke después del combate contra el líder y antes del torneo.', descuento: 0 },
+    { id: 308, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Modificación Genética', precioPf: 4, stock: 1, icon: '🧬', desc: 'Permite cambiar la habilidad de 1 Poke por otra de sus habilidades posibles.', descuento: 0 },
+    { id: 309, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Alteración De Personalidad', precioPf: 2, stock: 1, icon: '🎭', desc: 'Permite cambiar la naturaleza de 1 Poke.', descuento: 0 },
+    { id: 310, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Resurrección Robada', precioPf: 8, stock: 1, icon: '🔮', desc: 'Robas 1 Poke muerto de otro jugador y pasa a estar en tu caja vivo.', descuento: 0 }
 ];
 
 let baseDatos;
 try {
-    baseDatos = JSON.parse(localStorage.getItem('silph_co_db_2026_final_v10'));
+    baseDatos = JSON.parse(localStorage.getItem('silph_co_db_2026_final_v11'));
     if (!baseDatos || !baseDatos.productos || !baseDatos.jugadores) throw new Error();
 } catch (e) {
     baseDatos = { productos: JSON.parse(JSON.stringify(baseDatosInicial)), jugadores: {}, legalOpen: true, packOpen: true, illegalOpen: true };
-    localStorage.setItem('silph_co_db_2026_final_v10', JSON.stringify(baseDatos));
+    localStorage.setItem('silph_co_db_2026_final_v11', JSON.stringify(baseDatos));
 }
 
 let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
@@ -648,7 +662,6 @@ function ingresarAlSistema() {
             lockeStatus: 'jugando', 
             tipoMedallas: 'medallas', numMedallas: 0, torneos: 0,
             diarioLogs: [],
-            // Array para almacenar hasta 10 equipos, inicializado con strings vacíos
             showdownEquipos: Array(10).fill("")
         };
     } else {
@@ -656,11 +669,10 @@ function ingresarAlSistema() {
             baseDatos.jugadores[id].comprasDisponibles = MAX_COMPRAS;
             baseDatos.jugadores[id].ultimaRecarga = Date.now();
         }
-        // Migración automática si el usuario existía pero no tenía multi-equipos
         if (!baseDatos.jugadores[id].showdownEquipos) {
             let viejoEquipo = baseDatos.jugadores[id].showdownRaw || "";
             baseDatos.jugadores[id].showdownEquipos = Array(10).fill("");
-            baseDatos.jugadores[id].showdownEquipos[0] = viejoEquipo; // Mantiene el primero
+            baseDatos.jugadores[id].showdownEquipos[0] = viejoEquipo;
         }
     }
     userSesion = id;
@@ -689,7 +701,6 @@ function actualizarComprasPorTiempo() {
     }
 }
 
-/* --- FUNCIÓN TRASLADADA Y EXCLUSIVA PARA EL PANEL MERCADER --- */
 function restablecerComprasDiariasDesdeMercader() {
     let targetId = document.getElementById('adm-reset-usuario').value;
     if(!targetId || targetId === "") return alert("No hay ningún entrenador seleccionado.");
@@ -718,7 +729,6 @@ function cambiarSubPestanaPerfil(sub) {
     if(target) target.classList.add('active');
 }
 
-/* --- OVERLAY DIARIO FLOTANTE --- */
 function abrirOverlayDiarioNativo() {
     document.getElementById('diario-overlay-sistema').style.display = 'flex';
     redibujarHistorialDiario();
@@ -789,19 +799,16 @@ function cargarDatosPerfilEnDOM() {
     document.getElementById('perf-num-medallas').value = u.numMedallas || 0;
     document.getElementById('perf-txt-torneos').innerText = u.torneos || 0;
     
-    // Forzar el índice a la primera ranura (ranura 1) al entrar
     document.getElementById('perf-team-slot').value = "1";
     document.getElementById('perf-showdown-raw').value = u.showdownEquipos[0] || '';
     parsearYRenderizarShowdown();
 }
 
-/* --- GESTIÓN DE INTERFAZ MULTI EQUIPO SHOWDOWN --- */
 function cambiarRanuraEquipoShowdown() {
     if(!userSesion || !baseDatos.jugadores[userSesion]) return;
     let u = baseDatos.jugadores[userSesion];
     let slotIdx = parseInt(document.getElementById('perf-team-slot').value) - 1;
     
-    // Carga el texto guardado en la ranura correspondiente
     document.getElementById('perf-showdown-raw').value = u.showdownEquipos[slotIdx] || '';
     parsearYRenderizarShowdown();
 }
@@ -881,7 +888,7 @@ function inyectarObjetoNuevoMaster() {
     let icono = document.getElementById('ins-icono').value.trim() || '📦';
     
     if(!nombre) return alert("Asigna un nombre al artículo.");
-    let nuevoObjeto = { id: Date.now(), tienda: tienda, stock: stock, icon: icono, nombre: nombre };
+    let nuevoObjeto = { id: Date.now(), tienda: tienda, stock: stock, icon: icono, nombre: nombre, descuento: 0 };
 
     if(tienda === 'legal') { nuevoObjeto.cat = document.getElementById('ins-cat-legal').value; nuevoObjeto.precio = precio; nuevoObjeto.pf = parseInt(document.getElementById('ins-pf').value) || 0; } 
     else if(tienda === 'pack') { nuevoObjeto.cat = 'Pack Especial'; nuevoObjeto.precio = precio; nuevoObjeto.pf = parseInt(document.getElementById('ins-pf').value) || 0; nuevoObjeto.desc = document.getElementById('ins-pack-desc').value.trim(); nuevoObjeto.estrategia = document.getElementById('ins-pack-estrategia').value.trim(); } 
@@ -894,7 +901,6 @@ function inyectarObjetoNuevoMaster() {
     document.getElementById('ins-nombre').value = ''; document.getElementById('ins-precio').value = '';
 }
 
-/* --- LOGICA EXCLUSIVA TERMINAL MERCADER --- */
 function actualizarSelectorUsuariosBanco() {
     let selectBanco = document.getElementById('adm-banco-usuario');
     let selectReset = document.getElementById('adm-reset-usuario');
@@ -951,7 +957,7 @@ function modificarFondosEntrenador(operacion) {
 function actualizarPropiedadProducto(id, propiedad, valor) {
     let p = baseDatos.productos.find(pr => pr.id === id);
     if(p) {
-        p[propiedad] = parseInt(valor) || 0;
+        p[propiedad] = parseInt(valor);
         guardarBD();
         refrescarPantallaGamer();
     }
@@ -986,6 +992,7 @@ function redibujarConsolaAdminMaster() {
         let costLabel = esIlegal ? 'Coste (PF):' : 'Coste (P₠):';
         let costProp = esIlegal ? 'precioPf' : 'precio';
         let costVal = esIlegal ? p.precioPf : p.precio;
+        if(p.descuento === undefined) p.descuento = 0;
 
         al.innerHTML += `
             <div class="admin-card-inner">
@@ -1005,6 +1012,16 @@ function redibujarConsolaAdminMaster() {
                     <div class="admin-edit-field">
                         <label>Stock:</label>
                         <input type="number" value="${p.stock}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, 'stock', this.value)">
+                    </div>
+                    <div class="admin-edit-field">
+                        <label>Descuento:</label>
+                        <select class="admin-input-custom" onchange="actualizarPropiedadProducto(${p.id}, 'descuento', this.value)" style="padding: 5px;">
+                            <option value="0" ${p.descuento === 0 ? 'selected' : ''}>Sin Desc.</option>
+                            <option value="5" ${p.descuento === 5 ? 'selected' : ''}>5% OFF</option>
+                            <option value="10" ${p.descuento === 10 ? 'selected' : ''}>10% OFF</option>
+                            <option value="15" ${p.descuento === 15 ? 'selected' : ''}>15% OFF</option>
+                            <option value="20" ${p.descuento === 20 ? 'selected' : ''}>20% OFF</option>
+                        </select>
                     </div>
                     ${!esIlegal ? `
                     <div class="admin-edit-field">
@@ -1040,8 +1057,17 @@ function refrescarPantallaGamer() {
         let items = baseDatos.productos.filter(p => p.tienda === 'legal');
         if(items.length === 0) htm += `<span style="color:var(--texto-secundario); grid-column:1/-1; text-align:center; padding:20px;">Sin existencias registradas por el mercader.</span>`;
         items.forEach(p => {
-            let ok = p.stock > 0 && u.dinero >= p.precio && u.comprasDisponibles >= 1;
-            htm += `<div class="item-card"><div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo">${p.nombre}</div></div><div><div style="color:var(--neon-legal); font-size:15px; font-family:'Orbitron'; font-weight:700;">${p.precio} P₠</div><div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock} | +${p.pf} PF</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionComercial(${p.id})">Comprar (1 Carga)</button></div></div>`;
+            let desc = p.descuento || 0;
+            let precioFinal = Math.floor(p.precio * (1 - desc / 100));
+            let ok = p.stock > 0 && u.dinero >= precioFinal && u.comprasDisponibles >= 1;
+            
+            let labelPrecio = desc > 0 
+                ? `<div class="precio-original-tachado">${p.precio} P₠</div><div style="color:var(--neon-legal); font-size:15px; font-family:'Orbitron'; font-weight:700;">${precioFinal} P₠</div>`
+                : `<div style="color:var(--neon-legal); font-size:15px; font-family:'Orbitron'; font-weight:700;">${p.precio} P₠</div>`;
+                
+            let tagDesc = desc > 0 ? `<div class="tag-descuento">-${desc}%</div>` : '';
+
+            htm += `<div class="item-card">${tagDesc}<div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo">${p.nombre}</div></div><div>${labelPrecio}<div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock} | +${p.pf} PF</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionComercial(${p.id})">Comprar (1 Carga)</button></div></div>`;
         });
         htm += `</div>`; vl.innerHTML = htm;
     }
@@ -1054,8 +1080,17 @@ function refrescarPantallaGamer() {
         let items = baseDatos.productos.filter(p => p.tienda === 'pack');
         if(items.length === 0) htm += `<span style="color:var(--texto-secundario); grid-column:1/-1; text-align:center; padding:20px;">Sin existencias registradas por el mercader.</span>`;
         items.forEach(p => {
-            let ok = p.stock > 0 && u.dinero >= p.precio && u.comprasDisponibles >= 2;
-            htm += `<div class="item-card"><div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo" style="color:var(--neon-packs);">${p.nombre}</div><div class="item-desc">${p.desc || 'Contenido no especificado.'}</div></div><div><div style="color:var(--neon-packs); font-size:15px; font-family:'Orbitron'; font-weight:700; margin-bottom:5px;">${p.precio} P₠</div><div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock}</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionComercial(${p.id})">Comprar Pack (2 Cargas)</button></div></div>`;
+            let desc = p.descuento || 0;
+            let precioFinal = Math.floor(p.precio * (1 - desc / 100));
+            let ok = p.stock > 0 && u.dinero >= precioFinal && u.comprasDisponibles >= 2;
+
+            let labelPrecio = desc > 0 
+                ? `<div class="precio-original-tachado">${p.precio} P₠</div><div style="color:var(--neon-packs); font-size:15px; font-family:'Orbitron'; font-weight:700; margin-bottom:5px;">${precioFinal} P₠</div>`
+                : `<div style="color:var(--neon-packs); font-size:15px; font-family:'Orbitron'; font-weight:700; margin-bottom:5px;">${p.precio} P₠</div>`;
+                
+            let tagDesc = desc > 0 ? `<div class="tag-descuento">-${desc}%</div>` : '';
+
+            htm += `<div class="item-card">${tagDesc}<div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo" style="color:var(--neon-packs);">${p.nombre}</div><div class="item-desc">${p.desc || 'Contenido no especificado.'}</div></div><div>${labelPrecio}<div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock}</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionComercial(${p.id})">Comprar Pack (2 Cargas)</button></div></div>`;
         });
         htm += `</div>`; vp.innerHTML = htm;
     }
@@ -1068,8 +1103,17 @@ function refrescarPantallaGamer() {
         let items = baseDatos.productos.filter(p => p.tienda === 'illegal');
         if(items.length === 0) htm += `<span style="color:var(--texto-secundario); grid-column:1/-1; text-align:center; padding:20px;">Sin existencias registradas por el mercader.</span>`;
         items.forEach(p => {
-            let ok = p.stock > 0 && u.pf >= p.precioPf;
-            htm += `<div class="item-card"><div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo" style="color:var(--neon-ilegal);">${p.nombre}</div><div class="item-desc">${p.desc || 'Servicio modificado.'}</div></div><div><div style="color:var(--neon-ilegal); font-size:14px; font-family:'Orbitron'; font-weight:700; margin-bottom:5px;">${p.precioPf} PF</div><div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock}</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionIlegal(${p.id})">Canjear</button></div></div>`;
+            let desc = p.descuento || 0;
+            let precioFinal = Math.floor(p.precioPf * (1 - desc / 100));
+            let ok = p.stock > 0 && u.pf >= precioFinal;
+
+            let labelPrecio = desc > 0 
+                ? `<div class="precio-original-tachado">${p.precioPf} PF</div><div style="color:var(--neon-ilegal); font-size:14px; font-family:'Orbitron'; font-weight:700; margin-bottom:5px;">${precioFinal} PF</div>`
+                : `<div style="color:var(--neon-ilegal); font-size:14px; font-family:'Orbitron'; font-weight:700; margin-bottom:5px;">${p.precioPf} PF</div>`;
+                
+            let tagDesc = desc > 0 ? `<div class="tag-descuento">-${desc}%</div>` : '';
+
+            htm += `<div class="item-card">${tagDesc}<div><div class="categoria-tag">${p.cat}</div><div class="item-icon">${p.icon}</div><div class="item-titulo" style="color:var(--neon-ilegal);">${p.nombre}</div><div class="item-desc">${p.desc || 'Servicio modificado.'}</div></div><div>${labelPrecio}<div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px;">Stock: ${p.stock}</div><button class="btn-accion" ${!ok?'disabled':''} onclick="procesarTransaccionIlegal(${p.id})">Canjear</button></div></div>`;
         });
         htm += `</div>`; vi.innerHTML = htm;
     }
@@ -1081,10 +1125,12 @@ function procesarTransaccionComercial(id) {
     if(!p) return;
 
     let costeCargas = (p.tienda === 'pack') ? 2 : 1;
+    let desc = p.descuento || 0;
+    let precioFinal = Math.floor(p.precio * (1 - desc / 100));
 
-    if(p.stock > 0 && u.dinero >= p.precio && u.comprasDisponibles >= costeCargas) {
+    if(p.stock > 0 && u.dinero >= precioFinal && u.comprasDisponibles >= costeCargas) {
         p.stock--; 
-        u.dinero -= p.precio; 
+        u.dinero -= precioFinal; 
         u.pf += (p.pf || 0); 
         u.comprasDisponibles -= costeCargas; 
         u.inventario.push({ nombre: p.nombre });
@@ -1096,8 +1142,20 @@ function procesarTransaccionComercial(id) {
 }
 
 function procesarTransaccionIlegal(id) {
-    let u = baseDatos.jugadores[userSesion]; let p = baseDatos.productos.find(pr => pr.id === id);
-    if(p && p.stock > 0 && u.pf >= p.precioPf) { p.stock--; u.pf -= p.precioPf; u.inventario.push({ nombre: p.nombre }); guardarBD(); refrescarPantallaGamer(); }
+    let u = baseDatos.jugadores[userSesion]; 
+    let p = baseDatos.productos.find(pr => pr.id === id);
+    if(!p) return;
+
+    let desc = p.descuento || 0;
+    let precioFinal = Math.floor(p.precioPf * (1 - desc / 100));
+
+    if(p.stock > 0 && u.pf >= precioFinal) { 
+        p.stock--; 
+        u.pf -= precioFinal; 
+        u.inventario.push({ nombre: p.nombre }); 
+        guardarBD(); 
+        refrescarPantallaGamer(); 
+    }
 }
 
 function consumirObjetoBolsa(idx) { baseDatos.jugadores[userSesion].inventario.splice(idx, 1); guardarBD(); refrescarPantallaGamer(); }
@@ -1105,22 +1163,4 @@ function consumirObjetoBolsa(idx) { baseDatos.jugadores[userSesion].inventario.s
 function invocarTerminalMercader() { 
     let v = prompt("LLAVE MAESTRA MERCADER:"); 
     if(v === "1234") { 
-        document.getElementById('pantalla-admin-master').style.display = 'block'; 
-        ajustarCamposFormularioMercader(); 
-        redibujarConsolaAdminMaster(); 
-    } 
-}
-
-function apagarTerminalMercader() { document.getElementById('pantalla-admin-master').style.display = 'none'; }
-function conmutarEstadoTienda(ll, va) { baseDatos[ll] = va; guardarBD(); refrescarPantallaGamer(); }
-function guardarBD() { localStorage.setItem('silph_co_db_2026_final_v10', JSON.stringify(baseDatos)); }
-
-if(userSesion && baseDatos.jugadores[userSesion]) {
-    document.getElementById('pantalla-lobby').style.display = 'none';
-    document.getElementById('pantalla-mercado').style.display = 'block';
-    cargarDatosPerfilEnDOM(); 
-    refrescarPantallaGamer();
-}
-</script>
-</body>
-</html>
+        document.getElementById('pantalla
