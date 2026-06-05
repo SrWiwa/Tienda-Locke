@@ -3,338 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Tienda - Pokémon Locke</title>
+    <title>Tienda Pokémon Oficial & Mercado Negro</title>
     <style>
         :root {
-            --bg-principal: #0d1321;
-            --bg-tarjeta: #1d2d44;
-            --bg-admin: #101726;
-            --texto: #f0ebd8;
-            --oro: #ffbe0b;
-            --azul-pf: #3a86ff;
-            --neon-verde: #06d6a0;
-            --neon-rojo: #ef476f;
-            --morado-gym: #8338ec;
+            --poke-rojo: #ef5350;
+            --poke-rojo-oscuro: #c62828;
+            --poke-azul: #29b6f6;
+            --poke-azul-oscuro: #0288d1;
+            --bg-sitio: #f4f6f9;
+            --bg-tarjeta: #ffffff;
+            --texto-oscuro: #2c3e50;
+            --texto-claro: #ffffff;
+            --oro-precio: #f39c12;
+            --verde-stock: #27ae60;
+            --rojo-agotado: #e74c3c;
+            --gris-borde: #e0e0e0;
         }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-principal);
-            color: var(--texto);
+            background-color: var(--bg-sitio);
+            color: var(--texto-oscuro);
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
-        .contenedor {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* Barra superior estilo Centro Pokémon */
+        .navbar {
+            background-color: var(--poke-rojo);
+            border-bottom: 5px solid var(--poke-rojo-oscuro);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--texto-claro);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        header {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #1d2d44 0%, #0d1321 100%);
-            border-radius: 15px;
-            border: 2px solid var(--azul-pf);
-            box-shadow: 0 0 15px rgba(58, 134, 255, 0.3);
-            margin-bottom: 25px;
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        h1 { color: var(--oro); margin: 0; font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        h2 { border-bottom: 2px solid #3e5c76; padding-bottom: 10px; margin-top: 40px; color: #fff; }
+        .btn-master {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
 
-        .marcador-stats {
+        /* Panel de Estadísticas del Jugador (Diseño de interfaz de juego) */
+        .status-bar {
+            background-color: #ffffff;
+            border-bottom: 2px solid var(--gris-borde);
+            padding: 15px;
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 20px;
             flex-wrap: wrap;
         }
 
-        .caja-stat {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 10px 20px;
+        .stat-badge {
+            background: #f8f9fa;
+            border: 2px solid var(--gris-borde);
+            padding: 8px 20px;
             border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-            font-size: 1.1rem;
+            font-weight: bold;
+            font-size: 1rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .btn-admin-toggle {
-            background: #3e5c76;
-            color: white;
+        /* Contenedor Principal y Pestañas */
+        .main-container {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 0 20px;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--gris-borde);
+            padding-bottom: 1px;
+        }
+
+        .tab-button {
+            background-color: #e0e0e0;
+            color: #666;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 12px 25px;
+            font-size: 1.1rem;
             font-weight: bold;
-            transition: 0.3s;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .btn-admin-toggle:hover { background: #748cab; }
 
-        /* Estilos de Tienda y Tarjetas */
-        .grid-productos {
+        .tab-button.active {
+            background-color: var(--poke-azul);
+            color: var(--texto-claro);
+            border-bottom: 3px solid var(--poke-azul-oscuro);
+        }
+
+        /* Grid y Tarjetas de Objetos (Estilo Tienda Oficial) */
+        .grid-articulos {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
         }
 
-        .tarjeta {
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .item-card {
             background-color: var(--bg-tarjeta);
-            border-radius: 12px;
+            border: 1px solid var(--gris-borde);
+            border-radius: 15px;
             padding: 20px;
-            border: 2px solid #3e5c76;
+            text-align: center;
             position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        .tarjeta.gym-item { border-color: var(--morado-gym); }
-
-        .etiqueta-tipo {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
+        .item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
         }
 
-        .info-precio { color: var(--oro); font-weight: bold; font-size: 1.4rem; margin: 10px 0 5px 0; }
-        .info-pf { color: var(--azul-pf); font-weight: bold; margin-bottom: 5px; }
-        .info-stock { color: #b0c4de; font-size: 0.9rem; }
-        .info-slots { color: #ff9f1c; font-size: 0.85rem; font-style: italic; }
+        /* Contenedor de la Imagen del Objeto */
+        .item-img-container {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #ccc;
+        }
 
-        .btn-comprar {
-            background: linear-gradient(180deg, #4cc9f0 0%, #4361ee 100%);
+        .item-img {
+            max-width: 70px;
+            max-height: 70px;
+            object-fit: contain;
+        }
+
+        .item-icon-fallback {
+            font-size: 3rem;
+        }
+
+        .item-title {
+            font-size: 1.2rem;
+            margin: 0 0 8px 0;
+            color: var(--texto-oscuro);
+        }
+
+        .item-desc {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin: 0 0 15px 0;
+            min-height: 32px;
+        }
+
+        .item-price { color: var(--oro-precio); font-weight: bold; font-size: 1.3rem; margin-bottom: 4px; }
+        .item-pf { color: var(--poke-azul-oscuro); font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
+        .item-slots { color: #e67e22; font-size: 0.8rem; font-weight: 500; }
+        .item-stock { font-size: 0.85rem; margin-top: 10px; color: #7f8c8d; }
+
+        /* Botón de Compra Estilo Pokémon */
+        .btn-poke-buy {
+            background: linear-gradient(180deg, #54ccff 0%, #0099e6 100%);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 25px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             margin-top: 15px;
-            transition: 0.2s;
-            box-shadow: 0 4px 0 #2b3a8a;
+            width: 100%;
+            box-shadow: 0 3px 0 #006699;
         }
-        .btn-comprar:active { transform: translateY(4px); box-shadow: none; }
-        .btn-comprar:disabled {
-            background: #4a5568 !important;
-            color: #a0aec0;
-            cursor: not-allowed;
+        .btn-poke-buy:active { transform: translateY(3px); box-shadow: none; }
+        .btn-poke-buy:disabled {
+            background: #bdc3c7 !important;
+            color: #7f8c8d;
             box-shadow: none;
+            cursor: not-allowed;
         }
 
-        /* Sección Administrador */
-        .seccion-admin {
-            background-color: var(--bg-admin);
-            border: 2px dashed var(--oro);
-            border-radius: 12px;
+        /* Panel de Control Secreto */
+        .panel-admin-box {
+            background-color: #34495e;
+            color: white;
             padding: 20px;
-            margin-bottom: 30px;
-            display: none;
-        }
-        .seccion-admin.activo { display: block; }
-
-        .control-admin {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .switch-container { display: flex; align-items: center; gap: 10px; font-weight: bold; }
-
-        .tienda-cerrada-msg {
-            text-align: center;
-            padding: 40px;
-            background: rgba(131, 56, 236, 0.1);
-            border: 2px dashed var(--morado-gym);
             border-radius: 12px;
-            color: #d6bbfb;
+            margin-bottom: 25px;
+            display: none;
+            border-left: 5px solid var(--oro-precio);
+        }
+        .panel-admin-box.visible { display: block; }
+
+        .illegal-locked-msg {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: #fff;
+            border: 2px dashed #95a5a6;
+            border-radius: 15px;
+            color: #7f8c8d;
             font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
 
-<div class="contenedor">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <span style="font-size: 0.9rem; color: #748cab;">Locke System v2.0</span>
-        <button class="btn-admin-toggle" onclick="toggleAdminPanel()">⚙️ Abrir Panel Master</button>
+    <!-- BARRA SUPERIOR -->
+    <div class="navbar">
+        <h1>🏪 Tienda Pokémon Locke</h1>
+        <button class="btn-master" onclick="toggleMasterPanel()">⚙️ Panel Master</button>
     </div>
 
-    <!-- PANEL DE ADMINISTRACIÓN -->
-    <div class="seccion-admin" id="panel-admin">
-        <h3>🎛️ Panel de Control del Master</h3>
-        <div class="control-admin">
-            <div class="switch-container">
-                <input type="checkbox" id="switch-gym" onchange="cambiarEstadoGym(this.checked)" style="transform: scale(1.5); cursor:pointer;">
-                <label for="switch-gym" style="color: var(--morado-gym);">🔓 Activar Tienda del Gimnasio</label>
+    <!-- PANEL MASTER OCULTO -->
+    <div class="main-container">
+        <div class="panel-admin-box" id="panel-master">
+            <h3 style="margin-top:0; color:var(--oro-precio);">🎛️ Control de Contrabando (Master)</h3>
+            <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                <label style="font-weight:bold; cursor:pointer;">
+                    <input type="checkbox" id="check-illegal" onchange="cambiarMercadoNegro(this.checked)" style="transform:scale(1.3); margin-right:8px;">
+                    🔓 Permitir Acceso a la "Tienda De Ilegalidades"
+                </label>
+                <button onclick="forzarResetHoy()" style="background-color:var(--poke-rojo); color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">
+                    🔄 Resetear Límite de Compras (24h)
+                </button>
             </div>
-            <button onclick="reiniciarLimitesDiarios()" style="background: var(--neon-rojo); color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold;">
-                🔄 Forzar Reinicio 24h (Resetear Compras)
-            </button>
         </div>
-        <p style="font-size:0.85rem; color: var(--oro);">*Nota: Los cambios que hagas aquí se guardan localmente en este navegador.</p>
     </div>
 
-    <!-- CABECERA JUGADOR -->
-    <header>
-        <h1>TIENDA OFICIAL POKÉMON LOCKE</h1>
-        <div class="marcador-stats">
-            <div class="caja-stat">🎒 Dinero: <span id="player-money" style="color: var(--oro); font-weight:bold;">0</span> P₠</div>
-            <div class="caja-stat">⭐ Puntos Favor: <span id="player-pf" style="color: var(--azul-pf); font-weight:bold;">0</span> PF</div>
-            <div class="caja-stat">🕒 Compras de Hoy: <span id="player-slots" style="color: var(--neon-verde); font-weight:bold;">0 / 3</span></div>
-        </div>
-    </header>
-
-    <!-- TIENDA LEGAL -->
-    <h2>🛒 Tienda Legal (Máx 3 compras al día)</h2>
-    <div class="grid-productos" id="tienda-legal"></div>
-
-    <!-- TIENDA DE GIMNASIO -->
-    <h2>⚔️ Tienda Especial de Gimnasio</h2>
-    <div id="contenedor-tienda-gym">
-        <div class="grid-productos" id="tienda-gym"></div>
+    <!-- ESTADÍSTICAS DEL JUGADOR -->
+    <div class="status-bar">
+        <div class="stat-badge">🎒 Bolsa: <span id="lbl-dinero" style="color:var(--oro-precio);">0</span> P₠</div>
+        <div class="stat-badge">⭐ Favor: <span id="lbl-pf" style="color:var(--poke-azul-oscuro);">0</span> PF</div>
+        <div class="stat-badge">🕒 Cupo de Hoy: <span id="lbl-slots" style="color:var(--verde-stock);">0 / 3</span></div>
     </div>
-</div>
+
+    <!-- CONTENIDO GENERAL -->
+    <div class="main-container">
+        <!-- Pestañas de las Tiendas -->
+        <div class="tabs-container">
+            <button class="tab-button active" onclick="cambiarPestaña('legal')">🛒 Tienda Oficial</button>
+            <button class="tab-button" id="tab-btn-illegal" onclick="cambiarPestaña('illegal')">💀 Tienda De Ilegalidades</button>
+        </div>
+
+        <!-- SECCIÓN: TIENDA OFICIAL -->
+        <div id="tienda-legal" class="tab-content active">
+            <div class="grid-articulos" id="grid-legal"></div>
+        </div>
+
+        <!-- SECCIÓN: TIENDA DE ILEGALIDADES -->
+        <div id="tienda-illegal" class="tab-content">
+            <div id="status-tienda-illegal">
+                <div class="grid-articulos" id="grid-illegal"></div>
+            </div>
+        </div>
+    </div>
 
 <script>
-const productosIniciales = [
-    { id: 1, categoria: 'legal', tipo: 'Objeto', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, slots: 1 },
-    { id: 2, categoria: 'legal', tipo: 'Objeto', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, slots: 1 },
-    { id: 3, categoria: 'legal', tipo: 'Objeto', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, slots: 1 },
-    { id: 4, categoria: 'legal', tipo: 'Objeto', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, slots: 1 },
-    { id: 5, categoria: 'legal', tipo: 'Pack', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 3, slots: 2, desc: 'Contiene: 3 Baya Oran + 3 Baya Atania' },
-    { id: 6, categoria: 'legal', tipo: 'Pack', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 2, slots: 2, desc: 'Contiene: 1 Banda Focus + 1 Hierro' },
-    { id: 7, categoria: 'gym', tipo: 'Gimnasio', nombre: 'Banda Focus', precio: 2500, pf: 3, stock: 4, slots: 1 },
-    { id: 8, categoria: 'gym', tipo: 'Gimnasio', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, slots: 1 }
+// Base de datos de los objetos con soporte para IMÁGENES
+// Nota: Deja "imgUrl" vacío '' para usar el icono emoji por defecto, o pon la ruta/URL de tu imagen.
+const catalogoOriginal = [
+    { id: 1, tienda: 'legal', tipo: 'Objeto', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, slots: 1, icono: '💊', imgUrl: '' },
+    { id: 2, tienda: 'legal', tipo: 'Objeto', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, slots: 1, icono: '🧪', imgUrl: '' },
+    { id: 3, tienda: 'legal', tipo: 'Objeto', nombre: 'X Defensa', precio: 600, pf: 2, stock: 6, slots: 1, icono: '🛡️', imgUrl: '' },
+    { id: 4, tienda: 'legal', tipo: 'Objeto', nombre: 'X Velocidad', precio: 700, pf: 3, stock: 6, slots: 1, icono: '👟', imgUrl: '' },
+    { id: 5, tienda: 'legal', tipo: 'Pack', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 3, slots: 2, desc: '3 Baya Oran + 3 Baya Atania', icono: '📦', imgUrl: '' },
+    { id: 6, tienda: 'legal', tipo: 'Pack', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 2, slots: 2, desc: '1 Banda Focus + 1 Hierro', icono: '🎁', imgUrl: '' },
+    
+    // Tienda De Ilegalidades (Objetos rotos, fakes o prohibidos)
+    { id: 7, tienda: 'illegal', tipo: 'Ilegal', nombre: 'Banda Focus (Clonada)', precio: 2500, pf: 3, stock: 2, slots: 1, desc: 'Evita debilitarse si tiene la vida al máximo.', icono: '🎗️', imgUrl: '' },
+    { id: 8, tienda: 'illegal', tipo: 'Ilegal', nombre: 'Gafas Elegidas (Fake)', precio: 5000, pf: 3, stock: 1, slots: 1, desc: 'Sube el Ataque Especial pero solo permite usar un movimiento.', icono: '🕶️', imgUrl: '' },
+    { id: 9, tienda: 'illegal', tipo: 'Fake-Ball', nombre: 'Nivel Ball Modificada', precio: 1500, pf: 4, stock: 5, slots: 1, desc: 'Ratio de captura alterado ilegalmente.', icono: '🔴', imgUrl: '' }
 ];
 
-let estado = {
-    productos: productosIniciales,
-    jugador: { dinero: 15000, pf: 0, slotsUsados: 0, ultimaCompraFecha: "" },
-    gymAbierto: false
+let baseDatos = {
+    productos: catalogoOriginal,
+    jugador: { dinero: 15000, pf: 0, slotsUsados: 0, ultimaCompra: "" },
+    accesoIlegal: false
 };
 
-if (localStorage.getItem('locke_tienda_estado')) {
-    estado = JSON.parse(localStorage.getItem('locke_tienda_estado'));
+// Cargar datos guardados
+if (localStorage.getItem('poke_locke_shop_save')) {
+    baseDatos = JSON.parse(localStorage.getItem('poke_locke_shop_save'));
 }
 
-function guardarEstado() {
-    localStorage.setItem('locke_tienda_estado', JSON.stringify(estado));
+function guardarDatos() {
+    localStorage.setItem('poke_locke_shop_save', JSON.stringify(baseDatos));
 }
 
-function verificarTiempo24h() {
-    if (!estado.jugador.ultimaCompraFecha) return;
-    const ahora = new Date().getTime();
-    const ultimaCompra = new Date(estado.jugador.ultimaCompraFecha).getTime();
-    const veinticuatroHoras = 24 * 60 * 60 * 1000;
-    if (ahora - ultimaCompra >= veinticuatroHoras) {
-        estado.jugador.slotsUsados = 0;
-        guardarEstado();
-    }
-}
+function refrescarInterfaz() {
+    const gridLegal = document.getElementById('grid-legal');
+    const gridIllegal = document.getElementById('grid-illegal');
+    const cajaStatusIllegal = document.getElementById('status-tienda-illegal');
 
-function renderizarTiendas() {
-    verificarTiempo24h();
-    
-    const contenedorLegal = document.getElementById('tienda-legal');
-    const cajaGym = document.getElementById('contenedor-tienda-gym');
-    
-    if(contenedorLegal) contenedorLegal.innerHTML = '';
+    // Limpiar grids
+    if(gridLegal) gridLegal.innerHTML = '';
+    if(gridIllegal) gridIllegal.innerHTML = '';
 
-    document.getElementById('player-money').innerText = estado.jugador.dinero.toLocaleString();
-    document.getElementById('player-pf').innerText = estado.jugador.pf;
-    document.getElementById('player-slots').innerText = `${estado.jugador.slotsUsados} / 3`;
-    document.getElementById('switch-gym').checked = estado.gymAbierto;
+    // Marcadores globales
+    document.getElementById('lbl-dinero').innerText = baseDatos.jugador.dinero.toLocaleString();
+    document.getElementById('lbl-pf').innerText = baseDatos.jugador.pf;
+    document.getElementById('lbl-slots').innerText = `${baseDatos.jugador.slotsUsados} / 3`;
+    document.getElementById('check-illegal').checked = baseDatos.accesoIlegal;
 
-    if (!estado.gymAbierto) {
-        if(cajaGym) cajaGym.innerHTML = `<div class="tienda-cerrada-msg">🔒 La tienda del gimnasio está cerrada por el Master. Se abrirá cuando sea el momento adecuado.</div>`;
+    // Control visual de la Tienda de Ilegalidades
+    if (!baseDatos.accesoIlegal) {
+        cajaStatusIllegal.innerHTML = `<div class="illegal-locked-msg">🔒 La "Tienda De Ilegalidades" está cerrada bajo llave por la Policía Internacional. El Master la abrirá en el momento adecuado del Locke.</div>`;
     } else {
-        if(cajaGym) cajaGym.innerHTML = `<div class="grid-productos" id="tienda-gym"></div>`;
+        cajaStatusIllegal.innerHTML = `<div class="grid-articulos" id="grid-illegal"></div>`;
     }
 
-    const destinoGym = document.getElementById('tienda-gym');
+    const destinoIllegal = document.getElementById('grid-illegal');
 
-    estado.productos.forEach(prod => {
+    // Dibujar las tarjetas
+    baseDatos.productos.forEach(item => {
         const tarjeta = document.createElement('div');
-        tarjeta.className = `tarjeta ${prod.categoria === 'gym' ? 'gym-item' : ''}`;
-        
-        const txtBoton = prod.stock <= 0 ? 'AGOTADO' : 'COMPRAR';
-        const tieneDinero = estado.jugador.dinero >= prod.precio;
-        const tieneSlotsDiarios = (estado.jugador.slotsUsados + prod.slots) <= 3;
-        const hayStock = prod.stock > 0;
-        const botonDesactivado = !tieneDinero || !tieneSlotsDiarios || !hayStock;
+        tarjeta.className = 'item-card';
+
+        const hayStock = item.stock > 0;
+        const sePuedeComprar = (baseDatos.jugador.dinero >= item.precio) && ((baseDatos.jugador.slotsUsados + item.slots) <= 3) && hayStock;
+
+        // Comprobación de imagen: si tiene URL la pone, si no, usa el Emoji/Icono
+        let imagenHTML = `<span class="item-icon-fallback">${item.icono}</span>`;
+        if (item.imgUrl && item.imgUrl !== '') {
+            imagenHTML = `<img src="${item.imgUrl}" class="item-img" alt="${item.nombre}">`;
+        }
 
         tarjeta.innerHTML = `
-            <span class="etiqueta-tipo" style="background: ${prod.categoria === 'gym' ? '#8338ec' : (prod.tipo === 'Pack' ? '#d35400' : '#27ae60')}">${prod.tipo}</span>
-            <h3 style="margin: 0 0 5px 0;">${prod.nombre}</h3>
-            <p style="font-size:0.85rem; color:#a0aec0; margin:0;">${prod.desc || 'Objeto útil para la supervivencia en la ruta.'}</p>
             <div>
-                <div class="info-precio">${prod.precio.toLocaleString()} P₠</div>
-                <div class="info-pf">⭐ +${prod.pf} PF</div>
-                <div class="info-slots">Consume: ${prod.slots} ${prod.slots > 1 ? 'compras' : 'compra'}</div>
-                <div class="info-stock" style="margin-top:10px;">Stock: <strong style="color:${hayStock ? '#06d6a0' : '#ef476f'}">${hayStock ? prod.stock : 'AGOTADO'}</strong></div>
+                <div class="item-img-container">${imagenHTML}</div>
+                <h3 class="item-title">${item.nombre}</h3>
+                <p class="item-desc">${item.desc || 'Objeto útil para tu aventura Pokémon.'}</p>
             </div>
-            <button class="btn-comprar" ${botonDesactivado ? 'disabled' : ''} onclick="procesarCompra(${prod.id})">
-                ${txtBoton}
-            </button>
+            <div>
+                <div class="item-price">${item.precio.toLocaleString()} P₠</div>
+                <div class="item-pf">⭐ +${item.pf} PF</div>
+                <div class="item-slots">Consume: ${item.slots} slot(s)</div>
+                <div class="item-stock">Stock: <strong style="color:${hayStock ? 'var(--verde-stock)' : 'var(--rojo-agotado)'}">${hayStock ? item.stock + ' ud.' : 'AGOTADO'}</strong></div>
+                <button class="btn-poke-buy" ${!sePuedeComprar ? 'disabled' : ''} onclick="hacerCompra(${item.id})">
+                    ${hayStock ? 'COMPRAR' : 'SIN STOCK'}
+                </button>
+            </div>
         `;
 
-        if (prod.categoria === 'legal' && contenedorLegal) {
-            contenedorLegal.appendChild(tarjeta);
-        } else if (prod.categoria === 'gym' && estado.gymAbierto && destinoGym) {
-            destinoGym.appendChild(tarjeta);
+        if (item.tienda === 'legal' && gridLegal) {
+            gridLegal.appendChild(tarjeta);
+        } else if (item.tienda === 'illegal' && baseDatos.accesoIlegal && destinoIllegal) {
+            destinoIllegal.appendChild(tarjeta);
         }
     });
 }
 
-function procesarCompra(id) {
-    const prod = estado.productos.find(p => p.id === id);
-    if (prod && prod.stock > 0 && estado.jugador.dinero >= prod.precio && (estado.jugador.slotsUsados + prod.slots) <= 3) {
-        prod.stock--;
-        estado.jugador.dinero -= prod.precio;
-        estado.jugador.pf += prod.pf;
-        estado.jugador.slotsUsados += prod.slots;
-        estado.jugador.ultimaCompraFecha = new Date().toISOString();
-        guardarEstado();
-        renderizarTiendas();
-        alert(`🛒 ¡Compra realizada!\nAdquiriste: ${prod.nombre}.`);
+function hacerCompra(id) {
+    const item = baseDatos.productos.find(p => p.id === id);
+    if(item && item.stock > 0 && baseDatos.jugador.dinero >= item.precio && (baseDatos.jugador.slotsUsados + item.slots) <= 3) {
+        item.stock--;
+        baseDatos.jugador.dinero -= item.precio;
+        baseDatos.jugador.pf += item.pf;
+        baseDatos.jugador.slotsUsados += item.slots;
+        guardarDatos();
+        refrescarInterfaz();
+        alert(`🛒 ¡Comprado con éxito!\nHas retirado 1 unidad de ${item.nombre}.`);
     }
 }
 
-function toggleAdminPanel() {
-    const panel = document.getElementById('panel-admin');
-    if(panel) panel.classList.toggle('activo');
+// Control de Pestañas
+function cambiarPestaña(tipoTienda) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+
+    if(tipoTienda === 'legal') {
+        document.getElementById('tienda-legal').classList.add('active');
+        event.currentTarget.classList.add('active');
+    } else {
+        document.getElementById('tienda-illegal').classList.add('active');
+        document.getElementById('tab-btn-illegal').classList.add('active');
+    }
+    refrescarInterfaz();
 }
 
-function cambiarEstadoGym(abierto) {
-    estado.gymAbierto = abierto;
-    guardarEstado();
-    renderizarTiendas();
+// Funciones del Panel Master
+function toggleMasterPanel() {
+    document.getElementById('panel-master').classList.toggle('visible');
 }
 
-function reiniciarLimitesDiarios() {
-    estado.jugador.slotsUsados = 0;
-    guardarEstado();
-    renderizarTiendas();
-    alert("🔄 Cupos diarios reiniciados.");
+function cambiarMercadoNegro(abierto) {
+    baseDatos.accesoIlegal = abierto;
+    guardarDatos();
+    refrescarInterfaz();
 }
 
-renderizarTiendas();
+function forzarResetHoy() {
+    baseDatos.jugador.slotsUsados = 0;
+    guardarDatos();
+    refrescarInterfaz();
+    alert("🔄 Se han restaurado los 3 cupos diarios de compra.");
+}
+
+// Carga Inicial
+refrescarInterfaz();
 </script>
 </body>
 </html>
