@@ -712,7 +712,7 @@ const baseDatosInicial = [
     { id: 112, tienda: 'legal', cat: 'Objetos Competitivos', nombre: 'Gafas Elegidas', precio: 5000, pf: 3, stock: 4, icon: '🕶️' },
     { id: 201, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Balls', precio: 750, pf: 11, stock: 99, icon: '📦', desc: '2 Buceo Ball + 2 Nivel Ball', estrategia: 'Incentiva estrategia de captura mixta.' },
     { id: 202, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Exploración', precio: 460, pf: 7, stock: 99, icon: '📦', desc: '2 Cuerda Huida + 4 Repelente', estrategia: 'Reduce fricción de rutas largas.' },
-    { id: 203, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Combate Temprano', precio: 1300, pf: 11, stock: 99, icon: '📦', desc: '2 X Defensa + 2 X Velocidad', estrategia: 'Premia preparation.' },
+    { id: 203, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Combate Temprano', precio: 1300, pf: 11, stock: 99, icon: '📦', desc: '2 X Defensa + 2 X Velocidad', estrategia: 'Premia preparación.' },
     { id: 204, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack Supervivencia', precio: 460, pf: 7, stock: 99, icon: '📦', desc: '3 Baya Oran + 3 Baya Atania', estrategia: 'Ahorro pequeño pero constante.' },
     { id: 205, tienda: 'pack', cat: 'Pack Especial', nombre: 'Pack "Segundo Intento"', precio: 2800, pf: 6, stock: 99, icon: '📦', desc: '1 Banda Focus + 1 Hierro', estrategia: 'Supervivencia + mejora ligera.' },
     { id: 301, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Escudo Poke', precioPf: 5, stock: 1, icon: '🛡️', desc: 'Evita la muerte una vez.' },
@@ -867,15 +867,15 @@ window.guardarNuevaEntradaDiario = function() {
     let contenido = inputTxt.value.trim();
     if(!contenido) return alert("Texto vacío.");
     
-    inyectarEntradaDiarioAutomatica(userSesion, contenido);
+    inyectarEntradaDiarioAutomatica(contenido);
     inputTxt.value = '';
     redibujarHistorialDiario();
 };
 
-// AUTOMATIZACIÓN DE DIARIO OPTIMIZADA POR ENTRENADOR DINÁMICO
-function inyectarEntradaDiarioAutomatica(entrenadorId, textoMsg) {
-    if(!entrenadorId || !baseDatos.jugadores[entrenadorId]) return;
-    let u = baseDatos.jugadores[entrenadorId];
+// FUNCIÓN AUXILIAR DE AUTOMATIZACIÓN DE DIARIO
+function inyectarEntradaDiarioAutomatica(textoMsg) {
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
     let fechaActual = new Date().toLocaleString('es-ES');
     if(!u.diarioLogs) u.diarioLogs = [];
     u.diarioLogs.push({ timestamp: fechaActual, texto: textoMsg });
@@ -1011,18 +1011,7 @@ window.modificarFondosEntrenador = function(op) {
     let cant = parseInt(document.getElementById('adm-banco-cantidad').value) || 0;
     if(!userId || cant <= 0) return alert("Revisa los campos.");
     
-    let saldoAnteriorPoke = baseDatos.jugadores[userId].dinero || 0;
     baseDatos.jugadores[userId].dinero += (op === 'SUMAR' ? cant : -cant);
-    
-    // AUTOMATIZACIÓN REGISTRO: Ajuste del balance de Pokédolares por el Administrador Mercader
-    let registroMsg = "";
-    if (op === 'SUMAR') {
-        registroMsg = `💸 INGRESO EXTRA: El Administrador ha ingresado +${cant} P₠ a tus fondos. (Saldo anterior: ${saldoAnteriorPoke} P₠ -> Actual: ${baseDatos.jugadores[userId].dinero} P₠).`;
-    } else {
-        registroMsg = `📉 RETIRO MANUAL: El Administrador ha extraído -${cant} P₠ de tus fondos. (Saldo anterior: ${saldoAnteriorPoke} P₠ -> Actual: ${baseDatos.jugadores[userId].dinero} P₠).`;
-    }
-    inyectarEntradaDiarioAutomatica(userId, registroMsg);
-
     guardarBD();
     document.getElementById('adm-banco-cantidad').value = '';
 };
@@ -1091,7 +1080,7 @@ window.apagarTerminalMercader = function() {
     document.getElementById('pantalla-admin-master').style.display = 'none';
 };
 
-// COMPRA AUTOMATIZADA CON BITÁCORA FINANCIERA DIRECTA E INMUTABLE
+// COMPRA AUTOMATIZADA CON BITÁCORA DIRECTA
 window.comprarObjetoGamer = function(id) {
     if(!userSesion) return;
     let u = baseDatos.jugadores[userSesion];
@@ -1103,37 +1092,27 @@ window.comprarObjetoGamer = function(id) {
     let txtBitacora = "";
     if(p.tienda === 'illegal') {
         if(u.pf < p.precioPf) return alert("No tienes suficientes Puntos de Favor (PF).");
-        
-        let pfAnteriores = u.pf;
-        u.pf -= p.precioPf; // GASTO DE PF
-        
-        // AUTOMATIZACIÓN REGISTRO: Gasto de PF (Tienda Ilegal)
-        txtBitacora = `📉 GASTO PF (MÓDULO PROHIBIDO): Adquirió '${p.icon} ${p.nombre}'. Balance PF: ${pfAnteriores} PF -> ${u.pf} PF (-${p.precioPf} PF).`;
+        u.pf -= p.precioPf;
+        txtBitacora = `Adquirió modulo prohibido: ${p.icon} '${p.nombre}' utilizando un coste de ${p.precioPf} PF.`;
     } else {
         if(u.dinero < p.precio) return alert("No tienes suficiente dinero (P₠).");
-        
-        let dineroAnterior = u.dinero;
-        let pfAnteriores = u.pf;
-        let bonificacionPf = p.pf || 0;
-        
-        u.dinero -= p.precio; // GASTO DE POKÉDOLARES
-        u.pf += bonificacionPf; // INGRESO DE PF
-        
-        // AUTOMATIZACIÓN REGISTRO: Gasto de P₠ + Ingreso Cashback en PF (Tienda Legal / Shop Pack)
-        txtBitacora = `🛍️ COMPRA REGISTRADA:\n- 📉 GASTO POKÉDOLARES: -${p.precio} P₠ por '${p.icon} ${p.nombre}'. Balance: ${dineroAnterior} P₠ -> ${u.dinero} P₠.\n- 📈 INGRESO PF: +${bonificacionPf} PF (Bono fidelización Silph Co.). Balance: ${pfAnteriores} PF -> ${u.pf} PF.`;
+        u.dinero -= p.precio;
+        u.pf += (p.pf || 0);
+        txtBitacora = `Adquirió artículo: ${p.icon} '${p.nombre}' en el mercado por un coste de ${p.precio} P₠.`;
     }
 
     p.stock--;
     u.comprasDisponibles--;
     
     if(!u.inventario) u.inventario = [];
+    // Añadimos un UID único basado en tiempo al objeto en la mochila para poder eliminar el específico si hay repetidos
     u.inventario.push({ uid: "item_" + Date.now() + Math.floor(Math.random()*100), nombre: p.nombre, icon: p.icon, fecha: new Date().toLocaleDateString() });
     
-    // GUARDAR EN BITÁCORA INMUTABLE
-    inyectarEntradaDiarioAutomatica(userSesion, txtBitacora);
+    // REGISTRO DE DIARIO AUTOMÁTICO AL COMPRAR
+    inyectarEntradaDiarioAutomatica(txtBitacora);
 
     guardarBD();
-    alert(`¡Has comprado ${p.nombre} con éxito!\nSaldos impresos de manera inmutable en tu Bitácora.`);
+    alert(`¡Has comprado ${p.nombre} con éxito!\nRegistrado en la Bitácora de Aventura.`);
 };
 
 // CONSUMIR E ELIMINAR OBJETO AUTOMÁTICAMENTE
@@ -1144,10 +1123,12 @@ window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
 
     let index = u.inventario.findIndex(i => i.uid === itemUid);
     if(index !== -1) {
+        // Eliminar objeto de la mochila
         u.inventario.splice(index, 1);
 
-        let txtConsumo = `🎒 CONSUMO DE UTILERÍA: Utilizó el objeto ${itemIcon} '${itemNombre}' desde su mochila de suministros. El objeto ha sido destruido de forma permanente.`;
-        inyectarEntradaDiarioAutomatica(userSesion, txtConsumo);
+        // REGISTRO DE DIARIO AUTOMÁTICO AL CONSUMIR
+        let txtConsumo = `Utilizó el objeto ${itemIcon} '${itemNombre}' desde su mochila de suministros. El objeto ha sido consumido.`;
+        inyectarEntradaDiarioAutomatica(txtConsumo);
 
         guardarBD();
         alert(`Has usado '${itemNombre}'. El objeto ha sido removido automáticamente de tu inventario.`);
@@ -1172,6 +1153,7 @@ function refrescarPantallaGamer() {
         invBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Mochila vacía.</span>';
     } else {
         itemsFiltrados.forEach(i => {
+            // Se genera dinámicamente cada objeto con su botón nativo de Uso Automático
             invBox.innerHTML += `
                 <div class="mochila-item-tag" title="Adquirido el: ${i.fecha}">
                     <span>${i.icon || '📦'} ${i.nombre}</span>
@@ -1180,6 +1162,7 @@ function refrescarPantallaGamer() {
         });
     }
 
+    // Mantener actualizado el selector de trades
     let receptorSelect = document.getElementById('int-select-receptor');
     if(receptorSelect) {
         let currentFav = receptorSelect.value;
@@ -1243,7 +1226,7 @@ function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
 }
 
 /* ==========================================================================
-   SISTEMA DE INTERCAMBIO, ESCROW Y VOTACIONES CON DESTINATARIOS AUTOMÁTICOS
+   SISTEMA DE INTERCAMBIO, ESCROW Y VOTACIONES
    ========================================================================== */
 
 window.publicarPropuestaIntercambio = function() {
@@ -1257,12 +1240,7 @@ window.publicarPropuestaIntercambio = function() {
     if(!receptorId) return alert("Debes seleccionar un destinatario válido.");
     if(u.pf < escrowPf) return alert(`Fondos insuficientes. Necesitas ${escrowPf} PF para el depósito en garantía.`);
 
-    let pfAnteriores = u.pf;
-    u.pf -= escrowPf; // GASTO RETENIDO EN ESCROW
-
-    // AUTOMATIZACIÓN REGISTRO: Retención de PF del proponente
-    let txtProponente = `🏛️ CÁMARA DE COMERCIO (PROPUESTA ENVIADA): Se ha retenido un depósito de seguridad en garantía de -${escrowPf} PF para realizar una oferta comercial a ${receptorId.toUpperCase()}. Balance: ${pfAnteriores} PF -> ${u.pf} PF. Detalles: "${ofertaTxt}"`;
-    inyectarEntradaDiarioAutomatica(userSesion, txtProponente);
+    u.pf -= escrowPf;
 
     let tradeId = "trade_" + Date.now();
     let nuevoIntercambio = {
@@ -1308,4 +1286,63 @@ window.resolverIntercambio = function(tradeId, resultado) {
     let r = baseDatos.jugadores[t.receptor];
 
     if(resultado === 'EXITOSO') {
-        let pfAnterioresReceptor = r ? (r
+        if(r) r.pf = (r.pf || 0) + t.depositoEscrow;
+        t.estado = "completado";
+        alert("Intercambio cerrado con éxito. Los PF en garantía se han transferido al receptor.");
+    } else {
+        if(p) p.pf = (p.pf || 0) + t.depositoEscrow;
+        t.estado = "fallido";
+        alert("Intercambio declarado Fallido/Cancelado. Se han devuelto los PF al proponente.");
+    }
+
+    guardarBD();
+};
+
+function actualizarListaIntercambiosDOM() {
+    let box = document.getElementById('contenedor-intercambios-activos');
+    if(!box) return;
+    box.innerHTML = '';
+
+    if(!baseDatos.intercambios || Object.keys(baseDatos.intercambios).length === 0) {
+        box.innerHTML = `<div style="color:var(--texto-secundario); font-size:13px; padding:15px; text-align:center;">No hay operaciones comerciales en curso en la Cámara.</div>`;
+        return;
+    }
+
+    Object.keys(baseDatos.intercambios).forEach(id => {
+        let t = baseDatos.intercambios[id];
+        if(t.estado !== "evaluacion") return; 
+
+        let yaVoto = t.registroVotos && t.registroVotos[userSesion] ? true : false;
+        let esCreador = t.proponente === userSesion;
+
+        box.innerHTML += `
+            <div class="intercambio-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-family:'Orbitron'; font-size:12px; color:var(--neon-intercambio)">DE: ${t.proponente.toUpperCase()} ➡️ PARA: ${t.receptor.toUpperCase()}</span>
+                    <div>
+                        <span class="votos-escrow font-family:'Orbitron'">🛡️ Garantía: ${t.depositoEscrow} PF</span>
+                        <span class="votos-si">👍 A favor: ${t.votosSi || 0}</span>
+                        <span class="votos-no">👎 En contra: ${t.votosNo || 0}</span>
+                    </div>
+                </div>
+                <div style="font-size:14px; color:#fff; margin-bottom:12px; background:rgba(0,0,0,0.3); padding:8px; border-radius:4px;">
+                    ${t.detalles}
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar A Favor</button>
+                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar En Contra</button>
+                    
+                    ${esCreador ? `
+                        <div style="margin-left:auto; display:flex; gap:5px;">
+                            <button class="btn-accion" style="padding:6px; background:#1e3a8a; border-color:#60a5fa; color:#60a5fa; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'EXITOSO')">✔️ EJECUTAR INTERCAMBIO</button>
+                            <button class="btn-accion" style="padding:6px; background:#4c1d1d; border-color:#ef4444; color:#ef4444; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'FALLIDO')">❌ DECLARAR FALLIDO</button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+}
+</script>
+</body>
+</html>
