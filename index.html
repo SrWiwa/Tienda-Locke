@@ -558,25 +558,37 @@
         
         <div id="vista-intercambio" class="market-view">
             <div class="intercambio-box">
-                <h3 style="font-family:'Orbitron'; color:var(--neon-intercambio); margin-top:0;">🔄 PROPONER INTERCAMBIO / OFERTA COMERCIAL</h3>
+                <h3 style="font-family:'Orbitron'; color:var(--neon-intercambio); margin-top:0;">🔄 PROPONER TRUEQUE BIDIRECCIONAL</h3>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
                     <div>
-                        <label style="font-size:11px; color:var(--texto-secundario);">¿Qué ofreces/pides? (Detalles del Trade)</label>
-                        <input type="text" id="int-txt-oferta" placeholder="Ej: Ofrezco Gafas Elegidas por 1 Escudo Poke" class="admin-input-custom" style="padding:10px; font-size:13px;">
+                        <label style="font-size:11px; color:var(--texto-secundario); font-weight: bold;">🎁 LO QUE TÚ OFRECES (Tus objetos/Pokes):</label>
+                        <input type="text" id="int-txt-ofrece" placeholder="Ej: 1 Gafas Elegidas + 1 Buceo Ball" class="admin-input-custom" style="padding:10px; font-size:13px; border-color: var(--neon-legal);">
                     </div>
                     <div>
-                        <label style="font-size:11px; color:var(--texto-secundario);">Depósito de Garantía Obligatorio (Coste PF)</label>
-                        <input type="number" id="int-num-escrow" min="0" value="2" class="admin-input-custom" style="padding:10px; font-size:13px; color:var(--neon-ilegal); font-weight:bold;">
+                        <label style="font-size:11px; color:var(--texto-secundario); font-weight: bold;">➡️ LO QUE PIDES A CAMBIO:</label>
+                        <input type="text" id="int-txt-pide" placeholder="Ej: 1 Piedra Fuego o un Gligar" class="admin-input-custom" style="padding:10px; font-size:13px; border-color: var(--neon-packs);">
                     </div>
                 </div>
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:11px; color:var(--texto-secundario);">Entrenador Destinatario (ID exacto)</label>
-                    <select id="int-select-receptor" style="width:100%; padding:10px; background:#060914; color:#fff; border:1px solid #334155; border-radius:6px;"></select>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <label style="font-size:11px; color:var(--texto-secundario);">Entrenador Destinatario (ID exacto)</label>
+                        <select id="int-select-receptor" style="width:100%; padding:10px; background:#060914; color:#fff; border:1px solid #334155; border-radius:6px; font-size:13px;"></select>
+                    </div>
+                    <div>
+                        <label style="font-size:11px; color:var(--texto-secundario);">Aval de Garantía (Coste PF)</label>
+                        <select id="int-num-escrow" style="width:100%; padding:10px; background:#060914; color:var(--neon-ilegal); border:1px solid #334155; border-radius:6px; font-weight:bold; font-size:13px; font-family:'Orbitron';">
+                            <option value="1">1 PF (Trato Menor)</option>
+                            <option value="2" selected>2 PF (Estándar)</option>
+                            <option value="3">3 PF (Importante)</option>
+                            <option value="5">5 PF (Módulo Pesado)</option>
+                            <option value="10">10 PF (Máximo Riesgo)</option>
+                        </select>
+                    </div>
                 </div>
-                <button class="btn-accion" style="background:linear-gradient(180deg, #1d3b6b, #0c1e3a); border-color:var(--neon-intercambio); color:var(--neon-intercambio);" onclick="publicarPropuestaIntercambio()">🚀 ENVIAR PROPUESTA A LA CÁMARA</button>
+                <button class="btn-accion" style="background:linear-gradient(180deg, #1d3b6b, #0c1e3a); border-color:var(--neon-intercambio); color:var(--neon-intercambio);" onclick="publicarPropuestaIntercambio()">🚀 ENVIAR TRATO A LA CÁMARA</button>
             </div>
 
-            <h3 style="font-family:'Orbitron'; color:#fff; border-bottom:1px solid #1e293b; padding-bottom:8px;">⚖️ CONSULTAS Y VOTACIONES DE LA CÁMARA</h3>
+            <h3 style="font-family:'Orbitron'; color:#fff; border-bottom:1px solid #1e293b; padding-bottom:8px;">⚖️ REGISTRO DE TRUEQUES Y VOTACIONES</h3>
             <div id="contenedor-intercambios-activos"></div>
         </div>
 
@@ -828,15 +840,9 @@ window.ingresarAlSistema = function() {
 window.cerrarSesionOperador = function() {
     userSesion = null;
     sessionStorage.removeItem('silph_user_sesion');
-    
-    // Ocultar perfil desplegable si estaba abierto
     document.getElementById('perfil-desplegable').style.display = 'none';
-    
-    // Limpiar el campo del login para comodidad
     let loginInput = document.getElementById('login-nombre');
     if(loginInput) loginInput.value = '';
-
-    // Intercambiar pantallas de interfaz
     document.getElementById('pantalla-mercado').style.display = 'none';
     document.getElementById('pantalla-lobby').style.display = 'block';
 };
@@ -1269,16 +1275,22 @@ function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
     box.innerHTML = htmlGrid;
 }
 
+// ==========================================
+// CÁMARA DE COMERCIO REFORMADA (TRUEQUES REALES)
+// ==========================================
 window.publicarPropuestaIntercambio = function() {
     if(!userSesion) return;
     let u = baseDatos.jugadores[userSesion];
-    let ofertaTxt = document.getElementById('int-txt-oferta').value.trim();
+    
+    // Obtener los dos nuevos campos del trueque
+    let ofreceTxt = document.getElementById('int-txt-ofrece').value.trim();
+    let pideTxt = document.getElementById('int-txt-pide').value.trim();
     let escrowPf = parseInt(document.getElementById('int-num-escrow').value) || 0;
     let receptorId = document.getElementById('int-select-receptor').value;
 
-    if(!ofertaTxt) return alert("Por favor, describe los términos del intercambio.");
+    if(!ofreceTxt || !pideTxt) return alert("Por favor, rellena tanto lo que ofreces como lo que pides.");
     if(!receptorId) return alert("Debes seleccionar un destinatario válido.");
-    if(u.pf < escrowPf) return alert(`Fondos insuficientes. Necesitas ${escrowPf} PF para el depósito en garantía.`);
+    if(u.pf < escrowPf) return alert(`Fondos insuficientes. Necesitas ${escrowPf} PF para cubrir la fianza.`);
 
     u.pf -= escrowPf;
 
@@ -1287,7 +1299,8 @@ window.publicarPropuestaIntercambio = function() {
         id: tradeId,
         proponente: userSesion,
         receptor: receptorId,
-        detalles: ofertaTxt,
+        ofrece: ofreceTxt,     // Enviado directamente a Firebase
+        pide: pideTxt,         // Enviado directamente a Firebase
         depositoEscrow: escrowPf,
         estado: "evaluacion", 
         votosSi: 0,
@@ -1299,8 +1312,11 @@ window.publicarPropuestaIntercambio = function() {
     baseDatos.intercambios[tradeId] = nuevoIntercambio;
 
     guardarBD();
-    document.getElementById('int-txt-oferta').value = '';
-    alert(`Propuesta enviada. ${escrowPf} PF han sido retenidos en el Depósito de Garantía.`);
+    
+    // Limpiar inputs
+    document.getElementById('int-txt-ofrece').value = '';
+    document.getElementById('int-txt-pide').value = '';
+    alert(`Propuesta de Trueque enviada. Se han retenido ${escrowPf} PF como aval.`);
 };
 
 window.votarIntercambio = function(tradeId, tipoVoto) {
@@ -1309,7 +1325,7 @@ window.votarIntercambio = function(tradeId, tipoVoto) {
     if(!t) return;
 
     if(!t.registroVotos) t.registroVotos = {};
-    if(t.registroVotos[userSesion]) return alert("Ya has emitir un veredicto para esta consulta comercial.");
+    if(t.registroVotos[userSesion]) return alert("Ya has emitido un veredicto para esta propuesta comercial.");
 
     t.registroVotos[userSesion] = tipoVoto;
     if(tipoVoto === 'SI') t.votosSi = (t.votosSi || 0) + 1;
@@ -1324,15 +1340,23 @@ window.resolverIntercambio = function(tradeId, resultado) {
 
     let p = baseDatos.jugadores[t.proponente];
     let r = baseDatos.jugadores[t.receptor];
+    let deposito = parseInt(t.depositoEscrow) || 0;
 
     if(resultado === 'EXITOSO') {
-        if(r) r.pf = (r.pf || 0) + t.depositoEscrow;
+        // Intercambio completado: la fianza del proponente va para el receptor como recompensa/incentivo
+        if(r) r.pf = (parseInt(r.pf) || 0) + deposito;
         t.estado = "completado";
-        alert("Intercambio cerrado con éxito. Los PF en garantía se han transferido al receptor.");
+        
+        // Log automático en el diario del proponente
+        let msgLog = `TRUEQUE COMPLETADO CON ${t.receptor.toUpperCase()}:\nEntregó: ${t.ofrece}\nRecibió: ${t.pide}`;
+        inyectarEntradaDiarioAutomatica(msgLog);
+        
+        alert("Trueque ejecutado con éxito. El aval en PF se ha transferido al receptor y se ha sellado en tu Bitácora.");
     } else {
-        if(p) p.pf = (p.pf || 0) + t.deposimtoEscrow;
+        // Intercambio fallido: se devuelve el aval intacto al proponente
+        if(p) p.pf = (parseInt(p.pf) || 0) + deposito;
         t.estado = "fallido";
-        alert("Intercambio declarado Fallido/Cancelado. Se han devuelto los PF al proponente.");
+        alert("Trueque cancelado o declarado fallido. Tu aval de PF te ha sido devuelto.");
     }
 
     guardarBD();
@@ -1355,27 +1379,34 @@ function actualizarListaIntercambiosDOM() {
         let yaVoto = t.registroVotos && t.registroVotos[userSesion] ? true : false;
         let esCreador = t.proponente === userSesion;
 
+        // Si es una propuesta antigua sin el formato nuevo, usamos un fallback
+        let textoOfrece = t.ofrece ? t.ofrece : (t.detalles || "Objeto");
+        let textoPide = t.pide ? t.pide : "Especificado por chat";
+
         box.innerHTML += `
             <div class="intercambio-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-family:'Orbitron'; font-size:12px; color:var(--neon-intercambio)">DE: ${t.proponente.toUpperCase()} ➡️ PARA: ${t.receptor.toUpperCase()}</span>
+                    <span style="font-family:'Orbitron'; font-size:12px; color:var(--neon-intercambio)">PROPUESTA: ${t.proponente.toUpperCase()} ➡️ ${t.receptor.toUpperCase()}</span>
                     <div>
-                        <span class="votos-escrow font-family:'Orbitron'">🛡️ Garantía: ${t.depositoEscrow} PF</span>
-                        <span class="votos-si">👍 A favor: ${t.votosSi || 0}</span>
-                        <span class="votos-no">👎 En contra: ${t.votosNo || 0}</span>
+                        <span class="votos-escrow" style="font-family:'Orbitron'; font-size:11px;">🛡️ Aval: ${t.depositoEscrow} PF</span>
+                        <span class="votos-si">👍 SÍ: ${t.votosSi || 0}</span>
+                        <span class="votos-no">👎 NO: ${t.votosNo || 0}</span>
                     </div>
                 </div>
-                <div style="font-size:14px; color:#fff; margin-bottom:12px; background:rgba(0,0,0,0.3); padding:8px; border-radius:4px;">
-                    ${t.detalles}
+                
+                <div style="font-size:13px; color:#fff; margin-bottom:12px; background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid #1e293b; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div><span style="color:var(--neon-legal); font-weight:bold; display:block; font-size:10px; text-transform:uppercase;">🎁 Ofrece:</span> ${textoOfrece}</div>
+                    <div style="border-left:1px dashed #2d3d5a; padding-left:10px;"><span style="color:var(--neon-packs); font-weight:bold; display:block; font-size:10px; text-transform:uppercase;">➡️ A cambio de:</span> ${textoPide}</div>
                 </div>
+
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar A Favor</button>
-                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar En Contra</button>
+                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar SÍ</button>
+                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar NO</button>
                     
                     ${esCreador ? `
                         <div style="margin-left:auto; display:flex; gap:5px;">
-                            <button class="btn-accion" style="padding:6px; background:#1e3a8a; border-color:#60a5fa; color:#60a5fa; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'EXITOSO')">✔️ EJECUTAR INTERCAMBIO</button>
-                            <button class="btn-accion" style="padding:6px; background:#4c1d1d; border-color:#ef4444; color:#ef4444; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'FALLIDO')">❌ DECLARAR FALLIDO</button>
+                            <button class="btn-accion" style="padding:6px; background:#1e3a8a; border-color:#60a5fa; color:#60a5fa; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'EXITOSO')">✔️ EJECUTAR TRUEQUE</button>
+                            <button class="btn-accion" style="padding:6px; background:#4c1d1d; border-color:#ef4444; color:#ef4444; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'FALLIDO')">❌ CANCELAR</button>
                         </div>
                     ` : ''}
                 </div>
