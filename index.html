@@ -13,14 +13,17 @@
             --panel-legal: #0b1313;
             --panel-packs: #141108;
             --panel-ilegal: #130910;
+            --panel-intercambio: #0e1726;
             
             --borde-legal: #1b4d3e;
             --borde-packs: #614a16;
             --borde-ilegal: #5c134f;
+            --borde-intercambio: #1d3b6b;
             
             --neon-legal: #00ffaa;
             --neon-packs: #ffbb00;
             --neon-ilegal: #ff00bb;
+            --neon-intercambio: #3b82f6;
             
             --texto-principal: #e2e8f0;
             --texto-secundario: #94a3b8;
@@ -243,7 +246,7 @@
         .illegal-zone .item-icon::after { background: linear-gradient(135deg, var(--neon-ilegal), transparent); border-radius: 35% 65% 61% 39% / 37% 34% 66% 63%; }
 
         /* PESTAÑAS TIENDAS */
-        .tabs-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .tabs-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .tab-button {
             background: #111726; color: var(--texto-secundario); border: 2px solid #1e293b;
             padding: 10px 24px; cursor: pointer; border-radius: 8px; font-weight: bold;
@@ -253,6 +256,7 @@
         .tab-button.tab-legal.active { background: var(--panel-legal); color: var(--neon-legal); border-color: var(--borde-legal); box-shadow: 0 0 10px rgba(0, 255, 170, 0.15); }
         .tab-button.tab-pack.active { background: var(--panel-packs); color: var(--neon-packs); border-color: var(--borde-packs); box-shadow: 0 0 10px rgba(255, 187, 0, 0.15); }
         .tab-button.tab-illegal.active { background: var(--panel-ilegal); color: var(--neon-ilegal); border-color: var(--borde-ilegal); box-shadow: 0 0 10px rgba(255, 0, 187, 0.15); }
+        .tab-button.tab-intercambio.active { background: var(--panel-intercambio); color: var(--neon-intercambio); border-color: var(--borde-intercambio); box-shadow: 0 0 10px rgba(59, 130, 246, 0.15); }
 
         .market-view { display: none; }
         .market-view.active { display: block; }
@@ -338,6 +342,21 @@
             content: ''; position: absolute; top: calc(50% - 6px); left: calc(50% - 6px);
             width: 12px; height: 12px; background: #fff; border: 3px solid #11141d; border-radius: 50%;
         }
+
+        /* ESTILOS DE INTERCAMBIOS Y VOTACIONES */
+        .intercambio-box {
+            background: #0f1422; border: 2px solid var(--borde-intercambio); border-radius: 12px; padding: 20px; margin-bottom: 20px;
+        }
+        .intercambio-card {
+            background: #111827; border: 1px solid #1f2937; padding: 15px; border-radius: 8px; margin-top: 15px;
+            border-left: 4px solid var(--neon-intercambio);
+        }
+        .votos-badge {
+            display: inline-block; padding: 3px 8px; font-size: 11px; border-radius: 4px; font-family: 'Orbitron'; font-weight: bold; margin-right: 5px;
+        }
+        .votos-si { background: #064e3b; color: #34d399; }
+        .votos-no { background: #7f1d1d; color: #f87171; }
+        .votos-escrow { background: #1e3a8a; color: #93c5fd; }
     </style>
 </head>
 <body>
@@ -482,11 +501,36 @@
             <button class="tab-button tab-legal active" id="tab-legal" onclick="cambiarSeccionTienda('legal')">TIENDA LEGAL</button>
             <button class="tab-button tab-pack" id="tab-pack" onclick="cambiarSeccionTienda('pack')">SHOP PF PACK</button>
             <button class="tab-button tab-illegal" id="tab-illegal" onclick="cambiarSeccionTienda('illegal')">TIENDA DE ILEGALIDADES</button>
+            <button class="tab-button tab-intercambio" id="tab-intercambio" onclick="cambiarSeccionTienda('intercambio')" style="border-color:var(--neon-intercambio); color:var(--neon-intercambio);">🏛️ CAMARA DE COMERCIO</button>
         </div>
 
         <div id="vista-legal" class="market-view active legal-zone"><div id="contenedor-legal-view"></div></div>
         <div id="vista-pack" class="market-view pack-zone"><div id="contenedor-pack-view"></div></div>
         <div id="vista-illegal" class="market-view illegal-zone"><div id="contenedor-hacker-view"></div></div>
+        
+        <div id="vista-intercambio" class="market-view">
+            <div class="intercambio-box">
+                <h3 style="font-family:'Orbitron'; color:var(--neon-intercambio); margin-top:0;">🔄 PROPONER INTERCAMBIO / OFERTA COMERCIAL</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:12px;">
+                    <div>
+                        <label style="font-size:11px; color:var(--texto-secundario);">¿Qué ofreces/pides? (Detalles del Trade)</label>
+                        <input type="text" id="int-txt-oferta" placeholder="Ej: Ofrezco Gafas Elegidas por 1 Escudo Poke" class="admin-input-custom" style="padding:10px; font-size:13px;">
+                    </div>
+                    <div>
+                        <label style="font-size:11px; color:var(--texto-secundario);">Depósito de Garantía Obligatorio (Coste PF)</label>
+                        <input type="number" id="int-num-escrow" min="0" value="2" class="admin-input-custom" style="padding:10px; font-size:13px; color:var(--neon-ilegal); font-weight:bold;">
+                    </div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:11px; color:var(--texto-secundario);">Entrenador Destinatario (ID exacto)</label>
+                    <select id="int-select-receptor" style="width:100%; padding:10px; background:#060914; color:#fff; border:1px solid #334155; border-radius:6px;"></select>
+                </div>
+                <button class="btn-accion" style="background:linear-gradient(180deg, #1d3b6b, #0c1e3a); border-color:var(--neon-intercambio); color:var(--neon-intercambio);" onclick="publicarPropuestaIntercambio()">🚀 ENVIAR PROPUESTA A LA CÁMARA</button>
+            </div>
+
+            <h3 style="font-family:'Orbitron'; color:#fff; border-bottom:1px solid #1e293b; padding-bottom:8px;">⚖️ CONSULTAS Y VOTACIONES DE LA CÁMARA</h3>
+            <div id="contenedor-intercambios-activos"></div>
+        </div>
 
     </div>
 </div>
@@ -611,7 +655,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// !!! CONFIGURACIÓN REAL DE TU PROPIO FIREBASE ACTIVA !!!
+// !!! CONFIGURACIÓN REAL DE FIREBASE ACTIVA !!!
 const firebaseConfig = {
     apiKey: "AIzaSyAgN5I8-o1WpWXfRq96FZXCF8ELmdC-ghw",
     authDomain: "tienda-pokeinomanos.firebaseapp.com",
@@ -626,7 +670,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Base de datos inicial idéntica a tu diseño original
 const baseDatosInicial = [
     { id: 101, tienda: 'legal', cat: 'EV/IV', nombre: 'Hierro', precio: 1000, pf: 2, stock: 10, icon: '🧪' },
     { id: 102, tienda: 'legal', cat: 'EV/IV', nombre: 'Proteína', precio: 1000, pf: 2, stock: 10, icon: '🧪' },
@@ -657,21 +700,21 @@ const baseDatosInicial = [
     { id: 310, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Resurrección Robada', precioPf: 8, stock: 1, icon: '🔮', desc: 'Robas un Poke muerto de otro.' }
 ];
 
-let baseDatos = { productos: [], jugadores: {}, legalOpen: true, packOpen: true, illegalOpen: true };
+let baseDatos = { productos: [], jugadores: {}, intercambios: {}, legalOpen: true, packOpen: true, illegalOpen: true };
 let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
 const MAX_COMPRAS = 3;
 const MS_EN_6_HORAS = 6 * 60 * 60 * 1000;
 
-// OYENTE EN TIEMPO REAL: Cualquier cambio en la nube refresca todas las pantallas al instante
+// OYENTE EN TIEMPO REAL
 onValue(ref(db, 'silph_co_market'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
         baseDatos = data;
         if (!baseDatos.productos) baseDatos.productos = [];
         if (!baseDatos.jugadores) baseDatos.jugadores = {};
+        if (!baseDatos.intercambios) baseDatos.intercambios = {};
     } else {
-        // Inicializar base de datos limpia en la nube si está vacía
-        baseDatos = { productos: baseDatosInicial, jugadores: {}, legalOpen: true, packOpen: true, illegalOpen: true };
+        baseDatos = { productos: baseDatosInicial, jugadores: {}, intercambios: {}, legalOpen: true, packOpen: true, illegalOpen: true };
         set(ref(db, 'silph_co_market'), baseDatos);
     }
 
@@ -680,13 +723,13 @@ onValue(ref(db, 'silph_co_market'), (snapshot) => {
         document.getElementById('pantalla-mercado').style.display = 'block';
         actualizarComprasPorTiempo();
         refrescarPantallaGamer();
+        actualizarListaIntercambiosDOM();
         if(document.getElementById('pantalla-admin-master').style.display === 'block') {
             redibujarConsolaAdminMaster();
         }
     }
 });
 
-// Forzar guardado inmediato en Firebase
 function guardarBD() {
     set(ref(db, 'silph_co_market'), baseDatos);
 }
@@ -694,16 +737,15 @@ function guardarBD() {
 window.ingresarAlSistema = function() {
     let idInput = document.getElementById('login-nombre');
     if (!idInput) return;
-    // Limpieza estricta del ID quitando espacios iniciales/finales y caracteres prohibidos por Firebase
     let id = idInput.value.trim().toLowerCase().replace(/[.#$\[\]\s]/g, "");
     if(!id) return alert("Identificador Requerido.");
 
     if(!baseDatos.jugadores[id]) {
         baseDatos.jugadores[id] = { 
-            dinero: 4000, pf: 0, 
+            dinero: 4000, pf: 10, // Iniciamos con 10 PF para pruebas del Escrow
             comprasDisponibles: MAX_COMPRAS, 
             ultimaRecarga: Date.now(),
-            inventario: [ {nombre: "Mochila Inicial"} ], // Evitar arrays vacíos que Firebase borra
+            inventario: [ {nombre: "Mochila Inicial"} ],
             lockeStatus: 'jugando', 
             tipoMedallas: 'medallas', numMedallas: 0, torneos: 0,
             diarioLogs: [ {timestamp: "Inicio", texto: "Sistema iniciado."} ],
@@ -727,6 +769,7 @@ window.ingresarAlSistema = function() {
 
     cargarDatosPerfilEnDOM();
     refrescarPantallaGamer();
+    actualizarListaIntercambiosDOM();
 };
 
 function actualizarComprasPorTiempo() {
@@ -994,7 +1037,7 @@ function redibujarConsolaAdminMaster() {
 
 window.invocarTerminalMercader = function() {
     let pass = prompt("INTRODUCE LA CLAVE DE ACCESO ALPHA-MERCADER:");
-    if(pass === "silph123") { // Puedes cambiar tu clave aquí
+    if(pass === "silph123") {
         document.getElementById('pantalla-admin-master').style.display = 'block';
         redibujarConsolaAdminMaster();
     } else {
@@ -1053,6 +1096,19 @@ function refrescarPantallaGamer() {
         });
     }
 
+    // Mantener actualizado el selector de trades
+    let receptorSelect = document.getElementById('int-select-receptor');
+    if(receptorSelect) {
+        let currentFav = receptorSelect.value;
+        receptorSelect.innerHTML = '';
+        Object.keys(baseDatos.jugadores).forEach(id => {
+            if(id !== userSesion) {
+                receptorSelect.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
+            }
+        });
+        if(currentFav) receptorSelect.value = currentFav;
+    }
+
     renderizarAparadorPublico('legal', 'contenedor-legal-view', baseDatos.legalOpen);
     renderizarAparadorPublico('pack', 'contenedor-pack-view', baseDatos.packOpen);
     renderizarAparadorPublico('illegal', 'contenedor-hacker-view', baseDatos.illegalOpen);
@@ -1101,6 +1157,129 @@ function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
     });
     htmlGrid += '</div>';
     box.innerHTML = htmlGrid;
+}
+
+/* ==========================================================================
+   NUEVAS FUNCIONES: SISTEMA DE INTERCAMBIO, ESCROW Y VOTACIONES
+   ========================================================================== */
+
+window.publicarPropuestaIntercambio = function() {
+    if(!userSesion) return;
+    let u = baseDatos.jugadores[userSesion];
+    let ofertaTxt = document.getElementById('int-txt-oferta').value.trim();
+    let escrowPf = parseInt(document.getElementById('int-num-escrow').value) || 0;
+    let receptorId = document.getElementById('int-select-receptor').value;
+
+    if(!ofertaTxt) return alert("Por favor, describe los términos del intercambio.");
+    if(!receptorId) return alert("Debes seleccionar un destinatario válido.");
+    if(u.pf < escrowPf) return alert(`Fondos insuficientes. Necesitas ${escrowPf} PF para el depósito en garantía.`);
+
+    // --- DEPÓSITO EN GARANTÍA (ESCROW) ---
+    // Se restan inmediatamente los PF al creador y se guardan en el contrato/propuesta
+    u.pf -= escrowPf;
+
+    let tradeId = "trade_" + Date.now();
+    let nuevoIntercambio = {
+        id: tradeId,
+        proponente: userSesion,
+        receptor: receptorId,
+        detalles: ofertaTxt,
+        depositoEscrow: escrowPf,
+        estado: "evaluacion", // evaluacion | completado | fallido
+        votosSi: 0,
+        votosNo: 0,
+        registroVotos: { init: true } // Evitar problemas de borrado estructural en Firebase
+    };
+
+    if(!baseDatos.intercambios) baseDatos.intercambios = {};
+    baseDatos.intercambios[tradeId] = nuevoIntercambio;
+
+    guardarBD();
+    document.getElementById('int-txt-oferta').value = '';
+    alert(`Propuesta enviada. ${escrowPf} PF han sido retenidos en el Depósito de Garantía.`);
+};
+
+window.votarIntercambio = function(tradeId, tipoVoto) {
+    if(!userSesion) return;
+    let t = baseDatos.intercambios[tradeId];
+    if(!t) return;
+
+    if(!t.registroVotos) t.registroVotos = {};
+    if(t.registroVotos[userSesion]) return alert("Ya has emitir un veredicto para esta consulta comercial.");
+
+    t.registroVotos[userSesion] = tipoVoto;
+    if(tipoVoto === 'SI') t.votosSi = (t.votosSi || 0) + 1;
+    if(tipoVoto === 'NO') t.votosNo = (t.votosNo || 0) + 1;
+
+    guardarBD();
+};
+
+window.resolverIntercambio = function(tradeId, resultado) {
+    let t = baseDatos.intercambios[tradeId];
+    if(!t) return;
+
+    let p = baseDatos.jugadores[t.proponente];
+    let r = baseDatos.jugadores[t.receptor];
+
+    if(resultado === 'EXITOSO') {
+        // Intercambio validado: El depósito en garantía pasa al receptor de forma segura
+        if(r) r.pf = (r.pf || 0) + t.depositoEscrow;
+        t.estado = "completado";
+        alert("Intercambio cerrado con éxito. Los PF en garantía se han transferido al receptor.");
+    } else {
+        // Intercambio fallido: Devolución íntegra de los PF depositados en el Escrow al proponente original
+        if(p) p.pf = (p.pf || 0) + t.depositoEscrow;
+        t.estado = "fallido";
+        alert("Intercambio declarado Fallido/Cancelado. Se han devuelto los PF al proponente.");
+    }
+
+    guardarBD();
+};
+
+function actualizarListaIntercambiosDOM() {
+    let box = document.getElementById('contenedor-intercambios-activos');
+    if(!box) return;
+    box.innerHTML = '';
+
+    if(!baseDatos.intercambios || Object.keys(baseDatos.intercambios).length === 0) {
+        box.innerHTML = `<div style="color:var(--texto-secundario); font-size:13px; padding:15px; text-align:center;">No hay operaciones comerciales en curso en la Cámara.</div>`;
+        return;
+    }
+
+    Object.keys(baseDatos.intercambios).forEach(id => {
+        let t = baseDatos.intercambios[id];
+        if(t.estado !== "evaluacion") return; // No mostrar completados o fallidos antiguos
+
+        let yaVoto = t.registroVotos && t.registroVotos[userSesion] ? true : false;
+        let esCreador = t.proponente === userSesion;
+
+        box.innerHTML += `
+            <div class="intercambio-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-family:'Orbitron'; font-size:12px; color:var(--neon-intercambio)">DE: ${t.proponente.toUpperCase()} ➡️ PARA: ${t.receptor.toUpperCase()}</span>
+                    <div>
+                        <span class="votos-escrow font-family:'Orbitron'">🛡️ Garantía: ${t.depositoEscrow} PF</span>
+                        <span class="votos-si">👍 A favor: ${t.votosSi || 0}</span>
+                        <span class="votos-no">👎 En contra: ${t.votosNo || 0}</span>
+                    </div>
+                </div>
+                <div style="font-size:14px; color:#fff; margin-bottom:12px; background:rgba(0,0,0,0.3); padding:8px; border-radius:4px;">
+                    ${t.detalles}
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar A Favor</button>
+                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar En Contra</button>
+                    
+                    ${esCreador ? `
+                        <div style="margin-left:auto; display:flex; gap:5px;">
+                            <button class="btn-accion" style="padding:6px; background:#1e3a8a; border-color:#60a5fa; color:#60a5fa; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'EXITOSO')">✔️ EJECUTAR INTERCAMBIO</button>
+                            <button class="btn-accion" style="padding:6px; background:#4c1d1d; border-color:#ef4444; color:#ef4444; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'FALLIDO')">❌ DECLARAR FALLIDO</button>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
 }
 </script>
 </body>
