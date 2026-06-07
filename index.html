@@ -204,20 +204,48 @@
             border-top: 1px solid #1e293b;
         }
 
+        /* DISEÑO DE TARJETAS POKÉMON AVANZADO */
         .showdown-team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
             margin-top: 12px;
         }
         .poke-card-showdown {
             background: #161d30;
             border: 1px solid #24324f;
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 15px;
             font-size: 12px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
-        .poke-card-name { font-weight: 800; color: var(--neon-legal); font-size: 13px; margin-bottom: 4px; text-transform: uppercase;}
+        .poke-card-showdown:hover {
+            transform: translateY(-2px);
+            border-color: var(--neon-intercambio);
+        }
+        .poke-sprite-container {
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            background: radial-gradient(circle, rgba(36,47,73,0.6) 0%, rgba(15,23,42,0) 70%);
+        }
+        .poke-sprite-container img {
+            max-height: 70px;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.6));
+        }
+        .poke-card-name { 
+            font-weight: 800; 
+            color: var(--neon-legal); 
+            font-size: 14px; 
+            margin-bottom: 6px; 
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+        }
 
         /* BOLSA DE OBJETOS */
         .bolsa-contenedor {
@@ -449,7 +477,14 @@
                 </div>
                 <p style="font-size:11px; color:var(--texto-secundario); margin:0 0 8px 0;">Pega aquí el código limpio de tu equipo exportado de Pokémon Showdown para la ranura seleccionada:</p>
                 <textarea id="perf-showdown-raw" class="input-textarea-custom" rows="4" placeholder="Pega el formato Showdown aquí..."></textarea>
+                
+                <h4 style="color:#fff; font-family:'Orbitron'; font-size:12px; margin-top:15px; margin-bottom:5px; text-transform:uppercase;">🟢 Miembros Activos en Combate</h4>
                 <div id="visualizador-showdown-team" class="showdown-team-grid"></div>
+
+                <div style="margin-top:25px; padding-top:15px; border-top:1px dashed #334155;">
+                    <h4 style="color:var(--neon-ilegal); font-family:'Orbitron'; font-size:12px; margin:0 0 10px 0; text-transform:uppercase;">🌹 Memorial de Caídos en Combate</h4>
+                    <div id="perfil-memorial-caidos" class="showdown-team-grid"></div>
+                </div>
             </div>
 
             <div id="perf-view-progreso" class="perfil-content-view">
@@ -721,7 +756,7 @@ const baseDatosInicial = [
     { id: 304, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Falsificación De Registro', precioPf: 5, stock: 1, icon: '🪪', desc: 'Sustituye 1 Poke clasificado.' },
     { id: 305, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Plaza Fantasma', precioPf: 6, stock: 1, icon: '🪑', desc: 'Sustituye plaza muerta en torneo.' },
     { id: 306, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Evolución Forzada', precioPf: 5, stock: 1, icon: '💖', desc: 'Evoluciona Pokes de amistad.' },
-    { id: 307, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Reconfiguración', precioPf: 2, stock: 1, icon: '🔄', desc: 'Modifica movimientos post-líder.' },
+    { id: 307, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Resumen Post-Líder', precioPf: 2, stock: 1, icon: '🔄', desc: 'Modifica movimientos post-líder.' },
     { id: 308, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Modificación Genética', precioPf: 4, stock: 1, icon: '🧬', desc: 'Cambia la habilidad del Poke.' },
     { id: 309, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Alteración De Personalidad', precioPf: 2, stock: 1, icon: '🎭', desc: 'Cambia la naturaleza.' },
     { id: 310, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Resurrección Robada', precioPf: 8, stock: 1, icon: '🔮', desc: 'Robas un Poke muerto de otro.' }
@@ -777,6 +812,7 @@ window.ingresarAlSistema = function() {
             tipoMedallas: 'medallas', numMedallas: 0, torneos: 0,
             diarioLogs: [ {timestamp: "Inicio", texto: "Sistema iniciado."} ],
             showdownEquipos: Array(10).fill("Sin datos"),
+            memorial: [],
             vidasTotales: 20,
             vidasActuales: 20
         };
@@ -785,6 +821,7 @@ window.ingresarAlSistema = function() {
         if (!baseDatos.jugadores[id].showdownEquipos) baseDatos.jugadores[id].showdownEquipos = Array(10).fill("Sin datos");
         if (!baseDatos.jugadores[id].inventario) baseDatos.jugadores[id].inventario = [ {uid: "init", nombre: "Mochila Inicial"} ];
         if (!baseDatos.jugadores[id].diarioLogs) baseDatos.jugadores[id].diarioLogs = [ {timestamp: "Inicio", texto: "Sistema iniciado."} ];
+        if (!baseDatos.jugadores[id].memorial) baseDatos.jugadores[id].memorial = [];
     }
     
     userSesion = id;
@@ -872,7 +909,6 @@ window.guardarNuevaEntradaDiario = function() {
     redibujarHistorialDiario();
 };
 
-// FUNCIÓN AUXILIAR DE AUTOMATIZACIÓN DE DIARIO
 function inyectarEntradaDiarioAutomatica(textoMsg) {
     if(!userSesion || !baseDatos.jugadores[userSesion]) return;
     let u = baseDatos.jugadores[userSesion];
@@ -942,19 +978,122 @@ window.alterarTorneosPerfil = function(v) {
     guardarBD();
 };
 
+// ENVIAR POKÉMON AL MEMORIAL DESDE EL EQUIPO
+window.enviarAlMemorialMecanica = function(slotIdx, pokeIndex, nombreLimpio) {
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
+    
+    if(!confirm(`¿Estás completamente seguro de enviar a ${nombreLimpio.toUpperCase()} al Memorial de Caídos? Esta acción es irreversible.`)) {
+        return;
+    }
+
+    let raw = u.showdownEquipos[slotIdx];
+    if(!raw || raw === "Sin datos") return;
+
+    let pokesRaw = raw.split(/\n\s*\n/).filter(b => b.trim().length > 0);
+    let extraido = pokesRaw.splice(pokeIndex, 1)[0]; // Lo quitamos del equipo activo
+
+    // Reconstruir el texto del equipo sin el pokémon caído
+    u.showdownEquipos[slotIdx] = pokesRaw.join("\n\n") || "Sin datos";
+
+    // Extraer datos básicos para la tumba/tarjeta del memorial
+    let lineas = extraido.split('\n').map(l => l.trim());
+    let nombreCompleto = lineas[0].split('@')[0].trim();
+
+    if(!u.memorial) u.memorial = [];
+    u.memorial.push({
+        nombreOriginal: nombreCompleto,
+        nombreBusqueda: nombreLimpio,
+        fechaMuerte: new Date().toLocaleDateString('es-ES')
+    });
+
+    inyectarEntradaDiarioAutomatica(`💀 Tragedia: Su compañero ${nombreCompleto} ha caído en combate y fue trasladado al Memorial.`);
+    
+    guardarBD();
+    document.getElementById('perf-showdown-raw').value = u.showdownEquipos[slotIdx] === "Sin datos" ? "" : u.showdownEquipos[slotIdx];
+    parsearYRenderizarShowdown();
+    alert(`${nombreCompleto} ahora descansa en paz.`);
+};
+
 function parsearYRenderizarShowdown() {
     let raw = document.getElementById('perf-showdown-raw').value;
     let box = document.getElementById('visualizador-showdown-team');
-    if(!box) return; box.innerHTML = '';
-    if(!raw.trim()) return;
-    let pokesRaw = raw.split(/\n\s*\n/);
-    pokesRaw.forEach(bloque => {
+    let slotIdx = parseInt(document.getElementById('perf-team-slot').value) - 1;
+    
+    if(!box) return; 
+    box.innerHTML = '';
+    if(!raw.trim()) {
+        box.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">No hay pokémon en este equipo actualmente.</span>';
+        return;
+    }
+
+    let pokesRaw = raw.split(/\n\s*\n/).filter(b => b.trim().length > 0);
+    
+    pokesRaw.forEach((bloque, index) => {
         let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if(lineas.length === 0) return;
-        let nombreCompleto = lineas[0]; let objeto = "Ninguno"; let habilidad = "Desconocida";
-        if(nombreCompleto.includes('@')) { let partes = nombreCompleto.split('@'); nombreCompleto = partes[0].trim(); objeto = partes[1].trim(); }
-        lineas.forEach(linea => { if(linea.startsWith('Ability:')) habilidad = linea.replace('Ability:', '').trim(); });
-        box.innerHTML += `<div class="poke-card-showdown"><div class="poke-card-name">🧬 ${nombreCompleto}</div><div style="color:var(--texto-secundario)">Objeto: <span style="color:#fff;">${objeto}</span></div><div style="color:var(--texto-secundario)">Habilidad: <span style="color:#fff;">${habilidad}</span></div></div>`;
+        
+        let nombreCompleto = lineas[0]; 
+        let objeto = "Ninguno"; 
+        let habilidad = "Desconocida";
+        
+        if(nombreCompleto.includes('@')) { 
+            let partes = nombreCompleto.split('@'); 
+            nombreCompleto = partes[0].trim(); 
+            objeto = partes[1].trim(); 
+        }
+        
+        lineas.forEach(linea => { 
+            if(linea.startsWith('Ability:')) habilidad = linea.replace('Ability:', '').trim(); 
+        });
+
+        // Limpieza de nombre avanzado para conectar con la API de Sprites Animados
+        let esShiny = nombreCompleto.toLowerCase().includes('shiny');
+        let nombreLimpio = nombreCompleto.replace(/\([^)]*\)/g, '').trim(); // Quitar motes entre paréntesis (Mote)
+        nombreLimpio = nombreLimpio.replace(/[^a-zA-Z0-9\s-]/g, ''); // Quitar símbolos de género u otros raros
+        nombreLimpio = nombreLimpio.trim().toLowerCase().replace(/\s+/g, '-'); // Reemplazar espacios por guiones
+
+        // URL del Sprite Animado (GIF de 5ta Generación en PokeAPI)
+        let folder = esShiny ? "shiny" : "normal";
+        let urlSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${folder}/${nombreLimpio}.gif`;
+
+        box.innerHTML += `
+            <div class="poke-card-showdown">
+                <div class="poke-sprite-container">
+                    <img src="${urlSprite}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${esShiny ? 'shiny/' : ''}${nombreLimpio}.png'; this.style.maxHeight='55px';">
+                </div>
+                <div class="poke-card-name">🧬 ${nombreCompleto}</div>
+                <div style="color:var(--texto-secundario)">Objeto: <span style="color:#fff;">${objeto}</span></div>
+                <div style="color:var(--texto-secundario); margin-bottom:8px;">Hab: <span style="color:#fff;">${habilidad}</span></div>
+                <button class="btn-usar-item" style="background:#4c1d1d; border-color:#ef4444; color:#ef4444;" onclick="enviarAlMemorialMecanica(${slotIdx}, ${index}, '${nombreLimpio}')">☠️ R.I.P</button>
+            </div>`;
+    });
+}
+
+function renderizarMemorialDOM() {
+    let box = document.getElementById('perfil-memorial-caidos');
+    if(!box) return;
+    box.innerHTML = '';
+    
+    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
+    let u = baseDatos.jugadores[userSesion];
+    
+    if(!u.memorial || u.memorial.length === 0) {
+        box.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">No hay pérdidas registradas en el memorial. Tu equipo está a salvo.</span>';
+        return;
+    }
+    
+    u.memorial.forEach(poke => {
+        let urlSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${poke.nombreBusqueda}.gif`;
+        
+        box.innerHTML += `
+            <div class="poke-card-showdown" style="background:#110b0f; border-color:#4c1d3a; opacity: 0.65; filter: grayscale(85%);">
+                <div class="poke-sprite-container">
+                    <img src="${urlSprite}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${poke.nombreBusqueda}.png';">
+                </div>
+                <div class="poke-card-name" style="color:#ef4444;">🕊️ ${poke.nombreOriginal}</div>
+                <div style="color:var(--texto-secundario); font-family:'Orbitron'; font-size:10px; margin-top:4px;">CAÍDO: ${poke.fechaMuerte}</div>
+            </div>`;
     });
 }
 
@@ -1080,7 +1219,6 @@ window.apagarTerminalMercader = function() {
     document.getElementById('pantalla-admin-master').style.display = 'none';
 };
 
-// COMPRA AUTOMATIZADA CON BITÁCORA DIRECTA
 window.comprarObjetoGamer = function(id) {
     if(!userSesion) return;
     let u = baseDatos.jugadores[userSesion];
@@ -1105,17 +1243,13 @@ window.comprarObjetoGamer = function(id) {
     u.comprasDisponibles--;
     
     if(!u.inventario) u.inventario = [];
-    // Añadimos un UID único basado en tiempo al objeto en la mochila para poder eliminar el específico si hay repetidos
     u.inventario.push({ uid: "item_" + Date.now() + Math.floor(Math.random()*100), nombre: p.nombre, icon: p.icon, fecha: new Date().toLocaleDateString() });
     
-    // REGISTRO DE DIARIO AUTOMÁTICO AL COMPRAR
     inyectarEntradaDiarioAutomatica(txtBitacora);
-
     guardarBD();
     alert(`¡Has comprado ${p.nombre} con éxito!\nRegistrado en la Bitácora de Aventura.`);
 };
 
-// CONSUMIR E ELIMINAR OBJETO AUTOMÁTICAMENTE
 window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
     if(!userSesion || !baseDatos.jugadores[userSesion]) return;
     let u = baseDatos.jugadores[userSesion];
@@ -1123,10 +1257,7 @@ window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
 
     let index = u.inventario.findIndex(i => i.uid === itemUid);
     if(index !== -1) {
-        // Eliminar objeto de la mochila
         u.inventario.splice(index, 1);
-
-        // REGISTRO DE DIARIO AUTOMÁTICO AL CONSUMIR
         let txtConsumo = `Utilizó el objeto ${itemIcon} '${itemNombre}' desde su mochila de suministros. El objeto ha sido consumido.`;
         inyectarEntradaDiarioAutomatica(txtConsumo);
 
@@ -1153,7 +1284,6 @@ function refrescarPantallaGamer() {
         invBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Mochila vacía.</span>';
     } else {
         itemsFiltrados.forEach(i => {
-            // Se genera dinámicamente cada objeto con su botón nativo de Uso Automático
             invBox.innerHTML += `
                 <div class="mochila-item-tag" title="Adquirido el: ${i.fecha}">
                     <span>${i.icon || '📦'} ${i.nombre}</span>
@@ -1162,7 +1292,6 @@ function refrescarPantallaGamer() {
         });
     }
 
-    // Mantener actualizado el selector de trades
     let receptorSelect = document.getElementById('int-select-receptor');
     if(receptorSelect) {
         let currentFav = receptorSelect.value;
@@ -1178,6 +1307,9 @@ function refrescarPantallaGamer() {
     renderizarAparadorPublico('legal', 'contenedor-legal-view', baseDatos.legalOpen);
     renderizarAparadorPublico('pack', 'contenedor-pack-view', baseDatos.packOpen);
     renderizarAparadorPublico('illegal', 'contenedor-hacker-view', baseDatos.illegalOpen);
+    
+    // Mantener sincronizado el altar/memorial en tiempo real
+    renderizarMemorialDOM();
 }
 
 function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
@@ -1224,10 +1356,6 @@ function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
     htmlGrid += '</div>';
     box.innerHTML = htmlGrid;
 }
-
-/* ==========================================================================
-   SISTEMA DE INTERCAMBIO, ESCROW Y VOTACIONES
-   ========================================================================== */
 
 window.publicarPropuestaIntercambio = function() {
     if(!userSesion) return;
@@ -1300,49 +1428,4 @@ window.resolverIntercambio = function(tradeId, resultado) {
 
 function actualizarListaIntercambiosDOM() {
     let box = document.getElementById('contenedor-intercambios-activos');
-    if(!box) return;
-    box.innerHTML = '';
-
-    if(!baseDatos.intercambios || Object.keys(baseDatos.intercambios).length === 0) {
-        box.innerHTML = `<div style="color:var(--texto-secundario); font-size:13px; padding:15px; text-align:center;">No hay operaciones comerciales en curso en la Cámara.</div>`;
-        return;
-    }
-
-    Object.keys(baseDatos.intercambios).forEach(id => {
-        let t = baseDatos.intercambios[id];
-        if(t.estado !== "evaluacion") return; 
-
-        let yaVoto = t.registroVotos && t.registroVotos[userSesion] ? true : false;
-        let esCreador = t.proponente === userSesion;
-
-        box.innerHTML += `
-            <div class="intercambio-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-family:'Orbitron'; font-size:12px; color:var(--neon-intercambio)">DE: ${t.proponente.toUpperCase()} ➡️ PARA: ${t.receptor.toUpperCase()}</span>
-                    <div>
-                        <span class="votos-escrow font-family:'Orbitron'">🛡️ Garantía: ${t.depositoEscrow} PF</span>
-                        <span class="votos-si">👍 A favor: ${t.votosSi || 0}</span>
-                        <span class="votos-no">👎 En contra: ${t.votosNo || 0}</span>
-                    </div>
-                </div>
-                <div style="font-size:14px; color:#fff; margin-bottom:12px; background:rgba(0,0,0,0.3); padding:8px; border-radius:4px;">
-                    ${t.detalles}
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar A Favor</button>
-                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar En Contra</button>
-                    
-                    ${esCreador ? `
-                        <div style="margin-left:auto; display:flex; gap:5px;">
-                            <button class="btn-accion" style="padding:6px; background:#1e3a8a; border-color:#60a5fa; color:#60a5fa; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'EXITOSO')">✔️ EJECUTAR INTERCAMBIO</button>
-                            <button class="btn-accion" style="padding:6px; background:#4c1d1d; border-color:#ef4444; color:#ef4444; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'FALLIDO')">❌ DECLARAR FALLIDO</button>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    });
-}
-</script>
-</body>
-</html>
+    if(!box) return
