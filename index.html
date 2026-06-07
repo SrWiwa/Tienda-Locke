@@ -49,6 +49,25 @@
             margin: 0 auto;
         }
 
+        /* BANNER DE ALERTA GLOBAL */
+        .banner-alerta-global {
+            background: #111424;
+            border: 2px dashed var(--neon-packs);
+            border-radius: 8px;
+            padding: 10px 20px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 187, 0, 0.1);
+            display: none;
+        }
+        .banner-alerta-global.active {
+            display: block;
+        }
+
         /* MARCADOR DE RECURSOS */
         .marcador-recursos {
             background: rgba(11, 15, 26, 0.85);
@@ -417,6 +436,8 @@
 
     <div id="pantalla-mercado" style="display:none;">
         
+        <div id="alertas-sistema-marquee" class="banner-alerta-global"></div>
+
         <div class="marcador-recursos">
             <div class="marcador-dato">OPERADOR: <span id="usr-nombre" style="color: #fff;">---</span> 
                 <button class="btn-perfil-trigger" onclick="conmutarCajaPerfil()">👤 Ver Perfil</button>
@@ -606,6 +627,20 @@
     <div class="grid-admin">
         <div style="background:#0f1422; border:1px solid #1e293b; padding:20px; border-radius:12px; height:fit-content;">
             
+            <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">📢 EVENTOS Y MODIFICADORES ECONÓMICOS</h3>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:11px; color:var(--texto-secundario);">Selecciona el Evento Comercial Global:</label>
+                <select id="adm-evento-economico" style="width:100%; padding:8px; background:#060914; color:#fff; border:1px solid #1e293b; border-radius:4px; font-family:'Orbitron'; font-size:12px;">
+                    <option value="normal">🌐 Red Silph Co. Estable (1.0x Precios Base)</option>
+                    <option value="rebajas">📉 Rebajas de Suministros (25% Descuento Legal y Packs)</option>
+                    <option value="inflacion">📈 Inflación por Sanción de la Liga (50% de Recargo en P₠)</option>
+                    <option value="bonus_pf">🪙 Burbuja Especulativa de Reputación (Doble Bono de PF)</option>
+                </select>
+            </div>
+            <button class="btn-accion" style="background: linear-gradient(180deg, #3b2c0b, #614a16); border-color:#ffbb00; color:#ffbb00; font-size:11px; margin-bottom:20px; box-shadow: 0 0 10px rgba(255,187,0,0.2);" onclick="emitirOrdenEconomicaGlobal()">📢 EMITIR ORDEN DE RED ECONÓMICA</button>
+
+            <hr style="border-color:#1e293b; margin:20px 0;">
+
             <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">🔄 RESTABLECER COMPRAS DIARIAS</h3>
             <div style="margin-bottom:10px;">
                 <label style="font-size:11px; color:var(--texto-secundario);">Seleccionar Entrenador para resetear:</label>
@@ -760,7 +795,7 @@ const baseDatosInicial = [
     { id: 310, tienda: 'illegal', cat: 'Hack de Sistema', nombre: 'Resurrección Robada', precioPf: 8, stock: 1, icon: '🔮', desc: 'Robas un Poke muerto de otro.' }
 ];
 
-let baseDatos = { productos: [], jugadores: {}, intercambios: {}, legalOpen: true, packOpen: true, illegalOpen: true };
+let baseDatos = { productos: [], jugadores: {}, intercambios: {}, legalOpen: true, packOpen: true, illegalOpen: true, eventoSistema: "normal" };
 let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
 const MAX_COMPRAS = 3;
 const MS_EN_6_HORAS = 6 * 60 * 60 * 1000;
@@ -773,8 +808,9 @@ onValue(ref(db, 'silph_co_market'), (snapshot) => {
         if (!baseDatos.productos) baseDatos.productos = [];
         if (!baseDatos.jugadores) baseDatos.jugadores = {};
         if (!baseDatos.intercambios) baseDatos.intercambios = {};
+        if (!baseDatos.eventoSistema) baseDatos.eventoSistema = "normal";
     } else {
-        baseDatos = { productos: baseDatosInicial, jugadores: {}, intercambios: {}, legalOpen: true, packOpen: true, illegalOpen: true };
+        baseDatos = { productos: baseDatosInicial, jugadores: {}, intercambios: {}, legalOpen: true, packOpen: true, illegalOpen: true, eventoSistema: "normal" };
         set(ref(db, 'silph_co_market'), baseDatos);
     }
 
@@ -784,6 +820,7 @@ onValue(ref(db, 'silph_co_market'), (snapshot) => {
         actualizarComprasPorTiempo();
         refrescarPantallaGamer();
         actualizarListaIntercambiosDOM();
+        actualizarBannerAlertasVisuales();
         if(document.getElementById('pantalla-admin-master').style.display === 'block') {
             redibujarConsolaAdminMaster();
         }
@@ -835,6 +872,7 @@ window.ingresarAlSistema = function() {
     cargarDatosPerfilEnDOM();
     refrescarPantallaGamer();
     actualizarListaIntercambiosDOM();
+    actualizarBannerAlertasVisuales();
 };
 
 window.cerrarSesionOperador = function() {
@@ -1094,10 +1132,49 @@ window.conmutarEstadoTienda = function(tiendaProp, estado) {
     guardarBD();
 };
 
+// FUNCIÓN DEL MANAGER PARA EMITIR EL EVENTO EN FIREBASE
+window.emitirOrdenEconomicaGlobal = function() {
+    let evSeleccionado = document.getElementById('adm-evento-economico').value;
+    baseDatos.eventoSistema = evSeleccionado;
+    guardarBD();
+    alert(`Orden de Red distribuida: Estado [${evSeleccionado.toUpperCase()}] aplicado al mercado global.`);
+};
+
+// ACTUALIZA EL MARQUÉE Y LOS MENSAJES CYBERPUNK DE CABECERA
+function actualizarBannerAlertasVisuales() {
+    let banner = document.getElementById('alertas-sistema-marquee');
+    if(!banner) return;
+    
+    let ev = baseDatos.eventoSistema || "normal";
+    
+    if(ev === "normal") {
+        banner.classList.remove('active');
+        banner.innerHTML = "";
+    } else if(ev === "rebajas") {
+        banner.classList.add('active');
+        banner.style.borderColor = "var(--neon-legal)";
+        banner.style.color = "var(--neon-legal)";
+        banner.innerHTML = "📉 ALERTA DE RED: Liquidación de stock detectada. -25% de descuento en la Tienda Legal y Packs.";
+    } else if(ev === "inflacion") {
+        banner.classList.add('active');
+        banner.style.borderColor = "var(--neon-ilegal)";
+        banner.style.color = "#ff3366";
+        banner.innerHTML = "⚠️ RED INESTABLE: Sanción económica de la Liga Pokémon aplicada. +50% de recargo en costes P₠.";
+    } else if(ev === "bonus_pf") {
+        banner.classList.add('active');
+        banner.style.borderColor = "var(--neon-packs)";
+        banner.style.color = "var(--neon-packs)";
+        banner.innerHTML = "🪙 REPUTACIÓN INTEGRAL: Incentivos corporativos activos. ¡Doble bono de Puntos de Favor (PF) por compras!";
+    }
+}
+
 function redibujarConsolaAdminMaster() {
     document.getElementById('chk-open-legal').checked = baseDatos.legalOpen !== false;
     document.getElementById('chk-open-pack').checked = baseDatos.packOpen !== false;
     document.getElementById('chk-open-illegal').checked = baseDatos.illegalOpen !== false;
+    if(baseDatos.eventoSistema) {
+        document.getElementById('adm-evento-economico').value = baseDatos.eventoSistema;
+    }
     actualizarSelectorUsuariosBanco();
 
     let al = document.getElementById('admin-inventario-global'); 
@@ -1112,7 +1189,7 @@ function redibujarConsolaAdminMaster() {
                 <div style="color:#fff; font-size:13px;">${p.icon} ${p.nombre} [${p.tienda.toUpperCase()}]</div>
                 <div class="admin-edit-row">
                     <div class="admin-edit-field">
-                        <label>Coste</label>
+                        <label>Coste Base</label>
                         <input type="number" value="${esI ? p.precioPf : p.precio}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, '${esI ? 'precioPf' : 'precio'}', this.value)">
                     </div>
                     <div class="admin-edit-field">
@@ -1146,274 +1223,9 @@ window.comprarObjetoGamer = function(id) {
 
     if(u.comprasDisponibles <= 0) return alert("No te quedan compras disponibles en este periodo de 6 horas.");
 
-    let txtBitacora = "";
-    if(p.tienda === 'illegal') {
-        if(u.pf < p.precioPf) return alert("No tienes suficientes Puntos de Favor (PF).");
-        u.pf -= p.precioPf;
-        txtBitacora = `Adquirió modulo prohibido: ${p.icon} '${p.nombre}' utilizando un coste de ${p.precioPf} PF.`;
-    } else {
-        if(u.dinero < p.precio) return alert("No tienes suficiente dinero (P₠).");
-        u.dinero -= p.precio;
-        u.pf += (p.pf || 0);
-        txtBitacora = `Adquirió artículo: ${p.icon} '${p.nombre}' en el mercado por un coste de ${p.precio} P₠.`;
-    }
+    // Aplicar lógica económica al procesar el pago real
+    let ev = baseDatos.eventoSistema || "normal";
+    let precioFinalCalculado = p.precio;
+    let bonoPfCalculado = p.pf || 0;
 
-    p.stock--;
-    u.comprasDisponibles--;
-    
-    if(!u.inventario) u.inventario = [];
-    u.inventario.push({ uid: "item_" + Date.now() + Math.floor(Math.random()*100), nombre: p.nombre, icon: p.icon, fecha: new Date().toLocaleDateString() });
-    
-    inyectarEntradaDiarioAutomatica(txtBitacora);
-
-    guardarBD();
-    alert(`¡Has comprado ${p.nombre} con éxito!\nRegistrado en la Bitácora de Aventura.`);
-};
-
-window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
-    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
-    let u = baseDatos.jugadores[userSesion];
-    if(!u.inventario) return;
-
-    let index = u.inventario.findIndex(i => i.uid === itemUid);
-    if(index !== -1) {
-        u.inventario.splice(index, 1);
-
-        let txtConsumo = `Utilizó el objeto ${itemIcon} '${itemNombre}' desde su mochila de suministros. El objeto ha sido consumido.`;
-        inyectarEntradaDiarioAutomatica(txtConsumo);
-
-        guardarBD();
-        alert(`Has usado '${itemNombre}'. El objeto ha sido removido automáticamente de tu inventario.`);
-    } else {
-        alert("Error al intentar procesar el objeto.");
-    }
-};
-
-function refrescarPantallaGamer() {
-    if(!userSesion || !baseDatos.jugadores[userSesion]) return;
-    let u = baseDatos.jugadores[userSesion];
-
-    document.getElementById('usr-nombre').innerText = userSesion.toUpperCase();
-    document.getElementById('usr-dinero').innerText = u.dinero;
-    document.getElementById('usr-pf').innerText = u.pf;
-    document.getElementById('usr-compras').innerText = `${u.comprasDisponibles}/${MAX_COMPRAS}`;
-
-    let invBox = document.getElementById('lista-inventario');
-    invBox.innerHTML = '';
-    let itemsFiltrados = u.inventario ? u.inventario.filter(i => i.uid !== "init") : [];
-    if(itemsFiltrados.length === 0) {
-        invBox.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px;">Mochila vacía.</span>';
-    } else {
-        itemsFiltrados.forEach(i => {
-            invBox.innerHTML += `
-                <div class="mochila-item-tag" title="Adquirido el: ${i.fecha}">
-                    <span>${i.icon || '📦'} ${i.nombre}</span>
-                    <button class="btn-usar-item" onclick="consumirObjetoMochilaGamer('${i.uid}', '${i.nombre}', '${i.icon || '📦'}')">Usar</button>
-                </div>`;
-        });
-    }
-
-    let receptorSelect = document.getElementById('int-select-receptor');
-    if(receptorSelect) {
-        let currentFav = receptorSelect.value;
-        receptorSelect.innerHTML = '';
-        Object.keys(baseDatos.jugadores).forEach(id => {
-            if(id !== userSesion) {
-                receptorSelect.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
-            }
-        });
-        if(currentFav) receptorSelect.value = currentFav;
-    }
-
-    renderizarAparadorPublico('legal', 'contenedor-legal-view', baseDatos.legalOpen);
-    renderizarAparadorPublico('pack', 'contenedor-pack-view', baseDatos.packOpen);
-    renderizarAparadorPublico('illegal', 'contenedor-hacker-view', baseDatos.illegalOpen);
-}
-
-function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
-    let box = document.getElementById(contenedorId);
-    if(!box) return;
-    box.innerHTML = '';
-
-    if(estaAbierta === false) {
-        box.innerHTML = `<div class="tienda-cerrada-msg">🔒 Red Cerrada temporalmente por el Administrador</div>`;
-        return;
-    }
-
-    let prods = baseDatos.productos.filter(p => p.tienda === tiendaTipo);
-    if(prods.length === 0) {
-        box.innerHTML = `<div style="text-align:center; color:var(--texto-secundario); padding:30px;">No hay artículos disponibles en este aparador.</div>`;
-        return;
-    }
-
-    let htmlGrid = '<div class="items-grid">';
-    prods.forEach(p => {
-        let esI = tiendaTipo === 'illegal';
-        let txtCoste = esI ? `${p.precioPf} PF` : `${p.precio} P₠`;
-        let txtDetalle = p.desc ? `<div class="item-desc">${p.desc}</div>` : '';
-        let txtEstrat = p.estrategia ? `<div class="item-estrategia">💡 ${p.estrategia}</div>` : '';
-        let txtCat = p.cat ? `<div class="categoria-tag">${p.cat}</div>` : '';
-        let deshabilitado = p.stock <= 0 ? 'disabled' : '';
-        let txtBoton = p.stock <= 0 ? 'AGOTADO' : `ADQUIRIR MÓDULO (${txtCoste})`;
-
-        htmlGrid += `
-            <div class="item-card">
-                <div>
-                    ${txtCat}
-                    <div class="item-icon">${p.icon}</div>
-                    <div class="item-titulo">${p.nombre}</div>
-                    ${txtDetalle}
-                    ${txtEstrat}
-                </div>
-                <div>
-                    <div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px; font-family:'Orbitron'">STOCK DISPONIBLE: ${p.stock}</div>
-                    <button class="btn-accion" ${deshabilitado} onclick="comprarObjetoGamer(${p.id})">${txtBoton}</button>
-                </div>
-            </div>`;
-    });
-    htmlGrid += '</div>';
-    box.innerHTML = htmlGrid;
-}
-
-// ==========================================
-// CÁMARA DE COMERCIO REFORMADA (TRUEQUES REALES)
-// ==========================================
-window.publicarPropuestaIntercambio = function() {
-    if(!userSesion) return;
-    let u = baseDatos.jugadores[userSesion];
-    
-    // Obtener los dos nuevos campos del trueque
-    let ofreceTxt = document.getElementById('int-txt-ofrece').value.trim();
-    let pideTxt = document.getElementById('int-txt-pide').value.trim();
-    let escrowPf = parseInt(document.getElementById('int-num-escrow').value) || 0;
-    let receptorId = document.getElementById('int-select-receptor').value;
-
-    if(!ofreceTxt || !pideTxt) return alert("Por favor, rellena tanto lo que ofreces como lo que pides.");
-    if(!receptorId) return alert("Debes seleccionar un destinatario válido.");
-    if(u.pf < escrowPf) return alert(`Fondos insuficientes. Necesitas ${escrowPf} PF para cubrir la fianza.`);
-
-    u.pf -= escrowPf;
-
-    let tradeId = "trade_" + Date.now();
-    let nuevoIntercambio = {
-        id: tradeId,
-        proponente: userSesion,
-        receptor: receptorId,
-        ofrece: ofreceTxt,     // Enviado directamente a Firebase
-        pide: pideTxt,         // Enviado directamente a Firebase
-        depositoEscrow: escrowPf,
-        estado: "evaluacion", 
-        votosSi: 0,
-        votosNo: 0,
-        registroVotos: { init: true } 
-    };
-
-    if(!baseDatos.intercambios) baseDatos.intercambios = {};
-    baseDatos.intercambios[tradeId] = nuevoIntercambio;
-
-    guardarBD();
-    
-    // Limpiar inputs
-    document.getElementById('int-txt-ofrece').value = '';
-    document.getElementById('int-txt-pide').value = '';
-    alert(`Propuesta de Trueque enviada. Se han retenido ${escrowPf} PF como aval.`);
-};
-
-window.votarIntercambio = function(tradeId, tipoVoto) {
-    if(!userSesion) return;
-    let t = baseDatos.intercambios[tradeId];
-    if(!t) return;
-
-    if(!t.registroVotos) t.registroVotos = {};
-    if(t.registroVotos[userSesion]) return alert("Ya has emitido un veredicto para esta propuesta comercial.");
-
-    t.registroVotos[userSesion] = tipoVoto;
-    if(tipoVoto === 'SI') t.votosSi = (t.votosSi || 0) + 1;
-    if(tipoVoto === 'NO') t.votosNo = (t.votosNo || 0) + 1;
-
-    guardarBD();
-};
-
-window.resolverIntercambio = function(tradeId, resultado) {
-    let t = baseDatos.intercambios[tradeId];
-    if(!t) return;
-
-    let p = baseDatos.jugadores[t.proponente];
-    let r = baseDatos.jugadores[t.receptor];
-    let deposito = parseInt(t.depositoEscrow) || 0;
-
-    if(resultado === 'EXITOSO') {
-        // Intercambio completado: la fianza del proponente va para el receptor como recompensa/incentivo
-        if(r) r.pf = (parseInt(r.pf) || 0) + deposito;
-        t.estado = "completado";
-        
-        // Log automático en el diario del proponente
-        let msgLog = `TRUEQUE COMPLETADO CON ${t.receptor.toUpperCase()}:\nEntregó: ${t.ofrece}\nRecibió: ${t.pide}`;
-        inyectarEntradaDiarioAutomatica(msgLog);
-        
-        alert("Trueque ejecutado con éxito. El aval en PF se ha transferido al receptor y se ha sellado en tu Bitácora.");
-    } else {
-        // Intercambio fallido: se devuelve el aval intacto al proponente
-        if(p) p.pf = (parseInt(p.pf) || 0) + deposito;
-        t.estado = "fallido";
-        alert("Trueque cancelado o declarado fallido. Tu aval de PF te ha sido devuelto.");
-    }
-
-    guardarBD();
-};
-
-function actualizarListaIntercambiosDOM() {
-    let box = document.getElementById('contenedor-intercambios-activos');
-    if(!box) return;
-    box.innerHTML = '';
-
-    if(!baseDatos.intercambios || Object.keys(baseDatos.intercambios).length === 0) {
-        box.innerHTML = `<div style="color:var(--texto-secundario); font-size:13px; padding:15px; text-align:center;">No hay operaciones comerciales en curso en la Cámara.</div>`;
-        return;
-    }
-
-    Object.keys(baseDatos.intercambios).forEach(id => {
-        let t = baseDatos.intercambios[id];
-        if(t.estado !== "evaluacion") return; 
-
-        let yaVoto = t.registroVotos && t.registroVotos[userSesion] ? true : false;
-        let esCreador = t.proponente === userSesion;
-
-        // Si es una propuesta antigua sin el formato nuevo, usamos un fallback
-        let textoOfrece = t.ofrece ? t.ofrece : (t.detalles || "Objeto");
-        let textoPide = t.pide ? t.pide : "Especificado por chat";
-
-        box.innerHTML += `
-            <div class="intercambio-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-family:'Orbitron'; font-size:12px; color:var(--neon-intercambio)">PROPUESTA: ${t.proponente.toUpperCase()} ➡️ ${t.receptor.toUpperCase()}</span>
-                    <div>
-                        <span class="votos-escrow" style="font-family:'Orbitron'; font-size:11px;">🛡️ Aval: ${t.depositoEscrow} PF</span>
-                        <span class="votos-si">👍 SÍ: ${t.votosSi || 0}</span>
-                        <span class="votos-no">👎 NO: ${t.votosNo || 0}</span>
-                    </div>
-                </div>
-                
-                <div style="font-size:13px; color:#fff; margin-bottom:12px; background:rgba(0,0,0,0.4); padding:10px; border-radius:6px; border:1px solid #1e293b; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><span style="color:var(--neon-legal); font-weight:bold; display:block; font-size:10px; text-transform:uppercase;">🎁 Ofrece:</span> ${textoOfrece}</div>
-                    <div style="border-left:1px dashed #2d3d5a; padding-left:10px;"><span style="color:var(--neon-packs); font-weight:bold; display:block; font-size:10px; text-transform:uppercase;">➡️ A cambio de:</span> ${textoPide}</div>
-                </div>
-
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar SÍ</button>
-                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar NO</button>
-                    
-                    ${esCreador ? `
-                        <div style="margin-left:auto; display:flex; gap:5px;">
-                            <button class="btn-accion" style="padding:6px; background:#1e3a8a; border-color:#60a5fa; color:#60a5fa; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'EXITOSO')">✔️ EJECUTAR TRUEQUE</button>
-                            <button class="btn-accion" style="padding:6px; background:#4c1d1d; border-color:#ef4444; color:#ef4444; width:auto; font-size:11px;" onclick="resolverIntercambio('${t.id}', 'FALLIDO')">❌ CANCELAR</button>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    });
-}
-</script>
-</body>
-</html>
+    if
