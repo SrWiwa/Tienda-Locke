@@ -391,7 +391,9 @@
             display: flex; align-items: center; justify-content: center;
         }
 
+        /* Oculto por defecto en CSS para evitar bypass en F12 */
         .pokeball-mercader-btn {
+            display: none;
             position: fixed; bottom: 15px; left: 15px;
             width: 45px; height: 45px; background: #fff;
             border-radius: 50%; border: 3px solid #11141d;
@@ -616,7 +618,7 @@
     </div>
 </div>
 
-<div class="pokeball-mercader-btn" title="Panel de Gestión Mercader" onclick="invocarTerminalMercader()"></div>
+<div class="pokeball-mercader-btn" id="btn-master-pokeball" title="Panel de Gestión Mercader" onclick="invocarTerminalMercader()"></div>
 
 <div class="consola-admin-screen" id="pantalla-admin-master">
     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:15px; margin-bottom:20px;">
@@ -666,7 +668,7 @@
 
             <hr style="border-color:#1e293b; margin:20px 0;">
 
-            <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">🔓 INTERRUPTORES DE RED</h3>
+            <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">📦 INTERRUPTORES DE RED</h3>
             <label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer; font-size:13px;">
                 <input type="checkbox" id="chk-open-legal" onchange="conmutarEstadoTienda('legalOpen', this.checked)"> 🟢 TIENDA LEGAL ABIERTA
             </label>
@@ -750,7 +752,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-// !!! CONFIGURACIÓN REAL DE FIREBASE ACTIVA !!!
 const firebaseConfig = {
     apiKey: "AIzaSyAgN5I8-o1WpWXfRq96FZXCF8ELmdC-ghw",
     authDomain: "tienda-pokeinomanos.firebaseapp.com",
@@ -761,7 +762,6 @@ const firebaseConfig = {
     appId: "1:481043703231:web:070be712b4b8d85d81ad0a"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -800,7 +800,6 @@ let userSesion = sessionStorage.getItem('silph_user_sesion') || null;
 const MAX_COMPRAS = 3;
 const MS_EN_6_HORAS = 6 * 60 * 60 * 1000;
 
-// OYENTE EN TIEMPO REAL
 onValue(ref(db, 'silph_co_market'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -821,12 +820,21 @@ onValue(ref(db, 'silph_co_market'), (snapshot) => {
         refrescarPantallaGamer();
         actualizarListaIntercambiosDOM();
         actualizarBannerAlertasVisuales();
+        
+        // Manejador visual seguro de la Pokéball en el refresco en tiempo real
+        const bBall = document.getElementById('btn-master-pokeball');
+        if (bBall) {
+            bBall.style.display = (userSesion.toLowerCase() === "srwiwa") ? "block" : "none";
+        }
+
         if(document.getElementById('pantalla-admin-master').style.display === 'block') {
             redibujarConsolaAdminMaster();
         }
     } else {
         document.getElementById('pantalla-lobby').style.display = 'block';
         document.getElementById('pantalla-mercado').style.display = 'none';
+        const bBall = document.getElementById('btn-master-pokeball');
+        if (bBall) bBall.style.display = "none";
     }
 });
 
@@ -868,6 +876,12 @@ window.ingresarAlSistema = function() {
     document.getElementById('pantalla-lobby').style.display = 'none';
     document.getElementById('pantalla-mercado').style.display = 'block';
 
+    // Mostrar el botón de administración única y estrictamente si eres srwiwa
+    const bBall = document.getElementById('btn-master-pokeball');
+    if (bBall) {
+        bBall.style.display = (id === "srwiwa") ? "block" : "none";
+    }
+
     actualizarComprasPorTiempo();
     cargarDatosPerfilEnDOM();
     refrescarPantallaGamer();
@@ -879,6 +893,10 @@ window.cerrarSesionOperador = function() {
     userSesion = null;
     sessionStorage.removeItem('silph_user_sesion');
     document.getElementById('perfil-desplegable').style.display = 'none';
+    
+    const bBall = document.getElementById('btn-master-pokeball');
+    if (bBall) bBall.style.display = "none";
+
     let loginInput = document.getElementById('login-nombre');
     if(loginInput) loginInput.value = '';
     document.getElementById('pantalla-mercado').style.display = 'none';
@@ -900,6 +918,7 @@ function actualizarComprasPorTiempo() {
 }
 
 window.restablecerComprasDiariasDesdeMercader = function() {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
     let targetId = document.getElementById('adm-reset-usuario').value;
     if(!targetId) return alert("Selecciona un entrenador.");
     baseDatos.jugadores[targetId].comprasDisponibles = MAX_COMPRAS;
@@ -968,10 +987,10 @@ function inyectarEntradaDiarioAutomatica(textoMsg) {
     let mes = String(d.getMonth() + 1).padStart(2, '0');
     let anio = d.getFullYear();
     let horas = String(d.getHours()).padStart(2, '0');
-    let minutos = String(d.getMinutes()).padStart(2, '0');
+    let minutes = String(d.getMinutes()).padStart(2, '0');
     let segundos = String(d.getSeconds()).padStart(2, '0');
     
-    let fechaActual = `${dia}/${mes}/${anio} ${horas}:${minutos}:${segundos}`;
+    let fechaActual = `${dia}/${mes}/${anio} ${horas}:${minutes}:${segundos}`;
     
     if(!u.diarioLogs) u.diarioLogs = [];
     u.diarioLogs.push({ timestamp: fechaActual, texto: textoMsg });
@@ -1071,6 +1090,7 @@ window.ajustarCamposFormularioMercader = function() {
 };
 
 window.inyectarObjetoNuevoMaster = function() {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
     let tienda = document.getElementById('ins-tienda').value;
     let nombre = document.getElementById('ins-nombre').value.trim();
     let precio = parseInt(document.getElementById('ins-precio').value) || 0;
@@ -1103,6 +1123,7 @@ function actualizarSelectorUsuariosBanco() {
 }
 
 window.modificarFondosEntrenador = function(op) {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
     let userId = document.getElementById('adm-banco-usuario').value;
     let cant = parseInt(document.getElementById('adm-banco-cantidad').value) || 0;
     if(!userId || cant <= 0) return alert("Revisa los campos.");
@@ -1112,7 +1133,8 @@ window.modificarFondosEntrenador = function(op) {
     document.getElementById('adm-banco-cantidad').value = '';
 };
 
-window.actualizarPropiedadProducto = function(id, prop, val) {
+window.actualizarPropertyProducto = function(id, prop, val) {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return;
     let idx = baseDatos.productos.findIndex(p => p.id === id);
     if(idx !== -1) {
         baseDatos.productos[idx][prop] = parseInt(val) || 0;
@@ -1121,6 +1143,7 @@ window.actualizarPropiedadProducto = function(id, prop, val) {
 };
 
 window.eliminarProductoMaster = function(id) {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
     if(confirm("¿Eliminar?")) {
         baseDatos.productos = baseDatos.productos.filter(p => p.id !== id);
         guardarBD();
@@ -1128,19 +1151,19 @@ window.eliminarProductoMaster = function(id) {
 };
 
 window.conmutarEstadoTienda = function(tiendaProp, estado) {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return;
     baseDatos[tiendaProp] = estado;
     guardarBD();
 };
 
-// FUNCIÓN DEL MANAGER PARA EMITIR EL EVENTO EN FIREBASE
 window.emitirOrdenEconomicaGlobal = function() {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
     let evSeleccionado = document.getElementById('adm-evento-economico').value;
     baseDatos.eventoSistema = evSeleccionado;
     guardarBD();
     alert(`Orden de Red distribuida: Estado [${evSeleccionado.toUpperCase()}] aplicado al mercado global.`);
 };
 
-// ACTUALIZA EL MARQUÉE Y LOS MENSAJES CYBERPUNK DE CABECERA
 function actualizarBannerAlertasVisuales() {
     let banner = document.getElementById('alertas-sistema-marquee');
     if(!banner) return;
@@ -1190,25 +1213,25 @@ function redibujarConsolaAdminMaster() {
                 <div class="admin-edit-row">
                     <div class="admin-edit-field">
                         <label>Coste Base</label>
-                        <input type="number" value="${esI ? p.precioPf : p.precio}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, '${esI ? 'precioPf' : 'precio'}', this.value)">
+                        <input type="number" value="${esI ? p.precioPf : p.precio}" class="admin-input-custom" oninput="actualizarPropertyProducto(${p.id}, '${esI ? 'precioPf' : 'precio'}', this.value)">
                     </div>
                     <div class="admin-edit-field">
                         <label>Stock</label>
-                        <input type="number" value="${p.stock}" class="admin-input-custom" oninput="actualizarPropiedadProducto(${p.id}, 'stock', this.value)">
+                        <input type="number" value="${p.stock}" class="admin-input-custom" oninput="actualizarPropertyProducto(${p.id}, 'stock', this.value)">
                     </div>
                 </div>
             </div>`;
     });
 }
 
+// NUEVA FUNCIÓN BLINDADA: Valida directamente por tu ID de sesión
 window.invocarTerminalMercader = function() {
-    let pass = prompt("INTRODUCE LA CLAVE DE ACCESO ALPHA-MERCADER:");
-    if(pass === "silph123") {
-        document.getElementById('pantalla-admin-master').style.display = 'block';
-        redibujarConsolaAdminMaster();
-    } else {
-        alert("ACCESO DENEGADO. CÓDIGO INCORRECTO.");
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") {
+        alert("ERROR CRÍTICO: Credenciales de Administrador corporativo no detectadas.");
+        return;
     }
+    document.getElementById('pantalla-admin-master').style.display = 'block';
+    redibujarConsolaAdminMaster();
 };
 
 window.apagarTerminalMercader = function() {
@@ -1223,7 +1246,6 @@ window.comprarObjetoGamer = function(id) {
 
     if(u.comprasDisponibles <= 0) return alert("No te quedan compras disponibles en este periodo de 6 horas.");
 
-    // Aplicar lógica económica al procesar el pago real
     let ev = baseDatos.eventoSistema || "normal";
     let precioFinalCalculado = p.precio;
     let bonoPfCalculado = p.pf || 0;
@@ -1348,7 +1370,6 @@ function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
         let bonoPf = p.pf || 0;
         let estiloColorPrecio = "color: #fff;";
 
-        // Calcular modificadores visuales en vivo según el evento actual
         if(!esI) {
             if(ev === 'rebajas') {
                 precioFinal = Math.round(p.precio * 0.75);
@@ -1391,9 +1412,6 @@ function renderizarAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
     box.innerHTML = htmlGrid;
 }
 
-// ==========================================
-// CÁMARA DE COMERCIO REFORMADA (TRUEQUES REALES)
-// ==========================================
 window.publicarPropuestaIntercambio = function() {
     if(!userSesion) return;
     let u = baseDatos.jugadores[userSesion];
