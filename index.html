@@ -171,13 +171,42 @@
             border-color: var(--neon-packs);
         }
 
-        /* SHOWDOWN TEAM CONFIG CON TEXTO DETALLADO ENRIQUECIDO */
+        /* SHOWDOWN TEAM CONFIG CON SOPORTE DE IMAGEN */
         .showdown-team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 12px;
             margin-top: 12px;
         }
+        .poke-card-showdown {
+            background: #161d30;
+            border: 1px solid #24324f;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .poke-card-info {
+            flex: 1;
+        }
+        .poke-card-gif-box {
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 9, 20, 0.6);
+            border-radius: 6px;
+            border: 1px dashed #24324f;
+        }
+        .poke-card-gif-box img {
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+        .poke-card-name { font-weight: 800; color: var(--neon-legal); font-size: 13px; margin-bottom: 4px; text-transform: uppercase;}
 
         /* BOLSA DE OBJETOS */
         .bolsa-contenedor {
@@ -393,7 +422,7 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* Botón Master Pokeball */
+        /* Oculto por defecto en CSS para evitar bypass en F12 */
         .pokeball-mercader-btn {
             display: none;
             position: fixed; bottom: 15px; left: 15px;
@@ -426,6 +455,7 @@
         .votos-no { background: #7f1d1d; color: #f87171; }
         .votos-escrow { background: #1e3a8a; color: #93c5fd; }
 
+        /* NUEVOS ESTILOS TEMÁTICOS */
         .graveyard-item {
             background: #14161d; border: 1px dashed #475569; padding: 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
         }
@@ -437,48 +467,72 @@
             background: #0f1422; color: #fff; border: 1px solid #1b4d3e; padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; font-family: 'Orbitron'; font-size: 12px; cursor: pointer;
         }
 
-        /* FORMATO EXCLUSIVO POKEMON SHOWDOWN RICHTEXT */
-        .rival-pokes-text-area {
+        /* PANEL RIVAL DE SHOWDOWN ADAPTADO PARA GIFS */
+        .red-visor-pokes-grid-custom {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
         }
-        .showdown-poke-text-card {
+        .rival-poke-mini-card {
             background: #090d16;
-            padding: 12px;
+            padding: 8px;
             border-radius: 6px;
             border: 1px solid #24324f;
-            border-left: 3px solid var(--neon-intercambio);
             color: #fff;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
-        .showdown-poke-header {
-            font-size: 13px;
-            font-weight: 800;
-            color: var(--neon-legal);
+        .rival-poke-mini-card img {
+            max-width: 45px;
+            max-height: 45px;
+            object-fit: contain;
+        }
+        .rival-poke-mini-name {
+            font-size: 10px;
+            font-weight: bold;
             text-transform: uppercase;
-            border-bottom: 1px dashed #1e293b;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
         }
-        .showdown-poke-item {
-            font-size: 11px;
-            color: var(--neon-packs);
-            margin-bottom: 4px;
+
+        /* ESTILOS PARA BAJAS PÚBLICAS EN LA RED */
+        .rival-dead-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
         }
-        .showdown-poke-detail {
-            font-size: 11px;
+        .rival-dead-card {
+            background: #150d11;
+            border: 1px dashed #ef4444;
+            padding: 10px;
+            border-radius: 6px;
+            position: relative;
+        }
+        .rival-dead-title {
+            color: #ef4444;
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .rival-dead-meta {
+            font-size: 10px;
             color: var(--texto-secundario);
-            line-height: 1.3;
+            margin-top: 2px;
         }
-        .showdown-poke-moves {
-            margin-top: 6px;
-            padding-top: 4px;
-            border-top: 1px solid #1e293b;
-        }
-        .showdown-poke-move-line {
+        .rival-dead-epitafio {
+            font-style: italic;
             font-size: 11px;
             color: #cbd5e1;
-            padding-left: 4px;
+            margin-top: 5px;
+            border-top: 1px solid rgba(239, 68, 68, 0.2);
+            padding-top: 4px;
         }
     </style>
 </head>
@@ -551,8 +605,8 @@
                     </div>
                 </div>
                 <p style="font-size:11px; color:var(--texto-secundario); margin:0 0 8px 0;">Pega aquí el código limpio de tu equipo exportado de Pokémon Showdown para la ranura seleccionada:</p>
-                <textarea id="perf-showdown-raw" class="input-textarea-custom" rows="6" placeholder="Pega el formato Showdown aquí..." oninput="parsearYRenderizarShowdown()"></textarea>
-                <div id="visualizador-showdown-team" class="showdown-team-grid" style="margin-top:15px;"></div>
+                <textarea id="perf-showdown-raw" class="input-textarea-custom" rows="4" placeholder="Pega el formato Showdown aquí..." oninput="parsearYRenderizarShowdown()"></textarea>
+                <div id="visualizador-showdown-team" class="showdown-team-grid"></div>
             </div>
 
             <div id="perf-view-progreso" class="perfil-content-view">
@@ -745,15 +799,6 @@
 
             <hr style="border-color:#1e293b; margin:20px 0;">
 
-            <h3 style="color:var(--neon-ilegal); margin-top:0; font-size:14px; font-family:'Orbitron';">⚡ REINICIAR COOLDOWN DE GACHA</h3>
-            <div style="margin-bottom:10px;">
-                <label style="font-size:11px; color:var(--texto-secundario);">Seleccionar Entrenador para habilitar Gacha:</label>
-                <select id="adm-reset-gacha-usuario" style="width:100%; padding:8px; background:#060914; color:#fff; border:1px solid #1e293b; border-radius:4px; text-transform:uppercase; font-family:'Orbitron'; font-size:12px;"></select>
-            </div>
-            <button class="btn-accion" style="background:linear-gradient(180deg, #5c134f, #310729); border-color:var(--neon-ilegal); color:var(--neon-ilegal); font-size:11px; margin-bottom:20px;" onclick="restablecerGachaDiarioDesdeMercader()">⚡ REINICIAR GACHA MANUALMENTE</button>
-
-            <hr style="border-color:#1e293b; margin:20px 0;">
-
             <h3 style="color:var(--neon-legal); margin-top:0; font-size:14px; font-family:'Orbitron';">💰 AJUSTAR EFECTIVO ENTRENADORES</h3>
             <div style="margin-bottom:10px;">
                 <label style="font-size:11px; color:var(--texto-secundario);">Seleccionar Entrenador:</label>
@@ -903,11 +948,22 @@ let filtroCategoriaGlobal = "";
 const MAX_COMPRAS = 3;
 const MS_EN_6_HORAS = 6 * 60 * 60 * 1000;
 
+// MEJORA TÉCNICA 2: SANITIZACIÓN ANTI-XSS NATIVA
 function escaparHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>'"]/g, 
         tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
     );
+}
+
+// NUEVA FUNCIÓN EXTRACTORA DE ID DE POKÉMON PARA LA URL DE ANIMACIÓN DE POKEAPI
+function limpiarNombrePokemonParaUrl(nombreCompleto) {
+    let base = nombreCompleto.split('(')[0].trim().split('-')[0].trim().toLowerCase();
+    base = base.replace(/[.:'’ ]/g, '');
+    if (base === 'meowstic') return 'meowstic-male';
+    if (base === 'pumpkaboo') return 'pumpkaboo-average';
+    if (base === 'gourgeist') return 'gourgeist-average';
+    return base;
 }
 
 onValue(ref(db, 'silph_co_market'), (snapshot) => {
@@ -1039,15 +1095,6 @@ window.restablecerComprasDiariasDesdeMercader = function() {
     alert("Compras reiniciadas globalmente.");
 };
 
-window.restablecerGachaDiarioDesdeMercader = function() {
-    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
-    let targetId = document.getElementById('adm-reset-gacha-usuario').value;
-    if(!targetId) return alert("Selecciona un entrenador.");
-    baseDatos.jugadores[targetId].ultimoHackeo = 0;
-    guardarBD();
-    alert("Sistemas reconfigurados. El Gacha de " + targetId.toUpperCase() + " ha sido reiniciado.");
-};
-
 window.conmutarCajaPerfil = function() {
     let box = document.getElementById('perfil-desplegable');
     box.style.display = (box.style.display === 'block') ? 'none' : 'block';
@@ -1170,7 +1217,7 @@ window.guardarVidasPerfilGamer = function() {
     u.vidasActuales = parseInt(document.getElementById('perf-txt-vidas').innerText);
     if (u.vidasActuales <= 0) u.lockeStatus = 'perdido';
     guardarBD();
-    alert("Contador de vidas sincronizado con el servidor de la corporación.");
+    alert("Contador de vidas synchronized con el servidor de la corporación.");
 };
 
 window.alterarTorneosPerfil = function(v) {
@@ -1203,65 +1250,72 @@ window.registrarBajaPokemon = function() {
     alert("Pérdida registrada en el Cementerio y sellada permanentemente en la Bitácora.");
 };
 
+function renderizamientoInternoShowdownPlano(rawShowdown) {
+    if(!rawShowdown || rawShowdown === "Sin datos" || !rawShowdown.trim()) return '<span style="color:var(--texto-secundario);">No hay datos de Showdown.</span>';
+    let pokesRaw = rawShowdown.split(/\n\s*\n/);
+    let html = '<div class="red-visor-pokes-grid-custom">';
+    pokesRaw.forEach(bloque => {
+        let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if(lineas.length === 0) return;
+        let nom = lineas[0].split('@')[0].trim();
+        let apiName = limpiarNombrePokemonParaUrl(lineas[0]);
+        let urlGif = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${apiName}.gif`;
+        
+        html += `
+            <div class="rival-poke-mini-card">
+                <img src="${urlGif}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; this.onerror=null;">
+                <div class="rival-poke-mini-name">${escaparHTML(nom.split('(')[0].trim())}</div>
+            </div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+// RENDERIZADO DEL BUSCADOR DE SHOWDOWN PROPIO (FICHA TÉCNICA LOCAL)
 window.parsearYRenderizarShowdown = function() {
     let raw = document.getElementById('perf-showdown-raw').value;
-    let view = document.getElementById('visualizador-showdown-team');
-    if(view) view.innerHTML = renderizamientoInternoShowdownPlano(raw);
-};
+    let box = document.getElementById('visualizador-showdown-team');
+    if(!box) return; box.innerHTML = '';
+    if(!raw || !raw.trim()) return;
 
-// MOTOR DETALLADO DE SHOWDOWN SIN USO DE APIS EXTERNAS NI IMÁGENES REQUERIDAS
-function renderizamientoInternoShowdownPlano(rawShowdown) {
-    if(!rawShowdown || rawShowdown === "Sin datos" || !rawShowdown.trim()) {
-        return '<span style="color:var(--texto-secundario); font-size:12px; display:block; grid-column:span 2; padding:10px;">Sin información en la ranura de red.</span>';
-    }
-
-    let pokesRaw = rawShowdown.trim().split(/\n\s*\n/);
-    let html = '<div class="rival-pokes-text-area" style="width:100%;">';
-    
+    let pokesRaw = raw.split(/\n\s*\n/);
     pokesRaw.forEach(bloque => {
         let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if(lineas.length === 0) return;
         
         let primeraLinea = lineas[0];
         let objeto = "";
-        
-        if (primeraLinea.includes('@')) {
-            let sp = primeraLinea.split('@');
-            primeraLinea = sp[0].trim();
-            objeto = sp[1].trim();
+        if(primeraLinea.includes('@')) {
+            let partesObj = primeraLinea.split('@');
+            objeto = partesObj[1].trim();
+            primeraLinea = partesObj[0].trim();
         }
         
-        let nombrePkmn = primeraLinea;
-        let detallesCompilados = "";
-        let lineasMovimientos = [];
-        
-        for (let i = 1; i < lineas.length; i++) {
-            let curr = lineas[i];
-            if (curr.startsWith('-')) {
-                lineasMovimientos.push(`<div class="showdown-poke-move-line">⚔️ ${escaparHTML(curr.substring(1).trim())}</div>`);
-            } else {
-                detallesCompilados += `<div class="showdown-poke-detail">🔹 ${escaparHTML(curr)}</div>`;
-            }
-        }
-        
-        html += `
-            <div class="showdown-poke-text-card">
-                <div class="showdown-poke-header">${escaparHTML(nombrePkmn)}</div>
-                ${objeto ? `<div class="showdown-poke-item">📦 ${escaparHTML(objeto)}</div>` : ''}
-                <div style="margin-top:4px; margin-bottom:4px;">${detallesCompilados}</div>
-                ${lineasMovimientos.length > 0 ? `
-                    <div class="showdown-poke-moves">
-                        <div style="font-size:10px; opacity:0.5; font-weight:bold; text-transform:uppercase; margin-bottom:2px;">Movimientos:</div>
-                        ${lineasMovimientos.join('')}
-                    </div>
-                ` : ''}
-            </div>
-        `;
+        let nombreMuestra = primeraLinea;
+        let apiName = limpiarNombrePokemonParaUrl(primeraLinea);
+        let urlGif = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${apiName}.gif`;
+
+        let moves = [];
+        lineas.forEach(l => {
+            if(l.startsWith('-')) moves.push(l.replace('-', '').trim());
+        });
+
+        let movesHTML = moves.map(m => `<div style="color:var(--texto-secundario); font-size:11px;">• ${escaparHTML(m)}</div>`).join('');
+        let txtObj = objeto ? `<div style="color:var(--neon-packs); font-size:11px; font-weight:bold;">Item: ${escaparHTML(objeto)}</div>` : '';
+
+        box.innerHTML += `
+            <div class="poke-card-showdown">
+                <div class="poke-card-gif-box">
+                    <img src="${urlGif}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; this.onerror=null;">
+                </div>
+                <div class="poke-card-info">
+                    <div class="poke-card-name">${escaparHTML(nombreMuestra)}</div>
+                    ${txtObj}
+                    <div style="margin-top:4px; display:grid; grid-template-columns:1fr 1fr; gap:2px;">${movesHTML}</div>
+                </div>
+            </div>`;
     });
-    
-    html += '</div>';
-    return html;
-}
+};
 
 function renderizarCementerioDOM() {
     let u = baseDatos.jugadores[userSesion];
@@ -1283,7 +1337,6 @@ function renderizarCementerioDOM() {
     });
 }
 
-// NUEVO REPROGRAMADO COMPLETO DEL GACHA CORPORATIVO ALEATORIO
 window.reclamarHackeoDiario = function() {
     let u = baseDatos.jugadores[userSesion];
     let ahora = Date.now();
@@ -1296,66 +1349,24 @@ window.reclamarHackeoDiario = function() {
     }
 
     u.ultimoHackeo = ahora;
-    
-    // Categorías del Gacha
-    const categoriasPosibles = ['pokedolares', 'pf', 'pokeball', 'curacion', 'baya', 'competitivo', 'combate'];
-    let seleccion = categoriasPosibles[Math.floor(Math.random() * categoriasPosibles.length)];
+    let numRand = Math.random();
     let premioMsg = "";
 
-    if (seleccion === 'pokedolares') {
-        let monto = Math.floor(Math.random() * (10000 - 250 + 1)) + 250;
-        u.dinero += monto;
-        premioMsg = `Fallo en el servidor financiero: Se han inyectado de forma oculta +${monto} P₠ en tus balances de red.`;
-    } 
-    else if (seleccion === 'pf') {
-        let puntos = Math.floor(Math.random() * (10 - 1 + 1)) + 1;
-        u.pf += puntos;
-        premioMsg = `Desvío de credenciales: Se han asignado +${puntos} PF (Puntos de Favor) a tu ID de operador.`;
-    } 
-    else {
+    if(numRand < 0.4) {
+        u.dinero += 250;
+        premioMsg = "Hackeo Exitoso: Se han inyectado +250 P₠ en tus balances de red.";
+    } else if(numRand < 0.8) {
+        u.pf += 1;
+        premioMsg = "Acceso Concedido: Se ha transferido +1 Punto de Favor (PF) corporativo.";
+    } else {
         if(!u.inventario) u.inventario = [];
-        let objNombre = "";
-        let objIcon = "📦";
-
-        if (seleccion === 'pokeball') {
-            const pool = ['Poké Ball', 'Super Ball', 'Ultra Ball', 'Master Ball', 'Fast Ball', 'Heavy Ball', 'Level Ball', 'Lure Ball', 'Moon Ball', 'Friend Ball', 'Love Ball', 'Safari Ball', 'Sport Ball', 'Premier Ball', 'Repeat Ball', 'Timer Ball', 'Nest Ball', 'Net Ball', 'Dive Ball', 'Luxury Ball', 'Heal Ball', 'Quick Ball', 'Dusk Ball', 'Dream Ball', 'Beast Ball'];
-            objNombre = pool[Math.floor(Math.random() * pool.length)];
-            objIcon = "🌐";
-        } 
-        else if (seleccion === 'curacion') {
-            const pool = ['Poción', 'Superpoción', 'Hiperpoción', 'Poción Máxima', 'Restaurar Todo', 'Revivir', 'Revivir Máximo', 'Antídoto', 'Antiparalizante', 'Despertar', 'Anti-quemaduras', 'Antihielo', 'Cura Total', 'Elixir', 'Éter'];
-            objNombre = pool[Math.floor(Math.random() * pool.length)];
-            objIcon = "🧪";
-        } 
-        else if (seleccion === 'baya') {
-            const pool = ['Baya Aranja', 'Baya Zidra', 'Baya Atania', 'Baya Meloc', 'Baya Alis', 'Baya Perasi', 'Baya Safre', 'Baya Aspe', 'Baya Zanama', 'Baya lichi', 'Baya Salac', 'Baya Aslac'];
-            objNombre = pool[Math.floor(Math.random() * pool.length)];
-            objIcon = "🫐";
-        } 
-        else if (seleccion === 'competitivo') {
-            const pool = ['Vidasfera', 'Banda Focus', 'Gafas Elegidas', 'Pañuelo Elegido', 'Cinta Elegida', 'Chaleco Asalto', 'Mineral Evolutivo', 'Restos', 'Casco Dentado', 'Seguro Debilidad', 'Botas Gruesas', 'Amuleto Transparente', 'Dado Trucado'];
-            objNombre = pool[Math.floor(Math.random() * pool.length)];
-            objIcon = "🎗️";
-        } 
-        else if (seleccion === 'combate') {
-            const pool = ['Ataque X', 'Defensa X', 'Especial X', 'Def. Esp. X', 'Velocidad X', 'Precisión X', 'Directo', 'Protector Total'];
-            objNombre = pool[Math.floor(Math.random() * pool.length)];
-            objIcon = "🔴";
-        }
-
-        u.inventario.push({ 
-            uid: "gacha_" + Date.now() + "_" + Math.floor(Math.random() * 1000), 
-            nombre: objNombre, 
-            icon: objIcon, 
-            fecha: new Date().toLocaleDateString() 
-        });
-        premioMsg = `Suministro de Red Interceptado: Se ha transferido 1x [${objNombre}] a tu mochila de provisiones.`;
+        u.inventario.push({ uid: "item_" + Date.now(), nombre: "Buceo Ball (Gacha)", icon: "🌐", fecha: new Date().toLocaleDateString() });
+        premioMsg = "Robo de Suministros: Has interceptado 1 Buceo Ball directamente en tu mochila.";
     }
 
-    // Registro automático al diario inmutable
-    inyectarEntradaDiarioAutomatica(`[SISTEMA GACHA] Recompensa extraída: ${premioMsg}`);
+    inyectarEntradaDiarioAutomatica(`[RECOMPENSA DIARIA] ${premioMsg}`);
     guardarBD();
-    alert(`¡SISTEMA GACHA ACCIONADO!\n\n${premioMsg}`);
+    alert(`¡HACKEO EJECUTADO!\n${premioMsg}`);
 };
 
 window.aplicarFiltroCategoriaLegal = function() {
@@ -1403,15 +1414,13 @@ window.inyectarObjetoNuevoMaster = function() {
 function actualizarSelectorUsuariosBanco() {
     let sb = document.getElementById('adm-banco-usuario');
     let sr = document.getElementById('adm-reset-usuario');
-    let sg = document.getElementById('adm-reset-gacha-usuario');
-    if(!sb || !sr || !sg) return;
-    sb.innerHTML = ''; sr.innerHTML = ''; sg.innerHTML = '';
+    if(!sb || !sr) return;
+    sb.innerHTML = ''; sr.innerHTML = '';
     
     Object.keys(baseDatos.jugadores).forEach(id => {
         let u = baseDatos.jugadores[id];
         sb.innerHTML += `<option value="${id}">${id.toUpperCase()} (${u.dinero} P₠)</option>`;
         sr.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
-        sg.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
     });
 }
 
@@ -1595,6 +1604,7 @@ window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
     }
 };
 
+// MODIFICADO: EL PANEL MONITOR AHORA INYECTA TAMBIÉN LAS BAJAS COMPLETAS DEL ENTRENADOR SELECCIONADO
 window.renderizarVisorRivalPublico = function() {
     let selector = document.getElementById('red-select-jugador');
     let target = selector.value;
@@ -1619,19 +1629,40 @@ window.renderizarVisorRivalPublico = function() {
         </div>
     `;
 
-    let slotSelectHTML = `<select id="red-visor-slot-team" onchange="renderizarSubRanuraRivalShowdown('${target}')" style="background:#060914; color:#fff; padding:6px; border-radius:4px; font-size:11px; margin-bottom:8px; width:100%;">`;
+    let slotSelectHTML = `<select id="red-visor-slot-team" onchange="renderizarSubRanuraRivalShowdown('${target}')" style="background:#060914; color:#fff; padding:4px; border-radius:4px; font-size:11px; margin-bottom:8px; width:100%;">`;
     for(let i=1; i<=10; i++) {
         slotSelectHTML += `<option value="${i}">Ver Equipo Ranura ${i}</option>`;
     }
     slotSelectHTML += `</select>`;
 
+    // GENERACIÓN COMPLETA DE MÓDULO PÚBLICO DEL CEMENTERIO DEL ENTRENADOR
+    let deadHTML = `<div style="margin-top:15px; border-top:1px solid #1e293b; padding-top:12px;">
+                        <h5 style="margin:0 0 8px 0; font-family:'Orbitron'; color:#ef4444; font-size:12px; text-transform:uppercase;">💀 Historial de Bajas (Cementerio)</h5>`;
+    if(!r.cementerio || r.cementerio.length === 0) {
+        deadHTML += `<div style="font-size:11px; color:var(--texto-secundario); font-style:italic;">Este entrenador no ha registrado ninguna baja en este Locke.</div>`;
+    } else {
+        deadHTML += `<div class="rival-dead-grid">`;
+        r.cementerio.forEach(b => {
+            deadHTML += `
+                <div class="rival-dead-card">
+                    <div class="rival-dead-title">💀 ${escaparHTML(b.nombre)}</div>
+                    <div class="rival-dead-meta">Caído en: ${escaparHTML(b.ruta)}</div>
+                    <div class="rival-dead-meta">Fecha: ${escaparHTML(b.fecha)}</div>
+                    <div class="rival-dead-epitafio">"${escaparHTML(b.epitafio)}"</div>
+                </div>`;
+        });
+        deadHTML += `</div>`;
+    }
+    deadHTML += `</div>`;
+
     let htmlEquipos = `
         <div style="background:#0f1422; border:1px solid #1e293b; padding:15px; border-radius:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #1e293b; padding-bottom:6px;">
-                <h4 style="margin:0; font-family:'Orbitron'; color:#fff; font-size:13px;">DESPLIEGUE SHOWDOWN (FULL INFO)</h4>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h4 style="margin:0; font-family:'Orbitron'; color:#fff; font-size:13px;">DESPLIEGUE SHOWDOWN</h4>
                 <div style="width:140px;">${slotSelectHTML}</div>
             </div>
             <div id="red-visor-pokes-area"></div>
+            ${deadHTML}
         </div>
     `;
 
@@ -1707,7 +1738,7 @@ function renderAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
     box.innerHTML = '';
 
     if(estaAbierta === false) {
-        box.innerHTML = `<div class="tienda-cerrada-msg">🔒 Red Cerrada temporalmente por el Administrator</div>`;
+        box.innerHTML = `<div class="tienda-cerrada-msg">🔒 Red Cerrada temporalmente por el Administrador</div>`;
         return;
     }
 
@@ -1728,7 +1759,7 @@ function renderAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
     let htmlGrid = '<div class="items-grid">';
     
     prods.forEach(p => {
-        let esI = tiendaTipo === 'illegal';
+        let esI = p.tienda === 'illegal';
         let precioFinal = p.precio;
         let bonoPf = p.pf || 0;
         let estiloColorPrecio = "color: #fff;";
@@ -1829,6 +1860,15 @@ window.votarIntercambio = function(tradeId, tipoVoto) {
     if(tipoVoto === 'NO') t.votosNo = (t.votosNo || 0) + 1;
 
     guardarBD();
+};
+
+window.updatePropertyProducto = function(id, prop, val) {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return;
+    let idx = baseDatos.productos.findIndex(p => p.id === id);
+    if(idx !== -1) {
+        baseDatos.productos[idx][prop] = parseInt(val) || 0;
+        guardarBD();
+    }
 };
 
 window.resolverIntercambio = function(tradeId, resultado) {
