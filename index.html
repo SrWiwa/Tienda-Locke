@@ -958,11 +958,18 @@ function escaparHTML(str) {
 
 // NUEVA FUNCIÓN EXTRACTORA DE ID DE POKÉMON PARA LA URL DE ANIMACIÓN DE POKEAPI
 function limpiarNombrePokemonParaUrl(nombreCompleto) {
-    let base = nombreCompleto.split('(')[0].trim().split('-')[0].trim().toLowerCase();
-    base = base.replace(/[.:'’ ]/g, '');
+    // Intentar extraer el nombre entre el primer par de paréntesis
+    const match = nombreCompleto.match(/\(([^)]+)\)/);
+    
+    // Si hay paréntesis, el nombre está ahí; si no, es el nombre directamente
+    let base = (match ? match[1] : nombreCompleto).trim().toLowerCase();
+
+    base = base.replace(/[.:'' ]/g, '');
+
     if (base === 'meowstic') return 'meowstic-male';
     if (base === 'pumpkaboo') return 'pumpkaboo-average';
     if (base === 'gourgeist') return 'gourgeist-average';
+
     return base;
 }
 
