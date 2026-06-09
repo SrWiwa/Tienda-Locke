@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Comercial y Registro de Entrenadores - Silph Co.</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Changa:wght=400;600;800&family=Orbitron:wght=500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap');
 
         :root {
             --bg-principal: #060914;
@@ -171,7 +171,7 @@
             border-color: var(--neon-packs);
         }
 
-        /* SHOWDOWN TEAM CONFIG CON SOPORTE DE IMAGEN */
+        /* SHOWDOWN TEAM CONFIG - SOLO TEXTO */
         .showdown-team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -182,31 +182,29 @@
             background: #161d30;
             border: 1px solid #24324f;
             border-radius: 6px;
-            padding: 12px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            padding: 14px;
+            font-size: 13px;
+            line-height: 1.55;
         }
-        .poke-card-info {
-            flex: 1;
+        .poke-card-name { 
+            font-weight: 800; 
+            color: var(--neon-legal); 
+            font-size: 15px; 
+            margin-bottom: 6px; 
+            text-transform: uppercase;
         }
-        .poke-card-gif-box {
-            width: 65px;
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(6, 9, 20, 0.6);
-            border-radius: 6px;
-            border: 1px dashed #24324f;
+        .poke-item { 
+            color: var(--neon-packs); 
+            font-weight: bold; 
+            margin-bottom: 4px; 
         }
-        .poke-card-gif-box img {
-            max-width: 60px;
-            max-height: 60px;
-            object-fit: contain;
+        .poke-moves { 
+            margin-top: 8px; 
         }
-        .poke-card-name { font-weight: 800; color: var(--neon-legal); font-size: 13px; margin-bottom: 4px; text-transform: uppercase;}
+        .poke-move { 
+            color: var(--texto-secundario); 
+            font-size: 12.5px; 
+        }
 
         /* BOLSA DE OBJETOS */
         .bolsa-contenedor {
@@ -467,38 +465,19 @@
             background: #0f1422; color: #fff; border: 1px solid #1b4d3e; padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; font-family: 'Orbitron'; font-size: 12px; cursor: pointer;
         }
 
-        /* PANEL RIVAL DE SHOWDOWN ADAPTADO PARA GIFS */
+        /* PANEL RIVAL DE SHOWDOWN - SOLO TEXTO */
         .red-visor-pokes-grid-custom {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 8px;
-        }
-        .rival-poke-mini-card {
-            background: #090d16;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #24324f;
-            color: #fff;
-            text-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
+            gap: 10px;
         }
-        .rival-poke-mini-card img {
-            max-width: 45px;
-            max-height: 45px;
-            object-fit: contain;
-        }
-        .rival-poke-mini-name {
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            width: 100%;
+        .rival-poke-text {
+            background: #0f1422;
+            border-left: 4px solid var(--neon-legal);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         /* ESTILOS PARA BAJAS PÚBLICAS EN LA RED */
@@ -1240,71 +1219,92 @@ window.registrarBajaPokemon = function() {
     alert("Pérdida registrada en el Cementerio y sellada permanentemente en la Bitácora.");
 };
 
-function renderizamientoInternoShowdownPlano(rawShowdown) {
-    if(!rawShowdown || rawShowdown === "Sin datos" || !rawShowdown.trim()) return '<span style="color:var(--texto-secundario);">No hay datos de Showdown.</span>';
+// NUEVA FUNCIÓN SOLO TEXTO PARA PERFIL
+function parsearEquipoSoloTexto(rawShowdown) {
+    if(!rawShowdown || rawShowdown === "Sin datos" || !rawShowdown.trim()) 
+        return '<span style="color:var(--texto-secundario);">No hay datos de equipo.</span>';
+
     let pokesRaw = rawShowdown.split(/\n\s*\n/);
-    let html = '<div class="red-visor-pokes-grid-custom">';
+    let html = '';
+
     pokesRaw.forEach(bloque => {
         let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if(lineas.length === 0) return;
-        let nom = lineas[0].split('@')[0].trim();
-        let apiName = limpiarNombrePokemonParaUrl(lineas[0]);
-        let urlGif = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${apiName}.gif`;
-        
+
+        let primeraLinea = lineas[0];
+        let item = '';
+        if(primeraLinea.includes('@')) {
+            let partes = primeraLinea.split('@');
+            item = partes[1].trim();
+            primeraLinea = partes[0].trim();
+        }
+
+        let nombre = primeraLinea.split('(')[0].trim();
+        let moves = lineas.filter(l => l.startsWith('-')).map(l => l.replace('-', '').trim());
+
         html += `
-            <div class="rival-poke-mini-card">
-                <img src="${urlGif}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; this.onerror=null;">
-                <div class="rival-poke-mini-name">${escaparHTML(nom.split('(')[0].trim())}</div>
+            <div class="poke-card-showdown">
+                <div class="poke-card-name">${escaparHTML(nombre)}</div>
+                ${item ? `<div class="poke-item">@ ${escaparHTML(item)}</div>` : ''}
+                <div class="poke-moves">
+                    ${moves.map(m => `<div class="poke-move">• ${escaparHTML(m)}</div>`).join('')}
+                </div>
             </div>`;
     });
+    return html;
+}
+
+window.parsearYRenderizarShowdown = function() {
+    let raw = document.getElementById('perf-showdown-raw').value;
+    let box = document.getElementById('visualizador-showdown-team');
+    if(!box) return;
+    box.innerHTML = parsearEquipoSoloTexto(raw);
+};
+
+// NUEVA FUNCIÓN SOLO TEXTO PARA RED DE ENTRENADORES
+function renderizamientoInternoShowdownPlano(rawShowdown) {
+    if(!rawShowdown || rawShowdown === "Sin datos" || !rawShowdown.trim()) 
+        return '<span style="color:var(--texto-secundario);">No hay datos de equipo.</span>';
+
+    let pokesRaw = rawShowdown.split(/\n\s*\n/);
+    let html = '<div class="red-visor-pokes-grid-custom">';
+
+    pokesRaw.forEach(bloque => {
+        let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if(lineas.length === 0) return;
+
+        let primeraLinea = lineas[0];
+        let item = '';
+        if(primeraLinea.includes('@')) {
+            let partes = primeraLinea.split('@');
+            item = partes[1].trim();
+            primeraLinea = partes[0].trim();
+        }
+
+        let nombre = primeraLinea.split('(')[0].trim();
+        let moves = lineas.filter(l => l.startsWith('-')).map(l => l.replace('-', '').trim());
+
+        html += `
+            <div class="rival-poke-text">
+                <strong>${escaparHTML(nombre)}</strong>
+                ${item ? `<br><span style="color:var(--neon-packs)">@ ${escaparHTML(item)}</span>` : ''}
+                <div style="margin-top:6px;">
+                    ${moves.map(m => `<div style="color:var(--texto-secundario);">• ${escaparHTML(m)}</div>`).join('')}
+                </div>
+            </div>`;
+    });
+
     html += '</div>';
     return html;
 }
 
-// RENDERIZADO DEL BUSCADOR DE SHOWDOWN PROPIO (FICHA TÉCNICA LOCAL)
-window.parsearYRenderizarShowdown = function() {
-    let raw = document.getElementById('perf-showdown-raw').value;
-    let box = document.getElementById('visualizador-showdown-team');
-    if(!box) return; box.innerHTML = '';
-    if(!raw || !raw.trim()) return;
-
-    let pokesRaw = raw.split(/\n\s*\n/);
-    pokesRaw.forEach(bloque => {
-        let lineas = bloque.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if(lineas.length === 0) return;
-        
-        let primeraLinea = lineas[0];
-        let objeto = "";
-        if(primeraLinea.includes('@')) {
-            let partesObj = primeraLinea.split('@');
-            objeto = partesObj[1].trim();
-            primeraLinea = partesObj[0].trim();
-        }
-        
-        let nombreMuestra = primeraLinea;
-        let apiName = limpiarNombrePokemonParaUrl(primeraLinea);
-        let urlGif = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${apiName}.gif`;
-
-        let moves = [];
-        lineas.forEach(l => {
-            if(l.startsWith('-')) moves.push(l.replace('-', '').trim());
-        });
-
-        let movesHTML = moves.map(m => `<div style="color:var(--texto-secundario); font-size:11px;">• ${escaparHTML(m)}</div>`).join('');
-        let txtObj = objeto ? `<div style="color:var(--neon-packs); font-size:11px; font-weight:bold;">Item: ${escaparHTML(objeto)}</div>` : '';
-
-        box.innerHTML += `
-            <div class="poke-card-showdown">
-                <div class="poke-card-gif-box">
-                    <img src="${urlGif}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png'; this.onerror=null;">
-                </div>
-                <div class="poke-card-info">
-                    <div class="poke-card-name">${escaparHTML(nombreMuestra)}</div>
-                    ${txtObj}
-                    <div style="margin-top:4px; display:grid; grid-template-columns:1fr 1fr; gap:2px;">${movesHTML}</div>
-                </div>
-            </div>`;
-    });
+window.renderizarSubRanuraRivalShowdown = function(targetUser) {
+    let slotIdx = parseInt(document.getElementById('red-visor-slot-team').value) - 1;
+    let r = baseDatos.jugadores[targetUser];
+    let area = document.getElementById('red-visor-pokes-area');
+    if(!area) return;
+    let rawTeam = (r.showdownEquipos && r.showdownEquipos[slotIdx]) ? r.showdownEquipos[slotIdx] : "Sin datos";
+    area.innerHTML = renderizamientoInternoShowdownPlano(rawTeam);
 };
 
 function renderizarCementerioDOM() {
@@ -1594,7 +1594,6 @@ window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
     }
 };
 
-// MODIFICADO: EL PANEL MONITOR AHORA INYECTA TAMBIÉN LAS BAJAS COMPLETAS DEL ENTRENADOR SELECCIONADO
 window.renderizarVisorRivalPublico = function() {
     let selector = document.getElementById('red-select-jugador');
     let target = selector.value;
@@ -1625,7 +1624,6 @@ window.renderizarVisorRivalPublico = function() {
     }
     slotSelectHTML += `</select>`;
 
-    // GENERACIÓN COMPLETA DE MÓDULO PÚBLICO DEL CEMENTERIO DEL ENTRENADOR
     let deadHTML = `<div style="margin-top:15px; border-top:1px solid #1e293b; padding-top:12px;">
                         <h5 style="margin:0 0 8px 0; font-family:'Orbitron'; color:#ef4444; font-size:12px; text-transform:uppercase;">💀 Historial de Bajas (Cementerio)</h5>`;
     if(!r.cementerio || r.cementerio.length === 0) {
@@ -1658,15 +1656,6 @@ window.renderizarVisorRivalPublico = function() {
 
     box.innerHTML = htmlPerfil + htmlEquipos;
     renderizarSubRanuraRivalShowdown(target);
-};
-
-window.renderizarSubRanuraRivalShowdown = function(targetUser) {
-    let slotIdx = parseInt(document.getElementById('red-visor-slot-team').value) - 1;
-    let r = baseDatos.jugadores[targetUser];
-    let area = document.getElementById('red-visor-pokes-area');
-    if(!area) return;
-    let rawTeam = (r.showdownEquipos && r.showdownEquipos[slotIdx]) ? r.showdownEquipos[slotIdx] : "Sin datos";
-    area.innerHTML = renderizamientoInternoShowdownPlano(rawTeam);
 };
 
 function renderInitializeLoaders() {
