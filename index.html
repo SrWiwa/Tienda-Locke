@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Comercial y Registro de Entrenadores - Silph Co.</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Changa:wght@400;600;800&family=Orbitron:wght@500;700;900&family=Press+Start+2P&display=swap');
 
         :root {
             --bg-principal: #060914;
@@ -31,8 +31,12 @@
 
         * { 
             box-sizing: border-box; 
-            font-family: 'Changa', sans-serif;
+            font-family: 'Press Start 2P', sans-serif;
             letter-spacing: 0.5px;
+        }
+
+        h1, h2, h3, h4, .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
         }
 
         body {
@@ -769,6 +773,15 @@
 
             <hr style="border-color:#1e293b; margin:20px 0;">
 
+            <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">🔄 REINICIO DE GACHA DIARIO</h3>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:11px; color:var(--texto-secundario);">Seleccionar Entrenador para resetear Gacha:</label>
+                <select id="adm-reset-gacha-usuario" style="width:100%; padding:8px; background:#060914; color:#fff; border:1px solid #1e293b; border-radius:4px; text-transform:uppercase; font-family:'Orbitron'; font-size:12px;"></select>
+            </div>
+            <button class="btn-accion" style="background:#22c55e; border-color:#22c55e; color:#000; font-size:11px; margin-bottom:20px;" onclick="reiniciarGachaDiarioAdmin()">🔄 REINICIAR GACHA DIARIO</button>
+
+            <hr style="border-color:#1e293b; margin:20px 0;">
+
             <h3 style="color:var(--neon-packs); margin-top:0; font-size:14px; font-family:'Orbitron';">🔄 RESTABLECER COMPRAS DIARIAS</h3>
             <div style="margin-bottom:10px;">
                 <label style="font-size:11px; color:var(--texto-secundario);">Seleccionar Entrenador para resetear:</label>
@@ -935,6 +948,60 @@ function escaparHTML(str) {
     );
 }
 
+// GACHA ITEMS - GEN 1 A 7 (Alola)
+const gachaItems = [
+    {nombre: "Baya Atania", icon: "🫐"},
+    {nombre: "Baya Oran", icon: "🍊"},
+    {nombre: "Baya Lum", icon: "🍒"},
+    {nombre: "Baya Aranja", icon: "🍊"},
+    {nombre: "Baya Perasi", icon: "🍐"},
+    {nombre: "Baya Zanama", icon: "🍉"},
+    {nombre: "Baya Ziuela", icon: "🍇"},
+    {nombre: "Baya Higog", icon: "🍓"},
+    {nombre: "Baya Wiki", icon: "🥝"},
+    {nombre: "Baya Magno", icon: "🥭"},
+    {nombre: "Baya Guaya", icon: "🍍"},
+    {nombre: "Baya Cactus", icon: "🌵"},
+    {nombre: "Baya Baya", icon: "🍓"},
+    {nombre: "Baya Pomelo", icon: "🍊"},
+    {nombre: "Baya Frambu", icon: "🍓"},
+    {nombre: "Baya Latano", icon: "🍌"},
+    {nombre: "Baya Perula", icon: "🍐"},
+    {nombre: "Baya Pome", icon: "🍎"},
+    {nombre: "Baya Pomelo", icon: "🍊"},
+    {nombre: "Buceo Ball", icon: "🌊"},
+    {nombre: "Nivel Ball", icon: "⭐"},
+    {nombre: "Veloz Ball", icon: "⚡"},
+    {nombre: "Cebo Ball", icon: "🐟"},
+    {nombre: "Dusk Ball", icon: "🌙"},
+    {nombre: "Heal Ball", icon: "❤️"},
+    {nombre: "Quick Ball", icon: "🏃"},
+    {nombre: "Timer Ball", icon: "⏱️"},
+    {nombre: "Ultra Ball", icon: "🔴"},
+    {nombre: "Master Ball", icon: "⭐"},
+    {nombre: "Cuerda Huida", icon: "🪢"},
+    {nombre: "Repelente", icon: "🧴"},
+    {nombre: "Super Repelente", icon: "🧴"},
+    {nombre: "X Ataque", icon: "🔴"},
+    {nombre: "X Defensa", icon: "🛡️"},
+    {nombre: "X Velocidad", icon: "⚡"},
+    {nombre: "X Especial", icon: "🔮"},
+    {nombre: "X Precisión", icon: "🎯"},
+    {nombre: "Banda Focus", icon: "🎗️"},
+    {nombre: "Gafas Elegidas", icon: "🕶️"},
+    {nombre: "Chaleco Asalto", icon: "🥋"},
+    {nombre: "Vida Esfera", icon: "🌍"},
+    {nombre: "Piedra Fuego", icon: "🔥"},
+    {nombre: "Piedra Agua", icon: "💧"},
+    {nombre: "Piedra Trueno", icon: "⚡"},
+    {nombre: "Piedra Hoja", icon: "🍃"},
+    {nombre: "Piedra Lunar", icon: "🌕"},
+    {nombre: "Piedra Alba", icon: "🌅"},
+    {nombre: "Piedra Noche", icon: "🌑"},
+    {nombre: "Piedra Dusk", icon: "🌆"},
+    {nombre: "Piedra Hielo", icon: "❄️"}
+];
+
 onValue(ref(db, 'silph_co_market'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -1064,6 +1131,17 @@ window.restablecerComprasDiariasDesdeMercader = function() {
     alert("Compras reiniciadas globalmente.");
 };
 
+window.reiniciarGachaDiarioAdmin = function() {
+    if (!userSesion || userSesion.toLowerCase() !== "srwiwa") return alert("Acceso denegado.");
+    let targetId = document.getElementById('adm-reset-gacha-usuario').value;
+    if(!targetId) return alert("Selecciona un entrenador.");
+    if(baseDatos.jugadores[targetId]) {
+        baseDatos.jugadores[targetId].ultimoHackeo = 0;
+        guardarBD();
+        alert(`Gacha diario reiniciado para ${targetId.toUpperCase()}.`);
+    }
+};
+
 window.conmutarCajaPerfil = function() {
     let box = document.getElementById('perfil-desplegable');
     box.style.display = (box.style.display === 'block') ? 'none' : 'block';
@@ -1099,7 +1177,7 @@ function redibujarHistorialDiario() {
         boxLogs.innerHTML = '<span style="color:var(--texto-secundario); font-size:12px; text-align:center; padding:20px;">Bitácora vacía.</span>';
     } else {
         logsFiltrados.forEach(log => {
-            boxLogs.innerHTML += `<div class="diario-entrada-item"><div class="diario-entrada-fecha">📅 ${escaparHTML(log.timestamp)}</div><div class="diario-entrada-texto">${escaparHTML(log.texto)}</div></div>`;
+            boxLogs.innerHTML += `<div class="diario-entrada-item"><div class="diario-entrada-fecha">📅 \( {escaparHTML(log.timestamp)}</div><div class="diario-entrada-texto"> \){escaparHTML(log.texto)}</div></div>`;
         });
     }
     boxLogs.scrollTop = boxLogs.scrollHeight;
@@ -1128,7 +1206,7 @@ function inyectarEntradaDiarioAutomatica(textoMsg) {
     let minutes = String(d.getMinutes()).padStart(2, '0');
     let segundos = String(d.getSeconds()).padStart(2, '0');
     
-    let fechaActual = `${dia}/${mes}/${anio} ${horas}:${minutes}:${segundos}`;
+    let fechaActual = `\( {dia}/ \){mes}/${anio} \( {horas}: \){minutes}:${segundos}`;
     
     if(!u.diarioLogs) u.diarioLogs = [];
     u.diarioLogs.push({ timestamp: fechaActual, text: textoMsg, texto: textoMsg });
@@ -1208,7 +1286,7 @@ window.registrarBajaPokemon = function() {
     let baja = { nombre: nom, ruta: ruta, epitafio: epitafio || "Sin epitafio.", fecha: new Date().toLocaleDateString() };
     u.cementerio.push(baja);
 
-    let logBaja = `💀 RIP: '${nom}' cayó en combate contra/en [${ruta}]. Epitafio: "${epitafio || '...'}"`;
+    let logBaja = `💀 RIP: '\( {nom}' cayó en combate contra/en [ \){ruta}]. Epitafio: "${epitafio || '...'}"`;
     inyectarEntradaDiarioAutomatica(logBaja);
 
     guardarBD();
@@ -1320,7 +1398,7 @@ function renderizarCementerioDOM() {
             <div class="graveyard-item">
                 <div>
                     <span style="color:#ef4444; font-weight:bold; font-size:13px;">💀 ${escaparHTML(b.nombre)}</span>
-                    <span style="color:var(--texto-secundario); font-size:11px;"> en ${escaparHTML(b.ruta)} (${escaparHTML(b.fecha)})</span>
+                    <span style="color:var(--texto-secundario); font-size:11px;"> en \( {escaparHTML(b.ruta)} ( \){escaparHTML(b.fecha)})</span>
                     <div style="font-style:italic; font-size:12px; color:#cbd5e1; margin-top:2px;">"${escaparHTML(b.epitafio)}"</div>
                 </div>
             </div>`;
@@ -1340,23 +1418,21 @@ window.reclamarHackeoDiario = function() {
 
     u.ultimoHackeo = ahora;
     let numRand = Math.random();
-    let premioMsg = "";
+    let premio = gachaItems[Math.floor(Math.random() * gachaItems.length)];
 
-    if(numRand < 0.4) {
-        u.dinero += 250;
-        premioMsg = "Hackeo Exitoso: Se han inyectado +250 P₠ en tus balances de red.";
-    } else if(numRand < 0.8) {
-        u.pf += 1;
-        premioMsg = "Acceso Concedido: Se ha transferido +1 Punto de Favor (PF) corporativo.";
-    } else {
-        if(!u.inventario) u.inventario = [];
-        u.inventario.push({ uid: "item_" + Date.now(), nombre: "Buceo Ball (Gacha)", icon: "🌐", fecha: new Date().toLocaleDateString() });
-        premioMsg = "Robo de Suministros: Has interceptado 1 Buceo Ball directamente en tu mochila.";
-    }
+    if(!u.inventario) u.inventario = [];
+    u.inventario.push({ 
+        uid: "item_" + Date.now(), 
+        nombre: premio.nombre, 
+        icon: premio.icon, 
+        fecha: new Date().toLocaleDateString() 
+    });
 
-    inyectarEntradaDiarioAutomatica(`[RECOMPENSA DIARIA] ${premioMsg}`);
+    let premioMsg = `¡Obtuviste ${premio.icon} ${premio.nombre}!`;
+
+    inyectarEntradaDiarioAutomatica(`[RECOMPENSA GACHA] ${premioMsg}`);
     guardarBD();
-    alert(`¡HACKEO EJECUTADO!\n${premioMsg}`);
+    alert(`¡GACHA EJECUTADO!\n${premioMsg}`);
 };
 
 window.aplicarFiltroCategoriaLegal = function() {
@@ -1404,13 +1480,16 @@ window.inyectarObjetoNuevoMaster = function() {
 function actualizarSelectorUsuariosBanco() {
     let sb = document.getElementById('adm-banco-usuario');
     let sr = document.getElementById('adm-reset-usuario');
+    let sg = document.getElementById('adm-reset-gacha-usuario');
     if(!sb || !sr) return;
-    sb.innerHTML = ''; sr.innerHTML = '';
-    
+    sb.innerHTML = ''; sr.innerHTML = ''; 
+    if(sg) sg.innerHTML = '';
+
     Object.keys(baseDatos.jugadores).forEach(id => {
         let u = baseDatos.jugadores[id];
-        sb.innerHTML += `<option value="${id}">${id.toUpperCase()} (${u.dinero} P₠)</option>`;
-        sr.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
+        sb.innerHTML += `<option value="\( {id}"> \){id.toUpperCase()} (${u.dinero} P₠)</option>`;
+        sr.innerHTML += `<option value="\( {id}"> \){id.toUpperCase()}</option>`;
+        if(sg) sg.innerHTML += `<option value="\( {id}"> \){id.toUpperCase()}</option>`;
     });
 }
 
@@ -1501,15 +1580,15 @@ function redibujarConsolaAdminMaster() {
         al.innerHTML += `
             <div class="admin-card-inner">
                 <button class="btn-delete-admin" onclick="eliminarProductoMaster(${p.id})">X</button>
-                <div style="color:#fff; font-size:13px;">${p.icon} ${p.nombre} [${p.tienda.toUpperCase()}]</div>
+                <div style="color:#fff; font-size:13px;">${p.icon} \( {p.nombre} [ \){p.tienda.toUpperCase()}]</div>
                 <div class="admin-edit-row">
                     <div class="admin-edit-field">
                         <label>Coste Base</label>
-                        <input type="number" value="${esI ? p.precioPf : p.precio}" class="admin-input-custom" oninput="actualizarPropertyProducto(${p.id}, '${esI ? 'precioPf' : 'precio'}', this.value)">
+                        <input type="number" value="\( {esI ? p.precioPf : p.precio}" class="admin-input-custom" oninput="actualizarPropertyProducto( \){p.id}, '${esI ? 'precioPf' : 'precio'}', this.value)">
                     </div>
                     <div class="admin-edit-field">
                         <label>Stock</label>
-                        <input type="number" value="${p.stock}" class="admin-input-custom" oninput="actualizarPropertyProducto(${p.id}, 'stock', this.value)">
+                        <input type="number" value="\( {p.stock}" class="admin-input-custom" oninput="actualizarPropertyProducto( \){p.id}, 'stock', this.value)">
                     </div>
                 </div>
             </div>`;
@@ -1547,7 +1626,7 @@ window.comprarObjetoGamer = function(id) {
         if(ev === 'bonus_pf') bonoPfCalculado = (p.pf || 0) * 2;
     }
 
-    let txtCoste = p.tienda === 'illegal' ? `${p.precioPf} PF` : `${precioFinalCalculado} P₠`;
+    let txtCoste = p.tienda === 'illegal' ? `\( {p.precioPf} PF` : ` \){precioFinalCalculado} P₠`;
 
     if(!confirm(`¿Deseas autorizar el desembolso por la adquisición de ${p.nombre} con un costo de ${txtCoste}?`)) return;
 
@@ -1555,12 +1634,12 @@ window.comprarObjetoGamer = function(id) {
     if(p.tienda === 'illegal') {
         if(u.pf < p.precioPf) return alert("No tienes suficientes Puntos de Favor (PF).");
         u.pf -= p.precioPf;
-        txtBitacora = `Adquirió modulo prohibido: ${p.icon} '${p.nombre}' utilizando un coste de ${p.precioPf} PF.`;
+        txtBitacora = `Adquirió modulo prohibido: \( {p.icon} ' \){p.nombre}' utilizando un coste de ${p.precioPf} PF.`;
     } else {
         if(u.dinero < precioFinalCalculado) return alert("No tienes suficiente dinero (P₠).");
         u.dinero -= precioFinalCalculado;
         u.pf += bonoPfCalculado;
-        txtBitacora = `Adquirió artículo: ${p.icon} '${p.nombre}' en el mercado por un coste de ${precioFinalCalculado} P₠ (Bono: +${bonoPfCalculado} PF).`;
+        txtBitacora = `Adquirió artículo: \( {p.icon} ' \){p.nombre}' en el mercado por un coste de \( {precioFinalCalculado} P₠ (Bono: + \){bonoPfCalculado} PF).`;
     }
 
     p.stock--;
@@ -1584,7 +1663,7 @@ window.consumirObjetoMochilaGamer = function(itemUid, itemNombre, itemIcon) {
     if(index !== -1) {
         u.inventario.splice(index, 1);
 
-        let txtConsumo = `Utilizó el objeto ${itemIcon} '${itemNombre}' desde su mochila de suministros. El objeto ha sido consumido.`;
+        let txtConsumo = `Utilizó el objeto \( {itemIcon} ' \){itemNombre}' desde su mochila de suministros. El objeto ha sido consumido.`;
         inyectarEntradaDiarioAutomatica(txtConsumo);
 
         guardarBD();
@@ -1611,7 +1690,7 @@ window.renderizarVisorRivalPublico = function() {
         <div style="background:#0f1422; border:1px solid #1e293b; padding:15px; border-radius:8px; height:fit-content;">
             <h4 style="margin:0 0 10px 0; font-family:'Orbitron'; color:var(--neon-intercambio); font-size:14px;">ESTADO OPERATIVO: ${escaparHTML(target.toUpperCase())}</h4>
             <div style="font-size:12px; margin-bottom:6px;">REPUTACIÓN: <span style="color:var(--neon-packs); font-weight:bold;">${r.pf || 0} PF</span></div>
-            <div style="font-size:12px; margin-bottom:6px;">VIDAS: <span style="color:#ef4444; font-weight:bold;">❤️ ${r.vidasActuales || 0}/${r.vidasTotales || 20}</span></div>
+            <div style="font-size:12px; margin-bottom:6px;">VIDAS: <span style="color:#ef4444; font-weight:bold;">❤️ \( {r.vidasActuales || 0}/ \){r.vidasTotales || 20}</span></div>
             <div style="font-size:12px; margin-bottom:6px;">DESAFÍO: <span style="color:#fff; font-weight:bold;">${statusTexto}</span></div>
             <div style="font-size:12px; margin-bottom:6px;">LOGROS MEDALLAS: <span style="color:var(--neon-legal); font-weight:bold;">${r.numMedallas || 0}/8</span></div>
             <div style="font-size:12px;">TORNEOS GANADOS: <span style="color:#fff; font-weight:bold;">${r.torneos || 0}</span></div>
@@ -1671,7 +1750,7 @@ function refrescarPantallaGamer() {
     document.getElementById('usr-nombre').innerText = userSesion.toUpperCase();
     document.getElementById('usr-dinero').innerText = u.dinero;
     document.getElementById('usr-pf').innerText = u.pf;
-    document.getElementById('usr-compras').innerText = `${u.comprasDisponibles}/${MAX_COMPRAS}`;
+    document.getElementById('usr-compras').innerText = `\( {u.comprasDisponibles}/ \){MAX_COMPRAS}`;
 
     let invBox = document.getElementById('lista-inventario');
     invBox.innerHTML = '';
@@ -1683,7 +1762,7 @@ function refrescarPantallaGamer() {
             invBox.innerHTML += `
                 <div class="mochila-item-tag" title="Adquirido el: ${escaparHTML(i.fecha)}">
                     <span>${escaparHTML(i.icon) || '📦'} ${escaparHTML(i.nombre)}</span>
-                    <button class="btn-usar-item" onclick="consumirObjetoMochilaGamer('${i.uid}', '${escaparHTML(i.nombre)}', '${escaparHTML(i.icon) || '📦'}')">Usar</button>
+                    <button class="btn-usar-item" onclick="consumirObjetoMochilaGamer('\( {i.uid}', ' \){escaparHTML(i.nombre)}', '${escaparHTML(i.icon) || '📦'}')">Usar</button>
                 </div>`;
         });
     }
@@ -1699,9 +1778,9 @@ function refrescarPantallaGamer() {
         redSelectRival.innerHTML = '<option value="">-- SELECCIONAR ENTRENADOR RIVAL --</option>';
         
         Object.keys(baseDatos.jugadores).forEach(id => {
-            redSelectRival.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
+            redSelectRival.innerHTML += `<option value="\( {id}"> \){id.toUpperCase()}</option>`;
             if(id !== userSesion) {
-                receptorSelect.innerHTML += `<option value="${id}">${id.toUpperCase()}</option>`;
+                receptorSelect.innerHTML += `<option value="\( {id}"> \){id.toUpperCase()}</option>`;
             }
         });
         if(currentFav) receptorSelect.value = currentFav;
@@ -1756,7 +1835,7 @@ function renderAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
             }
         }
 
-        let txtCoste = esI ? `${p.precioPf} PF` : `${precioFinal} P₠`;
+        let txtCoste = esI ? `\( {p.precioPf} PF` : ` \){precioFinal} P₠`;
         let txtBonoDisplay = (!esI && bonoPf > 0) ? `<div style="font-size:10px; color:var(--neon-ilegal); margin-top:2px;">+${bonoPf} PF (Bono)</div>` : '';
         
         let txtDetalle = p.desc ? `<div class="item-desc">${escaparHTML(p.desc)}</div>` : '';
@@ -1779,7 +1858,7 @@ function renderAparadorPublico(tiendaTipo, contenedorId, estaAbierta) {
                 <div>
                     <div style="font-size:11px; margin-bottom:8px; font-family:'Orbitron'; ${estiloColorPrecio}">PRECIO: ${txtCoste} ${txtBonoDisplay}</div>
                     <div style="font-size:11px; color:var(--texto-secundario); margin-bottom:8px; font-family:'Orbitron'">STOCK DISPONIBLE: ${p.stock}</div>
-                    <button class="btn-accion" ${deshabilitado} onclick="comprarObjetoGamer(${p.id})">${txtBoton}</button>
+                    <button class="btn-accion" \( {deshabilitado} onclick="comprarObjetoGamer( \){p.id})">${txtBoton}</button>
                 </div>
             </div>`;
     });
@@ -1912,8 +1991,8 @@ function actualizarListaIntercambiosDOM() {
                 </div>
 
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'SI')">👍 Votar SÍ</button>
-                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" ${yaVoto ? 'disabled' : ''} onclick="votarIntercambio('${t.id}', 'NO')">👎 Votar NO</button>
+                    <button class="btn-accion" style="padding:6px; background:#064e3b; border-color:#10b981; color:#10b981; width:auto;" \( {yaVoto ? 'disabled' : ''} onclick="votarIntercambio(' \){t.id}', 'SI')">👍 Votar SÍ</button>
+                    <button class="btn-accion" style="padding:6px; background:#7f1d1d; border-color:#f87171; color:#f87171; width:auto;" \( {yaVoto ? 'disabled' : ''} onclick="votarIntercambio(' \){t.id}', 'NO')">👎 Votar NO</button>
                     
                     ${esCreador ? `
                         <div style="margin-left:auto; display:flex; gap:5px;">
@@ -1928,4 +2007,4 @@ function actualizarListaIntercambiosDOM() {
 }
 </script>
 </body>
-</html>
+                    </html>
