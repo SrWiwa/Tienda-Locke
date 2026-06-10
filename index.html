@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokeinomano’s Shop SA</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <style>
@@ -63,11 +62,11 @@
             background: #000;
             border: 1px solid var(--text-admin);
             color: var(--text-admin);
-            font-family: monospace;
-            padding: 0.5rem 0.8rem;
+            font-size: 1.3rem;
+            padding: 0.4rem 0.7rem;
             cursor: pointer;
             border-radius: 4px;
-            display: none; /* Se activa mediante JS si el UID/Email coincide con SrWiwa */
+            display: none; /* Controlado por JS según el ID introducido */
         }
 
         nav {
@@ -129,7 +128,7 @@
             width: 100%;
         }
 
-        /* CONFIGURACIONES DE TEMAS COMPLEMENTARIOS */
+        /* TEMAS ADICIONALES */
         .illegal-mode { background-color: var(--bg-illegal) !important; color: var(--text-illegal) !important; }
         .illegal-mode .product-card { background: var(--card-illegal); border-color: var(--border-illegal); }
         .illegal-mode .product-card button { background: transparent; border: 1px solid var(--accent-illegal); color: var(--accent-illegal); }
@@ -154,10 +153,10 @@
     <header id="main-header">
         <div class="logo"><h2>Pokeinomano’s Shop SA</h2></div>
         <div class="user-status">
-            <span id="display-username">Cargando sesión...</span>
+            <span id="display-username">Identifícate en el Lobby</span>
             <span>💵 <span id="display-pokedolares">0</span></span>
             <span>🔮 <span id="display-pf">0</span> PF</span>
-            <button class="admin-btn" id="admin-trigger-btn" onclick="switchView('view-admin')">☠️ [SYSTEM_ROOT]</button>
+            <button class="admin-btn" id="admin-trigger-btn" onclick="switchView('view-admin')" title="Panel de Control">👨‍💻</button>
             <button onclick="logout()" id="logout-btn" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px; display:none;">Salir</button>
         </div>
     </header>
@@ -172,19 +171,14 @@
     </nav>
 
     <section id="view-lobby" class="view-section active">
-        <h2>Acceso Obligatorio en la Nube</h2>
-        <p>Inicia sesión o regístrate para sincronizar tu progreso en tiempo real.</p>
+        <h2>Acceso Directo al Servidor</h2>
+        <p>Introduce tu nombre o ID de jugador para recuperar tu perfil en la nube.</p>
         <div style="max-width: 350px; background: white; padding: 2rem; border-radius: 8px; color:#0f172a; border: 1px solid #e2e8f0;">
-            <div style="margin-bottom:1rem;">
-                <label style="display:block; font-size:0.85rem; margin-bottom:0.3rem;">Correo Electrónico:</label>
-                <input type="email" id="auth-email" style="width:100%; padding:0.5rem; box-sizing:border-box;">
-            </div>
             <div style="margin-bottom:1.5rem;">
-                <label style="display:block; font-size:0.85rem; margin-bottom:0.3rem;">Contraseña:</label>
-                <input type="password" id="auth-password" style="width:100%; padding:0.5rem; box-sizing:border-box;">
+                <label style="display:block; font-size:0.85rem; margin-bottom:0.5rem; font-weight:bold;">ID de Jugador (Solo letras):</label>
+                <input type="text" id="auth-player-id" placeholder="Ej: SrWiwa o Jose" style="width:100%; padding:0.6rem; box-sizing:border-box; border:1px solid #cbd5e1; border-radius:4px; font-size:1rem;">
             </div>
-            <button onclick="login()" style="width:100%; padding:0.7rem; background:#3b82f6; color:white; border:none; font-weight:bold; cursor:pointer; margin-bottom:0.5rem;">Iniciar Sesión</button>
-            <button onclick="register()" style="width:100%; padding:0.7rem; background:#10b981; color:white; border:none; font-weight:bold; cursor:pointer;">Crear Nueva Cuenta</button>
+            <button onclick="loginWithPlayerID()" style="width:100%; padding:0.7rem; background:#3b82f6; color:white; border:none; font-weight:bold; cursor:pointer; border-radius:4px; font-size:1rem;">Conectarse</button>
         </div>
     </section>
 
@@ -199,13 +193,13 @@
     </section>
 
     <section id="view-tienda-ilegal" class="view-section">
-        <h2>🕵️‍♂️ Mercado Negro de Ilegalidades (Sincronizado por PF)</h2>
+        <h2>🕵️‍♂️ Mercado Negro de Ilegalidades</h2>
         <div class="grid-products" id="container-ilegal"></div>
     </section>
 
     <section id="view-perfil" class="view-section" style="background: white; color: #0f172a; padding: 2rem; border-radius:8px;">
-        <h2>Ficha de Entrenador Nube</h2>
-        <p><strong>ID Único Base de Datos:</strong> <span id="perf-uid" style="font-family:monospace;">-</span></p>
+        <h2>Ficha de Entrenador</h2>
+        <p><strong>ID de Jugador Activo:</strong> <span id="perf-uid" style="font-family:monospace; font-weight:bold;">-</span></p>
         
         <h3>Vidas del Locke</h3>
         <div class="life-bar-container"><div id="user-life-bar" class="life-bar"></div></div>
@@ -238,7 +232,7 @@
         <div class="admin-dashboard">
             <div class="admin-module">
                 <h3>Gestión Remota de Usuarios</h3>
-                <input type="text" id="adm-user-uid" placeholder="UID del Usuario de Firebase" style="width:100%; padding:0.4rem; margin-bottom:0.5rem; background:#000; color:var(--text-admin); border:1px solid var(--text-admin);"><br>
+                <input type="text" id="adm-user-uid" placeholder="ID del Jugador" style="width:100%; padding:0.4rem; margin-bottom:0.5rem; background:#000; color:var(--text-admin); border:1px solid var(--text-admin);"><br>
                 <input type="number" id="adm-amount" placeholder="Cantidad" style="width:100%; padding:0.4rem; margin-bottom:0.5rem; background:#000; color:var(--text-admin); border:1px solid var(--text-admin);"><br>
                 <button onclick="adminGiveMoney('pokedolares')">Inyectar Pokédólares</button>
                 <button onclick="adminGiveMoney('pf')">Inyectar PF</button>
@@ -260,7 +254,7 @@
 
     <script>
         // ==========================================
-        // 1. CONFIGURACIÓN DE TU PROYECTO FIREBASE
+        // CONFIGURACIÓN DE TU PROYECTO FIREBASE
         // ==========================================
         const firebaseConfig = {
             apiKey: "TU_API_KEY_AQUÍ",
@@ -271,104 +265,93 @@
             appId: "TU_APP_ID"
         };
         
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Email del Administrador Principal
-        const ADMIN_EMAIL = "srwiwa@gmail.com"; 
-
+        let currentUserID = null;
         let userRef = null;
         let userData = {};
 
         // ==========================================
-        // 2. OBSERVADOR DE SESIÓN (AUTENTICACIÓN REMOTA)
+        // NUEVA FUNCIÓN DE ACCESO DIRECTO POR JUGADOR ID
         // ==========================================
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                // Usuario logueado
-                document.getElementById('perf-uid').innerText = user.uid;
-                document.getElementById('logout-btn').style.display = 'inline-block';
-                document.getElementById('main-nav').style.display = 'flex';
-                
-                // Mostrar botón hacker secreto si el email es del SrWiwa
-                if(user.email === ADMIN_EMAIL) {
-                    document.getElementById('admin-trigger-btn').style.display = 'inline-block';
-                }
-
-                // Enlace directo en tiempo real a su documento en Firestore
-                userRef = db.collection("usuarios").doc(user.uid);
-                
-                // Escuchar datos del usuario en tiempo real desde la nube
-                userRef.onSnapshot(doc => {
-                    if(doc.exists) {
-                        userData = doc.data();
-                        document.getElementById('display-username').innerText = "Entrenador: " + user.email.split('@')[0];
-                        document.getElementById('display-pokedolares').innerText = userData.pokedolares;
-                        document.getElementById('display-pf').innerText = userData.pf;
-                        
-                        // Actualizar barra de vidas dinámicamente
-                        let pct = (userData.vidas / 5) * 100;
-                        document.getElementById('user-life-bar').style.width = pct + "%";
-                    } else {
-                        // Crear perfil inicial en la nube si es nuevo
-                        userRef.set({
-                            pokedolares: 1500,
-                            pf: 10,
-                            vidas: 5,
-                            torneos: 0
-                        });
-                    }
-                });
-
-                // Cargar datos comunes
-                syncCatalogos();
-                syncDiarioLocke();
-                syncCementerio();
-                switchView('view-tienda-legal');
-            } else {
-                // Sin sesión
-                document.getElementById('display-username').innerText = "Entrenador: Invitado";
-                document.getElementById('logout-btn').style.display = 'none';
-                document.getElementById('admin-trigger-btn').style.display = 'none';
-                document.getElementById('main-nav').style.display = 'none';
-                switchView('view-lobby');
+        function loginWithPlayerID() {
+            let rawID = document.getElementById('auth-player-id').value.trim();
+            
+            // Validar que solo contenga letras usando expresiones regulares
+            if(!/^[a-zA-ZñÑáéíóúÁÉÍÓÚ]+$/.test(rawID)) {
+                alert("Por favor, introduce un ID válido que contenga solo letras.");
+                return;
             }
-        });
 
-        // ==========================================
-        // 3. MÉTODOS DE AUTENTICACIÓN (NUBE)
-        // ==========================================
-        function register() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then(() => alert("Cuenta creada con éxito en la nube de Firebase."))
-                .catch(err => alert("Error: " + err.message));
-        }
+            // Normalizar a minúsculas para evitar duplicados por fallos de tipografía
+            currentUserID = rawID.toLowerCase();
 
-        function login() {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-password').value;
-            auth.signInWithEmailAndPassword(email, pass)
-                .catch(err => alert("Error de acceso: " + err.message));
+            // Configurar visibilidad de elementos básicos de navegación
+            document.getElementById('perf-uid').innerText = rawID; 
+            document.getElementById('logout-btn').style.display = 'inline-block';
+            document.getElementById('main-nav').style.display = 'flex';
+            
+            // Activar botón con la "cara hacker" exclusivamente si eres srwiwa
+            if(currentUserID === "srwiwa") {
+                document.getElementById('admin-trigger-btn').style.display = 'inline-block';
+            } else {
+                document.getElementById('admin-trigger-btn').style.display = 'none';
+            }
+
+            // Enlazar directamente al documento de la colección de usuarios en la nube
+            userRef = db.collection("usuarios").doc(currentUserID);
+            
+            // Escuchar cambios en tiempo real en la base de datos
+            userRef.onSnapshot(doc => {
+                if(doc.exists) {
+                    userData = doc.data();
+                    document.getElementById('display-username').innerText = "Entrenador: " + rawID;
+                    document.getElementById('display-pokedolares').innerText = userData.pokedolares;
+                    document.getElementById('display-pf').innerText = userData.pf;
+                    
+                    let pct = (userData.vidas / 5) * 100;
+                    document.getElementById('user-life-bar').style.width = pct + "%";
+                } else {
+                    // Si el ID es totalmente nuevo, creamos su ficha en Firestore automáticamente
+                    userRef.set({
+                        nombreOriginal: rawID,
+                        pokedolares: 1500,
+                        pf: 10,
+                        vidas: 5,
+                        torneos: 0
+                    });
+                }
+            });
+
+            // Arrancar sincronizaciones globales del servidor
+            syncCatalogos();
+            syncDiarioLocke();
+            syncCementerio();
+            switchView('view-tienda-legal');
         }
 
         function logout() {
-            auth.signOut();
+            currentUserID = null;
+            userRef = null;
+            userData = {};
+            document.getElementById('display-username').innerText = "Identifícate en el Lobby";
+            document.getElementById('logout-btn').style.display = 'none';
+            document.getElementById('admin-trigger-btn').style.display = 'none';
+            document.getElementById('main-nav').style.display = 'none';
+            document.getElementById('auth-player-id').value = "";
+            switchView('view-lobby');
         }
 
         // ==========================================
-        // 4. TRANSACCIONES Y COMPRAS SINCRONIZADAS
+        // FUNCIONALIDADES EXTRA (SE MANTIENEN VINCULADAS AL JUGADOR ID)
         // ==========================================
         function buyItem(id, precio, moneda, stockActual) {
+            if (!currentUserID) return;
             if (stockActual <= 0) return alert("Producto agotado.");
-            
             if (moneda === 'pokedolares' && userData.pokedolares < precio) return alert("Falta presupuesto.");
             if (moneda === 'pf' && userData.pf < precio) return alert("Puntos de Favor insuficientes.");
 
-            // Descontar saldo del usuario
             let nuevoSaldo = (moneda === 'pokedolares') ? (userData.pokedolares - precio) : (userData.pf - precio);
             
             db.runTransaction(transaction => {
@@ -378,40 +361,35 @@
                     transaction.update(db.collection("productos").doc(id), { stock: nuevoStock });
                 });
             }).then(() => {
-                // Registrar log directamente en la colección global inmutable de Firebase
                 db.collection("diariolocke").add({
-                    usuario: auth.currentUser.email,
+                    usuario: userData.nombreOriginal,
                     accion: `Compró ${id} por ${precio} ${moneda}`,
                     fecha: new Date().toLocaleString()
                 });
                 alert("Compra guardada en la nube con éxito.");
-            }).catch(err => alert("Error en transacción: " + err.message));
+            }).catch(err => alert("Error: " + err.message));
         }
 
         function submitDeath() {
+            if (!currentUserID) return;
             const mote = document.getElementById('death-mote').value;
             const motivo = document.getElementById('death-motivo').value;
             const dedicatoria = document.getElementById('death-dedicatoria').value;
 
             if(!mote || !motivo) return alert("Rellena los datos.");
 
-            let nuevasVidas = userData.vidas - 1;
+            userRef.update({ vidas: userData.vidas - 1 });
 
-            // Restar vida en el documento en la nube
-            userRef.update({ vidas: nuevasVidas });
-
-            // Añadir al cementerio global de la base de datos
             db.collection("cementerio").add({
-                usuario: auth.currentUser.email,
+                usuario: userData.nombreOriginal,
                 mote: mote,
                 motivo: motivo,
                 dedicatoria: dedicatoria,
                 fecha: new Date().toLocaleString()
             });
 
-            // Registrar en DiarioLocke remoto
             db.collection("diariolocke").add({
-                usuario: auth.currentUser.email,
+                usuario: userData.nombreOriginal,
                 accion: `MUERTE POQUÉMON: ${mote}. Motivo: ${motivo}`,
                 fecha: new Date().toLocaleString()
             });
@@ -419,9 +397,6 @@
             document.getElementById('death-form').style.display = 'none';
         }
 
-        // ==========================================
-        // 5. SINCRONIZADORES EN TIEMPO REAL (LISTENERS CLOUD)
-        // ==========================================
         function syncCatalogos() {
             db.collection("productos").onSnapshot(snapshot => {
                 document.getElementById('container-legal').innerHTML = "";
@@ -464,7 +439,7 @@
                     const d = doc.data();
                     lista.innerHTML += `
                         <div class="gravestone">
-                            <h4>"${d.mote}" de ${d.usuario.split('@')[0]}</h4>
+                            <h4>"${d.mote}" de ${d.usuario}</h4>
                             <p>Causa: ${d.motivo}</p>
                             <p><i>"${d.dedicatoria}"</i></p>
                             <small>${d.fecha}</small>
@@ -473,9 +448,6 @@
             });
         }
 
-        // ==========================================
-        // 6. HERRAMIENTAS EXCLUSIVAS DEL ADMIN (SRWIWA)
-        // ==========================================
         function adminUploadProduct() {
             const nombre = document.getElementById('p-name').value;
             const categoria = document.getElementById('p-cat').value;
@@ -489,20 +461,21 @@
         }
 
         function adminGiveMoney(moneda) {
-            const uid = document.getElementById('adm-user-uid').value;
+            const targetUID = document.getElementById('adm-user-uid').value.trim().toLowerCase();
             const amount = parseInt(document.getElementById('adm-amount').value);
             
-            db.collection("usuarios").doc(uid).get().then(doc => {
+            db.collection("usuarios").doc(targetUID).get().then(doc => {
                 if(doc.exists) {
                     let actual = doc.data()[moneda] || 0;
-                    db.collection("usuarios").doc(uid).update({
+                    db.collection("usuarios").doc(targetUID).update({
                         [moneda]: actual + amount
-                    }).then(() => alert("Fondos inyectados remotamente en la cuenta del usuario."));
+                    }).then(() => alert("Fondos inyectados remotamente."));
+                } else {
+                    alert("El ID de ese jugador no existe en la base de datos.");
                 }
             });
         }
 
-        // Navegación SPA Básica
         function switchView(viewId) {
             document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
             document.querySelectorAll('#main-nav button').forEach(btn => btn.classList.remove('active'));
